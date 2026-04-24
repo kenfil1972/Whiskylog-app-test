@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.17</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest">
+  <title>WhiskyLog v1.18</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=118">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=118">
 </head>
 <body>
 <div class="app">
@@ -32,28 +32,36 @@
         <p>Track unopened, opened and empty bottles with tastings, images, notes and weight-based volume.</p>
       </div>
 
-      <div class="grid three bottle-status-grid">
-        <button class="card action category-action bottle-status-card" data-go="unopened">
-          <div class="status-copy">
-            <span class="status-icon">📦</span>
-            <strong>Unopened bottles</strong>
-            <small>Stored bottles not yet tasted</small>
+      <div class="grid three" id="statusCardsGrid">
+        <button class="card action category-action" data-go="unopened" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span style="display:inline-block;line-height:1;">📦</span>
+              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Unopened bottles</strong>
+            </div>
+            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Stored bottles not yet tasted</small>
           </div>
           <div class="mini-bottle-strip" id="homeUnopenedImages"></div>
         </button>
-        <button class="card action category-action bottle-status-card" data-go="opened">
-          <div class="status-copy">
-            <span class="status-icon">🥃</span>
-            <strong>Opened bottles</strong>
-            <small>Bottles currently in use</small>
+
+        <button class="card action category-action" data-go="opened" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span style="display:inline-block;line-height:1;">🥃</span>
+              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Opened bottles</strong>
+            </div>
+            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Bottles currently in use</small>
           </div>
           <div class="mini-bottle-strip" id="homeOpenedImages"></div>
         </button>
-        <button class="card action category-action bottle-status-card" data-go="empty">
-          <div class="status-copy">
-            <span class="status-icon">🗃️</span>
-            <strong>Empty bottles</strong>
-            <small>Archive and final notes</small>
+
+        <button class="card action category-action" data-go="empty" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+              <span style="display:inline-block;line-height:1;">🗃️</span>
+              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Empty bottles</strong>
+            </div>
+            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Archive and final notes</small>
           </div>
           <div class="mini-bottle-strip" id="homeEmptyImages"></div>
         </button>
@@ -305,6 +313,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js"></script>
+<script src="/Whiskylog-app-test/app.js?v=118"></script>
 </body>
 </html>

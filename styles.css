@@ -169,3 +169,15 @@ canvas{
     grid-template-columns:1fr auto !important;
   }
 }
+
+/* v1.18 hard status card fix */
+#statusCardsGrid .category-action small{
+  display:block !important;
+  clear:both !important;
+  color:#d5b88f !important;
+  white-space:normal !important;
+}
+#statusCardsGrid .category-action strong{
+  display:block !important;
+  color:#fff !important;
+}

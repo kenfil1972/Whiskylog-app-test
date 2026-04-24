@@ -1,3 +1,11 @@
+# WhiskyLog v1.18 Hard Layout Fix
+
+Hard fix:
+- Replaced the three home status cards with explicit inline layout.
+- Added cache-busting query strings for CSS/JS/manifest.
+- Added strong CSS override.
+- This should visibly change the status-card text layout even if previous CSS is cached.
+
 # WhiskyLog v1.17 Layout Fixed
 
 Fix:
