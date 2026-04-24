@@ -1,3 +1,21 @@
+# WhiskyLog v1.40 Empty Logic Fixed
+
+Fixes:
+- Corrected early Empty bottles bug.
+- When current weight exists, remaining volume is now calculated from weight only.
+- Tastings no longer get subtracted twice.
+- Added confirmation if tasting amount is higher than calculated remaining volume.
+- Empty status only happens when calculated remaining volume is 0 ml.
+
+# WhiskyLog v1.39 Real Language Toggle
+
+Fixes:
+- Language setting now actually changes UI text.
+- Supports English and Norwegian.
+- Static page text, dashboard labels, navigation, major buttons and dynamic bottle/tasting labels are translated.
+- Language setting remains saved locally.
+- No Vinmonopolet catalog/autofill added.
+
 # WhiskyLog v1.38 Bottle Count / Value + Price Formatting
 
 Fixes:

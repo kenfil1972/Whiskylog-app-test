@@ -307,8 +307,16 @@ function bottleVolume(id){
   const b=getBottle(id); if(!b)return 0;
   const base=getBase(b.baseId); if(!base)return 0;
   const baseVolume=dec(base.volume);
-  const byWeight=dec(b.currentWeight)>0 ? volumeFromWeight(b) : baseVolume;
-  return Math.max(0, Math.round(byWeight - tastedVolume(id)));
+
+  // Important:
+  // If currentWeight exists, it is already the source of truth and already includes reductions
+  // from tastings. Do NOT subtract tastedVolume again, or bottles become empty too early.
+  if(dec(b.currentWeight)>0){
+    return Math.max(0, Math.round(volumeFromWeight(b)));
+  }
+
+  // Fallback for bottles without weight data.
+  return Math.max(0, Math.round(baseVolume - tastedVolume(id)));
 }
 function lastTasted(id){
   const t=state.tastings.filter(x=>x.bottleId===id).sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
@@ -618,6 +626,11 @@ function addTastingForBottle(id){
   const base=getBase(b.baseId); if(!base)return;
   const date=prompt('Tasting date',new Date().toISOString().slice(0,10)); if(!date)return;
   const mlAmount=dec(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
+  const remainingBefore=bottleVolume(id);
+  if(mlAmount>remainingBefore){
+    const ok=confirm('Tasting amount is higher than calculated remaining volume. Remaining: '+ml(remainingBefore)+'. Continue and mark bottle as empty?');
+    if(!ok)return;
+  }
 
   const appearance=scorePrompt('Appearance');
   if(appearance===null)return;
