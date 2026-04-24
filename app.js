@@ -9,6 +9,246 @@ const DENSITY_TABLE=[
 
 const state=loadState();
 const settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, readJson(SETTINGS_KEY, {}));
+
+/* v1.39 real language toggle */
+const I18N = {
+  en: {
+    "Premium Spirits Journal":"Premium Spirits Journal",
+    "Dashboard":"Dashboard",
+    "Your cellar overview":"Your cellar overview",
+    "Track unopened, opened and empty bottles with tastings, notes and weight-based volume.":"Track unopened, opened and empty bottles with tastings, notes and weight-based volume.",
+    "Unopened bottles":"Unopened bottles",
+    "Stored bottles not yet tasted":"Stored bottles not yet tasted",
+    "Opened bottles":"Opened bottles",
+    "Bottles open for tasting":"Bottles open for tasting",
+    "Empty bottles":"Empty bottles",
+    "Archive and final notes":"Archive and final notes",
+    "Add bottle tasting":"Add bottle tasting",
+    "Register a tasting for unopened or opened bottles":"Register a tasting for unopened or opened bottles",
+    "Add new bottle to collection":"Add new bottle to collection",
+    "Add a bottle from your library":"Add a bottle from your library",
+    "Add bottle to library":"Add bottle to library",
+    "Create reusable bottle types":"Create reusable bottle types",
+    "Wishlist":"Wishlist",
+    "Track up to 50 future bottles":"Track up to 50 future bottles",
+    "Settings":"Settings",
+    "Name, currency and preferences":"Name, currency and preferences",
+    "Analytics":"Analytics",
+    "Simple stock and tasting summary":"Simple stock and tasting summary",
+    "Value in stock":"Value in stock",
+    "Stock volume":"Stock volume",
+    "Opened":"Opened",
+    "Tastings":"Tastings",
+    "Best value":"Best value",
+    "Low stock":"Low stock",
+    "No bottles yet.":"No bottles yet.",
+    "No low-stock bottles.":"No low-stock bottles.",
+    "Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.":"Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.",
+    "Name":"Name",
+    "Distillery / producer":"Distillery / producer",
+    "Type":"Type",
+    "Choose type":"Choose type",
+    "ABV %":"ABV %",
+    "Bottle volume ml":"Bottle volume ml",
+    "Full bottle weight g":"Full bottle weight g",
+    "Calculated empty weight":"Calculated empty weight",
+    "Region / country":"Region / country",
+    "Image":"Image",
+    "Notes":"Notes",
+    "Save library item":"Save library item",
+    "Cancel":"Cancel",
+    "Library items":"Library items",
+    "Search library":"Search library",
+    "Add bottle":"Add bottle",
+    "New bottles are stored as unopened until the first tasting is registered.":"New bottles are stored as unopened until the first tasting is registered.",
+    "Library item":"Library item",
+    "Choose library item":"Choose library item",
+    "Batch no.":"Batch no.",
+    "Bottle no.":"Bottle no.",
+    "Price":"Price",
+    "Purchase place":"Purchase place",
+    "Purchase date":"Purchase date",
+    "Current weight g":"Current weight g",
+    "Comments":"Comments",
+    "Save bottle":"Save bottle",
+    "Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.":"Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.",
+    "Purchase date, ABV and volume.":"Purchase date, ABV and volume.",
+    "Purchase date, opened date, last tasted and remaining volume.":"Purchase date, opened date, last tasted and remaining volume.",
+    "Archive and final notes.":"Archive and final notes.",
+    "Back":"Back",
+    "Personalize the app.":"Personalize the app.",
+    "Currency":"Currency",
+    "Language":"Language",
+    "English":"English",
+    "Norwegian":"Norwegian",
+    "Default tasting amount ml":"Default tasting amount ml",
+    "Save settings":"Save settings",
+    "Simple summary for value, tastings and stock volume.":"Simple summary for value, tastings and stock volume.",
+    "Backup":"Backup",
+    "Export or import local data.":"Export or import local data.",
+    "Export backup":"Export backup",
+    "Import JSON":"Import JSON",
+    "Import backup":"Import backup",
+    "Stock volume":"Stock volume",
+    "Tasted volume":"Tasted volume",
+    "Library items":"Library items",
+    "Bottles":"Bottles",
+    "Add tasting":"Add tasting",
+    "Last sip enjoyed":"Last sip enjoyed",
+    "New bottle purchased":"New bottle purchased",
+    "Edit bottle":"Edit bottle",
+    "Delete bottle":"Delete bottle",
+    "Remaining value":"Remaining value",
+    "left":"left",
+    "Purchased":"Purchased",
+    "Opened":"Opened",
+    "Last tasted":"Last tasted",
+    "remaining":"remaining",
+    "Average":"Average",
+    "Appearance":"Appearance",
+    "Nose":"Nose",
+    "Neat":"Neat",
+    "Water":"Water",
+    "Finish":"Finish"
+  },
+  no: {
+    "Premium Spirits Journal":"Premium brennevinsjournal",
+    "Dashboard":"Oversikt",
+    "Your cellar overview":"Din flaskesamling",
+    "Track unopened, opened and empty bottles with tastings, notes and weight-based volume.":"Følg uåpnede, åpnede og tomme flasker med smakinger, notater og vektbasert volum.",
+    "Unopened bottles":"Uåpnede flasker",
+    "Stored bottles not yet tasted":"Flasker som ikke er smakt ennå",
+    "Opened bottles":"Åpnede flasker",
+    "Bottles open for tasting":"Flasker åpnet for smaking",
+    "Empty bottles":"Tomme flasker",
+    "Archive and final notes":"Arkiv og sluttnotater",
+    "Add bottle tasting":"Registrer smaking",
+    "Register a tasting for unopened or opened bottles":"Registrer smaking av uåpnet eller åpnet flaske",
+    "Add new bottle to collection":"Legg til ny flaske i samlingen",
+    "Add a bottle from your library":"Legg til flaske fra biblioteket",
+    "Add bottle to library":"Legg flaske til bibliotek",
+    "Create reusable bottle types":"Opprett gjenbrukbare flasketyper",
+    "Wishlist":"Ønskeliste",
+    "Track up to 50 future bottles":"Følg opptil 50 ønskede flasker",
+    "Settings":"Innstillinger",
+    "Name, currency and preferences":"Navn, valuta og innstillinger",
+    "Analytics":"Statistikk",
+    "Simple stock and tasting summary":"Enkel oversikt over beholdning og smaking",
+    "Value in stock":"Verdi i beholdning",
+    "Stock volume":"Volum i beholdning",
+    "Opened":"Åpnet",
+    "Tastings":"Smakinger",
+    "Best value":"Beste verdi",
+    "Low stock":"Lav beholdning",
+    "No bottles yet.":"Ingen flasker ennå.",
+    "No low-stock bottles.":"Ingen flasker med lav beholdning.",
+    "Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.":"Opprett gjenbrukbare flasketyper her. Når typen ligger i biblioteket, kan du legge til flere flasker med ulike batch- og flaskenummer.",
+    "Name":"Navn",
+    "Distillery / producer":"Destilleri / produsent",
+    "Type":"Type",
+    "Choose type":"Velg type",
+    "ABV %":"Alkohol %",
+    "Bottle volume ml":"Flaskevolum ml",
+    "Full bottle weight g":"Vekt full flaske g",
+    "Calculated empty weight":"Beregnet tomvekt",
+    "Region / country":"Region / land",
+    "Image":"Bilde",
+    "Notes":"Notater",
+    "Save library item":"Lagre i bibliotek",
+    "Cancel":"Avbryt",
+    "Library items":"Bibliotek",
+    "Search library":"Søk i bibliotek",
+    "Add bottle":"Legg til flaske",
+    "New bottles are stored as unopened until the first tasting is registered.":"Nye flasker lagres som uåpnede til første smaking registreres.",
+    "Library item":"Bibliotekelement",
+    "Choose library item":"Velg fra bibliotek",
+    "Batch no.":"Batch nr.",
+    "Bottle no.":"Flaske nr.",
+    "Price":"Pris",
+    "Purchase place":"Kjøpssted",
+    "Purchase date":"Kjøpsdato",
+    "Current weight g":"Nåværende vekt g",
+    "Comments":"Kommentarer",
+    "Save bottle":"Lagre flaske",
+    "Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.":"Velg en uåpnet eller åpnet flaske. Smaking av uåpnet flaske flytter den automatisk til åpnede flasker.",
+    "Purchase date, ABV and volume.":"Kjøpsdato, alkoholprosent og volum.",
+    "Purchase date, opened date, last tasted and remaining volume.":"Kjøpsdato, åpningsdato, sist smakt og restvolum.",
+    "Archive and final notes.":"Arkiv og sluttnotater.",
+    "Back":"Tilbake",
+    "Personalize the app.":"Tilpass appen.",
+    "Currency":"Valuta",
+    "Language":"Språk",
+    "English":"Engelsk",
+    "Norwegian":"Norsk",
+    "Default tasting amount ml":"Standard smaksvolum ml",
+    "Save settings":"Lagre innstillinger",
+    "Simple summary for value, tastings and stock volume.":"Enkel oversikt over verdi, smakinger og beholdningsvolum.",
+    "Export or import local data.":"Eksporter eller importer lokale data.",
+    "Export backup":"Eksporter backup",
+    "Import JSON":"Importer JSON",
+    "Import backup":"Importer backup",
+    "Tasted volume":"Smakt volum",
+    "Bottles":"Flasker",
+    "Add tasting":"Legg til smaking",
+    "Last sip enjoyed":"Siste slurk drukket",
+    "New bottle purchased":"Ny flaske kjøpt",
+    "Edit bottle":"Rediger flaske",
+    "Delete bottle":"Slett flaske",
+    "Remaining value":"Restverdi",
+    "left":"igjen",
+    "Purchased":"Kjøpt",
+    "Last tasted":"Sist smakt",
+    "remaining":"restverdi",
+    "Average":"Snitt",
+    "Appearance":"Utseende",
+    "Nose":"Lukt",
+    "Neat":"Utvannet",
+    "Water":"Med vann",
+    "Finish":"Ettersmak"
+  }
+};
+
+function tr(key){ const lang=(settings.language||'en'); return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key; }
+
+function applyLanguage(){
+  document.documentElement.lang=(settings.language==='no'?'no':'en');
+  const walker=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node){
+      const s=node.nodeValue.trim();
+      if(!s || s.length>140) return NodeFilter.FILTER_REJECT;
+      if(node.parentElement && ['SCRIPT','STYLE','OPTION'].includes(node.parentElement.tagName)) return NodeFilter.FILTER_REJECT;
+      return I18N.en[s] || I18N.no[s] ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+  const nodes=[];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+    const current=node.nodeValue.trim();
+    let key=current;
+    if(settings.language==='en'){
+      key=Object.keys(I18N.no).find(k=>I18N.no[k]===current) || current;
+    } else {
+      key=Object.keys(I18N.en).find(k=>I18N.en[k]===current) || current;
+    }
+    if(I18N.en[key] || I18N.no[key]) node.nodeValue=node.nodeValue.replace(current,tr(key));
+  });
+  document.querySelectorAll('[placeholder]').forEach(el=>{
+    const ph=el.getAttribute('placeholder');
+    const key=Object.keys(I18N.no).find(k=>I18N.no[k]===ph) || ph;
+    if(I18N.en[key] || I18N.no[key]) el.setAttribute('placeholder',tr(key));
+  });
+  document.querySelectorAll('select[name="language"] option').forEach(opt=>{
+    if(opt.value==='en') opt.textContent=tr('English');
+    if(opt.value==='no') opt.textContent=tr('Norwegian');
+  });
+  document.querySelectorAll('select[name="type"] option').forEach(opt=>{
+    if(opt.value==='') opt.textContent=tr('Choose type');
+  });
+  document.querySelectorAll('select[name="baseId"] option').forEach(opt=>{
+    if(opt.value==='') opt.textContent=tr('Choose library item');
+  });
+}
+
 let pendingBaseImage='';
 let currentBottleId=null;
 let detailReturnView='home';
@@ -123,6 +363,7 @@ function init(){
   initBackup();
   render();
   show('home');
+  applyLanguage();
 }
 
 function initBaseForm(){
@@ -271,6 +512,7 @@ function render(){
   renderTastingPicker();
   renderWishlist();
   renderAnalytics();
+  applyLanguage();
 }
 function renderHome(){
   const totalCost=state.bottles.reduce((a,b)=>a+bottleRemainingValue(b.id),0);
@@ -281,9 +523,9 @@ function renderHome(){
   document.getElementById('mTastings').textContent=state.tastings.length;
   renderStatusStats('unopened','homeUnopenedCount','homeUnopenedValue'); renderStatusStats('opened','homeOpenedCount','homeOpenedValue'); renderStatusStats('empty','homeEmptyCount','homeEmptyValue'); renderStrip('unopened','homeUnopenedImages'); renderStrip('opened','homeOpenedImages'); renderStrip('empty','homeEmptyImages');
   const best=state.bottles.slice().sort((a,b)=>(a.price/Math.max(1,bottleVolume(a.id)))-(b.price/Math.max(1,bottleVolume(b.id))))[0];
-  document.getElementById('bestValue').textContent=best?bottleName(best):'No bottles yet.';
+  document.getElementById('bestValue').textContent=best?bottleName(best):tr('No bottles yet.');
   const lows=state.bottles.filter(b=>bottleStatus(b.id)==='opened'&&bottleVolume(b.id)<100);
-  document.getElementById('lowStock').textContent=lows.length?lows.map(bottleName).join(', '):'No low-stock bottles.';
+  document.getElementById('lowStock').textContent=lows.length?lows.map(bottleName).join(', '):tr('No low-stock bottles.');
 }
 function renderStatusStats(status,countId,valueId){
   const bottles=state.bottles.filter(b=>bottleStatus(b.id)===status);
@@ -304,7 +546,7 @@ function renderStrip(status,id){
 function renderPickers(){
   const sel=document.querySelector('#bottleForm [name="baseId"]');
   const current=sel.value;
-  sel.innerHTML='<option value="">Choose library item</option>'+state.bases.map(b=>`<option value="${b.id}">${esc(b.name)}${b.abv?' · '+b.abv+'%':''}${b.volume?' · '+b.volume+' ml':''}</option>`).join('');
+  sel.innerHTML=('<option value="">'+tr('Choose library item')+'</option>')+state.bases.map(b=>`<option value="${b.id}">${esc(b.name)}${b.abv?' · '+b.abv+'%':''}${b.volume?' · '+b.volume+' ml':''}</option>`).join('');
   if(current)sel.value=current;
 }
 function renderBaseList(){
@@ -312,7 +554,7 @@ function renderBaseList(){
   const items=state.bases.filter(b=>!q||[b.name,b.type,b.distillery,b.region].join(' ').toLowerCase().includes(q));
   document.getElementById('baseList').innerHTML=items.length?items.map(b=>`
     <div class="item">${thumb(b)}<div><div class="title">${esc(b.name)}</div><div class="meta">${esc(b.type)} · ${b.abv||'—'}% · ${b.volume||'—'} ml</div><div class="sub">${esc(b.distillery||'')} ${b.region?'· '+esc(b.region):''}</div></div><div class="side"><button class="ghost small" onclick="editBase('${b.id}')">Edit</button> <button class="ghost small" onclick="deleteBase('${b.id}')">Delete</button></div></div>
-  `).join(''):'<div class="card sub">No library items yet.</div>';
+  `).join(''):('<div class="card sub">'+tr('No bottles yet.')+'</div>');
 }
 document.addEventListener('input',e=>{if(e.target.id==='baseSearch')renderBaseList();});
 
@@ -320,33 +562,33 @@ function renderBottleLists(){
   ['unopened','opened','empty'].forEach(status=>{
     const el=document.getElementById(status+'List');
     const items=state.bottles.filter(b=>bottleStatus(b.id)===status);
-    el.innerHTML=items.length?items.map(b=>bottleRow(b,status)).join(''):`<div class="card sub">No ${status} bottles.</div>`;
+    el.innerHTML=items.length?items.map(b=>bottleRow(b,status)).join(''):('<div class="card sub">'+tr('No bottles yet.')+'</div>');
   });
 }
 function bottleRow(b,status){
   const base=getBase(b.baseId);
   const extra=status==='unopened'
-    ? `Purchased ${b.purchaseDate||'—'} · ${base?.volume||'—'} ml · ${base?.abv||'—'}%`
+    ? `${tr('Purchased')} ${b.purchaseDate||'—'} · ${base?.volume||'—'} ml · ${base?.abv||'—'}%`
     : status==='opened'
-      ? `Purchased ${b.purchaseDate||'—'} · Opened ${b.openedDate||'—'} · Last tasted ${lastTasted(b.id)||'—'} · ${ml(bottleVolume(b.id))} left · ${money(bottleRemainingValue(b.id))} remaining`
-      : `Purchased ${b.purchaseDate||'—'} · Opened ${b.openedDate||'—'} · Last tasted ${lastTasted(b.id)||'—'}`;
+      ? `${tr('Purchased')} ${b.purchaseDate||'—'} · ${tr('Opened')} ${b.openedDate||'—'} · ${tr('Last tasted')} ${lastTasted(b.id)||'—'} · ${ml(bottleVolume(b.id))} ${tr('left')} · ${money(bottleRemainingValue(b.id))} ${tr('remaining')}`
+      : `${tr('Purchased')} ${b.purchaseDate||'—'} · ${tr('Opened')} ${b.openedDate||'—'} · ${tr('Last tasted')} ${lastTasted(b.id)||'—'}`;
   return `<div class="item" onclick="openBottleDetail('${b.id}','${status}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${extra}</div><div class="sub">${esc(base?.type||'')}</div></div><div class="side"><span class="pill">${status}</span></div></div>`;
 }
 function openBottleDetail(id,returnView='home'){
   currentBottleId=id; detailReturnView=returnView;
   const b=getBottle(id), base=getBase(b.baseId); if(!b||!base)return;
   document.getElementById('bottleDetail').innerHTML=`
-    <div class="card themed">${thumb(base)}<h2>${esc(bottleName(b))}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} left · Remaining value ${money(bottleRemainingValue(id))}</p></div>
+    <div class="card themed">${thumb(base)}<h2>${esc(bottleName(b))}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} ${tr('left')} · ${tr('Remaining value')} ${money(bottleRemainingValue(id))}</p></div>
     <div class="grid two">
       ${bottleStatus(id)==='empty'
-        ? `<button class="primary" type="button" onclick="newBottlePurchased('${id}')">New bottle purchased</button>`
-        : `<button class="primary" type="button" onclick="addTastingForBottle('${id}')">Add tasting</button>`}
-      ${bottleStatus(id)==='opened'?`<button class="ghost" type="button" onclick="markEmpty('${id}')">Last sip enjoyed</button>`:''}
-      <button class="ghost" type="button" onclick="editBottle('${id}')">Edit bottle</button>
-      <button class="ghost" type="button" onclick="deleteBottle('${id}')">Delete bottle</button>
+        ? `<button class="primary" type="button" onclick="newBottlePurchased('${id}')">${tr('New bottle purchased')}</button>`
+        : `<button class="primary" type="button" onclick="addTastingForBottle('${id}')">${tr('Add tasting')}</button>`}
+      ${bottleStatus(id)==='opened'?`<button class="ghost" type="button" onclick="markEmpty('${id}')">${tr('Last sip enjoyed')}</button>`:''}
+      <button class="ghost" type="button" onclick="editBottle('${id}')">${tr('Edit bottle')}</button>
+      <button class="ghost" type="button" onclick="deleteBottle('${id}')">${tr('Delete bottle')}</button>
     </div>
     <div class="card"><h3>Notes</h3><p>${esc(b.comments||base.notes||'No notes.')}</p></div>
-    <div class="card"><h3>Tastings</h3><div class="list">${state.tastings.filter(t=>t.bottleId===id).map(t=>`<div class="item"><div>📝</div><div><div class="title">${t.date} · Average ${t.score||'—'}</div><div class="meta">Appearance ${t.appearance||'—'} · Nose ${t.nose||'—'} · Neat ${t.tasteNeat||'—'} · Water ${t.tasteWater||'—'} · Finish ${t.finish||'—'}</div><div class="sub">${esc(t.notes||'')}</div></div></div>`).join('')||'<div class="sub">No tastings.</div>'}</div></div>
+    <div class="card"><h3>Tastings</h3><div class="list">${state.tastings.filter(t=>t.bottleId===id).map(t=>`<div class="item"><div>📝</div><div><div class="title">${t.date} · ${tr('Average')} ${t.score||'—'}</div><div class="meta">${tr('Appearance')} ${t.appearance||'—'} · ${tr('Nose')} ${t.nose||'—'} · ${tr('Neat')} ${t.tasteNeat||'—'} · ${tr('Water')} ${t.tasteWater||'—'} · ${tr('Finish')} ${t.finish||'—'}</div><div class="sub">${esc(t.notes||'')}</div></div></div>`).join('')||('<div class="sub">'+tr('No bottles yet.')+'</div>')}</div></div>
   `;
   show('bottle-detail');
 }
@@ -361,7 +603,7 @@ function renderTastingPicker(){
   document.getElementById('tastingBottleList').innerHTML=items.length?items.map(b=>{
     const base=getBase(b.baseId), status=bottleStatus(b.id);
     return `<div class="item" onclick="addTastingForBottle('${b.id}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${status} · ${ml(bottleVolume(b.id))} left</div></div><div class="side"><button class="primary small" onclick="event.stopPropagation();addTastingForBottle('${b.id}')">Taste</button></div></div>`;
-  }).join(''):'<div class="card sub">No unopened or opened bottles available.</div>';
+  }).join(''):('<div class="card sub">'+tr('No bottles yet.')+'</div>');
 }
 function scorePrompt(label){
   const value=prompt(label+' score 1-10','');
@@ -469,17 +711,17 @@ function newBottlePurchased(oldBottleId){
 function renderWishlist(){
   document.getElementById('wishlistList').innerHTML=state.wishlist.length?state.wishlist.map((w,i)=>`
     <div class="item"><div>${i<5?'⭐':'•'}</div><div><div class="title">${esc(w.name)}</div><div class="meta">${esc(w.type||'')} ${w.targetPrice?('· '+money(w.targetPrice)):''}</div><div class="sub">${esc(w.notes||'')}</div></div><div class="side"><button class="ghost small" onclick="deleteWish('${w.id}')">Delete</button></div></div>
-  `).join(''):'<div class="sub">No wishlist items.</div>';
+  `).join(''):('<div class="sub">'+tr('No bottles yet.')+'</div>');
 }
 function deleteWish(id){if(confirm('Delete wishlist item?')){state.wishlist=state.wishlist.filter(w=>w.id!==id);save();render();}}
 function renderAnalytics(){
   const totalVol=state.bottles.reduce((a,b)=>a+bottleVolume(b.id),0);
   const tasted=state.tastings.reduce((a,t)=>a+dec(t.ml),0);
   document.getElementById('analyticsContent').innerHTML=`
-    <div class="card metric"><small>Stock volume</small><strong>${ml(totalVol)}</strong></div>
-    <div class="card metric"><small>Tasted volume</small><strong>${ml(tasted)}</strong></div>
-    <div class="card metric"><small>Library items</small><strong>${state.bases.length}</strong></div>
-    <div class="card metric"><small>Bottles</small><strong>${state.bottles.length}</strong></div>
+    <div class="card metric"><small>${tr('Stock volume')}</small><strong>${ml(totalVol)}</strong></div>
+    <div class="card metric"><small>${tr('Tasted volume')}</small><strong>${ml(tasted)}</strong></div>
+    <div class="card metric"><small>${tr('Library items')}</small><strong>${state.bases.length}</strong></div>
+    <div class="card metric"><small>${tr('Bottles')}</small><strong>${state.bottles.length}</strong></div>
   `;
 }
 
