@@ -1,3 +1,11 @@
+# WhiskyLog v1.17 Layout Fixed
+
+Fix:
+- Rebuilt the three bottle-status cards on Home.
+- Title and subtitle now have separate HTML structure.
+- Added strong CSS override so subtitles stay on the next line.
+- Keeps v1.16 button fixes and GitHub Pages/PWA path fix.
+
 # WhiskyLog v1.16 Buttons Fixed
 
 Fixes:

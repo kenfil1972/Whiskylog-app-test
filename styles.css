@@ -119,3 +119,53 @@ canvas{
 .category-action small{
   white-space:normal;
 }
+
+/* v1.17 definitive bottle category card layout fix */
+.bottle-status-grid{
+  align-items:stretch;
+}
+.bottle-status-card{
+  display:grid !important;
+  grid-template-columns:1fr auto !important;
+  align-items:center !important;
+  gap:12px !important;
+  min-height:96px;
+}
+.status-copy{
+  display:grid !important;
+  grid-template-columns:auto 1fr;
+  grid-template-areas:
+    "icon title"
+    "subtitle subtitle";
+  column-gap:8px;
+  row-gap:4px;
+  align-items:center;
+  min-width:0;
+}
+.status-copy .status-icon{
+  grid-area:icon;
+  display:block;
+  line-height:1;
+  font-size:1.3rem;
+}
+.status-copy strong{
+  grid-area:title;
+  display:block !important;
+  color:#fff !important;
+  font-weight:800;
+  line-height:1.2;
+  white-space:normal !important;
+}
+.status-copy small{
+  grid-area:subtitle;
+  display:block !important;
+  color:var(--muted) !important;
+  line-height:1.35;
+  white-space:normal !important;
+  margin-top:2px;
+}
+@media(max-width:860px){
+  .bottle-status-card{
+    grid-template-columns:1fr auto !important;
+  }
+}
