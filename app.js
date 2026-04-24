@@ -20,10 +20,25 @@ const DENSITY_TABLE=[
 const state=load();
 let pendingBaseImage='';
 
-const SETTINGS_KEY='whiskylog_settings_v11';
+const SETTINGS_KEY='whiskylog_settings_v22';
 const settings=Object.assign({currency:"NOK",ownerName:"Kenneth",language:"en",defaultTastingMl:20}, JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"));
+(function absorbSettingsFromQuery(){
+  const params=new URLSearchParams(window.location.search||'');
+  let changed=false;
+  if(params.get('ownerName')){ settings.ownerName=params.get('ownerName'); changed=true; }
+  if(params.get('currency')){ settings.currency=params.get('currency'); changed=true; }
+  if(params.get('language')){ settings.language=params.get('language'); changed=true; }
+  if(params.get('defaultTastingMl')){ settings.defaultTastingMl=Number(params.get('defaultTastingMl')||20); changed=true; }
+  if(changed){
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));
+    history.replaceState(null,'',location.pathname);
+  }
+})();
 function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}
-function updateAppTitle(){const el=document.getElementById('appTitle'); if(el){el.textContent=(settings.ownerName?settings.ownerName+'\'s ':'')+'WhiskyLog';}}
+function updateAppTitle(){
+  const el=document.getElementById('appTitle');
+  if(el){ el.textContent=(settings.ownerName?settings.ownerName+'\'s ':'')+'WhiskyLog'; }
+}
 function formatMoney(value){
   return `${formatPrice(value)} ${settings.currency||'NOK'}`;
 }
@@ -76,13 +91,14 @@ function init(){
 
   populateCatalogSuggestions();
   attachCatalogAutoFill();
+  attachVisibleCatalogPicker();
   const sf=document.getElementById('settingsForm');
   if(sf){
     sf.ownerName.value=settings.ownerName||'';
     sf.currency.value=settings.currency||'NOK';
     sf.language.value=settings.language||'en';
     sf.defaultTastingMl.value=settings.defaultTastingMl||20;
-    sf.onsubmit=(e)=>{e.preventDefault();settings.ownerName=sf.ownerName.value.trim();settings.currency=sf.currency.value;settings.language=sf.language.value;settings.defaultTastingMl=Number(sf.defaultTastingMl.value||20);saveSettings();updateAppTitle();render();show('home');};
+    sf.onsubmit=(e)=>{e.preventDefault();settings.ownerName=sf.ownerName.value.trim()||'Kenneth';settings.currency=sf.currency.value;settings.language=sf.language.value;settings.defaultTastingMl=Number(sf.defaultTastingMl.value||20);saveSettings();updateAppTitle();render();show('home');};
   }
   const wf=document.getElementById('wishlistForm'); if(wf){wf.onsubmit=saveWishlistItem;}
   const wcb=document.getElementById('wishlistCancelButton'); if(wcb){wcb.onclick=resetWishlistForm;}
@@ -348,24 +364,9 @@ function findCatalogByName(name){
 function fillLibraryFromCatalog(){
   const f=document.getElementById('baseForm');
   if(!f) return false;
-  const nameEl=f.querySelector('[name="name"]');
-  const item=findCatalogByName(nameEl ? nameEl.value : '');
-  if(!item){ alert('No matching catalog item found.'); return false; }
-
-  setFieldValue(f,'[name="name"]',item.name||'');
-  setFieldValue(f,'[name="type"]',item.type||'Whisky');
-  setFieldValue(f,'[name="abv"]',item.abv ?? '');
-  setFieldValue(f,'[name="volume"]',item.volume ?? '');
-  setFieldValue(f,'[name="region"]',item.region||'');
-  setFieldValue(f,'[name="distillery"]',item.distillery||'');
-
-  if(item.image){
-    pendingBaseImage=item.image;
-    const p=document.getElementById('baseImagePreview');
-    if(p){p.src=item.image;p.classList.remove('hidden');}
-  }
-  updateBaseHints();
-  return true;
+  const item=findCatalogByName(f.querySelector('[name="name"]')?.value || document.getElementById('catalogSearchInput')?.value || '');
+  if(!item){alert('No matching catalog item found.');return false;}
+  return applyCatalogItemToLibrary(item);
 }
 function attachCatalogAutoFill(){
   const input=document.getElementById('libraryNameInput');
@@ -458,6 +459,60 @@ function renderTastingBottleList(){
     const status=bottleStatus(b.id);
     return `<div class="item" onclick="addTastingForBottle('${b.id}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${status==='unopened'?'Unopened':'Opened'} · ${base?.abv||'—'}% · ${ml(bottleVolume(b.id))} left</div><div class="sub">${esc(base?.type||'')}</div></div><div class="side"><button class="smallbtn" onclick="event.stopPropagation();addTastingForBottle('${b.id}')">Add tasting</button></div></div>`;
   }).join('');
+}
+
+
+function applyCatalogItemToLibrary(item){
+  const f=document.getElementById('baseForm');
+  if(!f || !item) return false;
+  setFieldValue(f,'[name="name"]',item.name||'');
+  setFieldValue(f,'[name="type"]',item.type||'Whisky');
+  setFieldValue(f,'[name="abv"]',item.abv ?? '');
+  setFieldValue(f,'[name="volume"]',item.volume ?? '');
+  setFieldValue(f,'[name="distillery"]',item.distillery||'');
+  setFieldValue(f,'[name="region"]',item.region||'');
+  if(item.image){
+    pendingBaseImage=item.image;
+    const p=document.getElementById('baseImagePreview');
+    if(p){p.src=item.image;p.classList.remove('hidden');}
+  }
+  updateBaseHints();
+  document.getElementById('catalogSearchInput')?.blur();
+  return true;
+}
+function renderCatalogSuggestions(query=''){
+  const box=document.getElementById('catalogSuggestionsBox');
+  if(!box) return;
+  const q=normalizeText(query);
+  const items=PRELOADED_CATALOG
+    .filter(p=>!q || normalizeText([p.name,p.type,p.distillery,p.region].join(' ')).includes(q))
+    .slice(0,25);
+  if(!items.length){
+    box.innerHTML='<div class="sub">No matches.</div>';
+    return;
+  }
+  box.innerHTML=items.map((p,i)=>`
+    <div class="catalog-suggestion" data-catalog-index="${PRELOADED_CATALOG.indexOf(p)}">
+      <div>
+        <strong>${esc(p.name)}</strong>
+        <small>${esc(p.type||'')} · ${esc(p.distillery||'')} · ${p.abv||'—'}% · ${p.volume||'—'} ml · ${esc(p.region||'')}</small>
+      </div>
+      <span class="pill">Use</span>
+    </div>
+  `).join('');
+}
+function attachVisibleCatalogPicker(){
+  const input=document.getElementById('catalogSearchInput');
+  const box=document.getElementById('catalogSuggestionsBox');
+  if(!input || !box) return;
+  renderCatalogSuggestions('');
+  input.addEventListener('input',()=>renderCatalogSuggestions(input.value));
+  box.addEventListener('click',e=>{
+    const row=e.target.closest('.catalog-suggestion');
+    if(!row) return;
+    const item=PRELOADED_CATALOG[Number(row.dataset.catalogIndex)];
+    applyCatalogItemToLibrary(item);
+  });
 }
 
 function render(){updateAppTitle();renderPickers();renderHome();renderBaseList();renderAllBottleLists();renderTastingBottleList();renderWishlist();renderAnalytics();}

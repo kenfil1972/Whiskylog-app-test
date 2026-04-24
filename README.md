@@ -1,3 +1,12 @@
+# WhiskyLog v1.22 Catalog and Title Fixed
+
+Fixes:
+- Added visible starter catalog picker on Add bottle to library.
+- Catalog suggestions are now shown as clickable rows, not only hidden browser datalist.
+- Selecting a row fills name, type, ABV, volume, distillery/producer and region.
+- App title again uses name from Settings, e.g. Kenneth's WhiskyLog.
+- If settings accidentally appear in the URL query string, they are absorbed and the URL is cleaned.
+
 # WhiskyLog v1.21 Tasting, Autofill and Images Fixed
 
 Fixes:

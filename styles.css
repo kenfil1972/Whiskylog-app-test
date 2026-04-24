@@ -210,3 +210,35 @@ canvas{
   justify-content:center !important;
   font-size:20px !important;
 }
+
+/* v1.22 visible starter catalog picker */
+.catalog-suggestions{
+  margin-top:10px;
+  display:grid;
+  gap:8px;
+  max-height:320px;
+  overflow:auto;
+}
+.catalog-suggestion{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.09);
+  background:rgba(0,0,0,.18);
+  cursor:pointer;
+}
+.catalog-suggestion:hover{
+  border-color:rgba(216,165,92,.45);
+}
+.catalog-suggestion strong{
+  color:#fff;
+  display:block;
+}
+.catalog-suggestion small{
+  color:var(--muted);
+  display:block;
+  margin-top:3px;
+}
