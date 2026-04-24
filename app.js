@@ -195,11 +195,26 @@ function initBottleForm(){
     e.preventDefault();
     if(!f.baseId.value){alert('Choose a library item first.');return;}
     const base=getBase(f.baseId.value); if(!base){alert('Library item not found.');return;}
-    state.bottles.unshift({
-      id:uid(),baseId:f.baseId.value,batchNo:f.batchNo.value.trim(),bottleNo:f.bottleNo.value.trim(),
-      price:dec(f.price.value),purchasePlace:f.purchasePlace.value.trim(),purchaseDate:f.purchaseDate.value||new Date().toISOString().slice(0,10),
-      openedDate:'',currentWeight:dec(f.currentWeight.value)||dec(base.fullWeight),comments:f.comments.value.trim()
-    });
+    const editId=f.dataset.editId||'';
+    if(editId){
+      const existing=getBottle(editId);
+      if(!existing){alert('Bottle to edit was not found.');return;}
+      existing.baseId=f.baseId.value;
+      existing.batchNo=f.batchNo.value.trim();
+      existing.bottleNo=f.bottleNo.value.trim();
+      existing.price=dec(f.price.value);
+      existing.purchasePlace=f.purchasePlace.value.trim();
+      existing.purchaseDate=f.purchaseDate.value||new Date().toISOString().slice(0,10);
+      existing.currentWeight=dec(f.currentWeight.value)||dec(base.fullWeight);
+      existing.comments=f.comments.value.trim();
+      delete f.dataset.editId;
+    }else{
+      state.bottles.unshift({
+        id:uid(),baseId:f.baseId.value,batchNo:f.batchNo.value.trim(),bottleNo:f.bottleNo.value.trim(),
+        price:dec(f.price.value),purchasePlace:f.purchasePlace.value.trim(),purchaseDate:f.purchaseDate.value||new Date().toISOString().slice(0,10),
+        openedDate:'',currentWeight:dec(f.currentWeight.value)||dec(base.fullWeight),comments:f.comments.value.trim()
+      });
+    }
     save(); f.reset(); f.purchaseDate.value=new Date().toISOString().slice(0,10); render(); show('home');
   });
 }
@@ -318,9 +333,11 @@ function openBottleDetail(id,returnView='home'){
         ? `<button class="primary" type="button" onclick="newBottlePurchased('${id}')">New bottle purchased</button>`
         : `<button class="primary" type="button" onclick="addTastingForBottle('${id}')">Add tasting</button>`}
       ${bottleStatus(id)==='opened'?`<button class="ghost" type="button" onclick="markEmpty('${id}')">Last sip enjoyed</button>`:''}
+      <button class="ghost" type="button" onclick="editBottle('${id}')">Edit bottle</button>
+      <button class="ghost" type="button" onclick="deleteBottle('${id}')">Delete bottle</button>
     </div>
     <div class="card"><h3>Notes</h3><p>${esc(b.comments||base.notes||'No notes.')}</p></div>
-    <div class="card"><h3>Tastings</h3><div class="list">${state.tastings.filter(t=>t.bottleId===id).map(t=>`<div class="item"><div>📝</div><div><div class="title">${t.date} · Score ${t.score||'—'}</div><div class="sub">${esc(t.notes||'')}</div></div></div>`).join('')||'<div class="sub">No tastings.</div>'}</div></div>
+    <div class="card"><h3>Tastings</h3><div class="list">${state.tastings.filter(t=>t.bottleId===id).map(t=>`<div class="item"><div>📝</div><div><div class="title">${t.date} · Average ${t.score||'—'}</div><div class="meta">Appearance ${t.appearance||'—'} · Nose ${t.nose||'—'} · Neat ${t.tasteNeat||'—'} · Water ${t.tasteWater||'—'} · Finish ${t.finish||'—'}</div><div class="sub">${esc(t.notes||'')}</div></div></div>`).join('')||'<div class="sub">No tastings.</div>'}</div></div>
   `;
   show('bottle-detail');
 }
@@ -337,16 +354,40 @@ function renderTastingPicker(){
     return `<div class="item" onclick="addTastingForBottle('${b.id}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${status} · ${ml(bottleVolume(b.id))} left</div></div><div class="side"><button class="primary small" onclick="event.stopPropagation();addTastingForBottle('${b.id}')">Taste</button></div></div>`;
   }).join(''):'<div class="card sub">No unopened or opened bottles available.</div>';
 }
+function scorePrompt(label){
+  const value=prompt(label+' score 1-10','');
+  if(value===null)return null;
+  const n=dec(value);
+  if(!n)return 0;
+  return Math.max(1,Math.min(10,n));
+}
 function addTastingForBottle(id){
   const b=getBottle(id); if(!b)return;
   if(bottleStatus(id)==='empty'){alert('This bottle is empty. Use New bottle purchased instead.');return;}
   const base=getBase(b.baseId); if(!base)return;
   const date=prompt('Tasting date',new Date().toISOString().slice(0,10)); if(!date)return;
   const mlAmount=dec(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
-  const score=dec(prompt('Score 1-10',''));
+
+  const appearance=scorePrompt('Appearance');
+  if(appearance===null)return;
+  const nose=scorePrompt('Nose / smell');
+  if(nose===null)return;
+  const tasteNeat=scorePrompt('Taste neat / undiluted');
+  if(tasteNeat===null)return;
+  const tasteWater=scorePrompt('Taste with water');
+  if(tasteWater===null)return;
+  const finish=scorePrompt('Finish / aftertaste');
+  if(finish===null)return;
+
+  const scoreValues=[appearance,nose,tasteNeat,tasteWater,finish].filter(n=>n>0);
+  const score=scoreValues.length ? Math.round((scoreValues.reduce((a,b)=>a+b,0)/scoreValues.length)*10)/10 : 0;
   const notes=prompt('Notes','')||'';
+
   if(!b.openedDate)b.openedDate=date;
-  state.tastings.unshift({id:uid(),bottleId:id,date,ml:mlAmount,score,notes});
+  state.tastings.unshift({
+    id:uid(),bottleId:id,date,ml:mlAmount,
+    appearance,nose,tasteNeat,tasteWater,finish,score,notes
+  });
 
   // Reduce weight as well, so remaining volume updates immediately and consistently.
   const d=densityFromAbv(base.abv);
@@ -357,6 +398,39 @@ function addTastingForBottle(id){
   save(); render(); show('home');
 }
 
+
+
+function editBottle(id){
+  const b=getBottle(id);
+  if(!b){alert('Bottle not found.');return;}
+  const f=document.getElementById('bottleForm');
+  if(!f){alert('Add bottle form not found.');return;}
+  renderPickers();
+  f.dataset.editId=id;
+  f.baseId.value=b.baseId||'';
+  f.batchNo.value=b.batchNo||'';
+  f.bottleNo.value=b.bottleNo||'';
+  f.price.value=b.price||'';
+  f.purchasePlace.value=b.purchasePlace||'';
+  f.purchaseDate.value=b.purchaseDate||new Date().toISOString().slice(0,10);
+  f.currentWeight.value=b.currentWeight||'';
+  f.comments.value=b.comments||'';
+  show('new-bottle');
+}
+
+function deleteBottle(id){
+  const b=getBottle(id);
+  if(!b){alert('Bottle not found.');return;}
+  const name=bottleName(b);
+  const ok=confirm('Delete bottle permanently?\\n\\nThis will permanently delete "'+name+'" and all tasting notes registered on this bottle. This cannot be undone.');
+  if(!ok)return;
+  state.bottles=state.bottles.filter(x=>x.id!==id);
+  state.tastings=state.tastings.filter(t=>t.bottleId!==id);
+  state.comments=state.comments.filter(c=>c.bottleId!==id);
+  save();
+  render();
+  show('home');
+}
 
 function newBottlePurchased(oldBottleId){
   const old=getBottle(oldBottleId);
@@ -370,6 +444,7 @@ function newBottlePurchased(oldBottleId){
   renderPickers();
 
   f.reset();
+  delete f.dataset.editId;
   f.baseId.value=old.baseId;
   f.batchNo.value='';
   f.bottleNo.value='';

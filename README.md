@@ -1,3 +1,19 @@
+# WhiskyLog v1.37 Edit/Delete + Tasting Scores
+
+Fixes:
+- Bottles can be edited from detail page in all statuses.
+- Bottles can be deleted from detail page in all statuses.
+- Delete shows permanent deletion warning and deletes linked tastings.
+- Add bottle form supports editing existing bottles.
+- Tasting now records 1-10 scores for:
+  - Appearance
+  - Nose / smell
+  - Taste neat / undiluted
+  - Taste with water
+  - Finish / aftertaste
+- Average score is calculated and displayed.
+- Tasting details are shown later on bottle detail page.
+
 # WhiskyLog v1.36 Stock Labels + Editable Repurchase
 
 Fixes:
