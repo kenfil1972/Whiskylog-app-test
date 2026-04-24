@@ -613,39 +613,71 @@ function renderTastingPicker(){
     return `<div class="item" onclick="addTastingForBottle('${b.id}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${status} · ${ml(bottleVolume(b.id))} left</div></div><div class="side"><button class="primary small" onclick="event.stopPropagation();addTastingForBottle('${b.id}')">Taste</button></div></div>`;
   }).join(''):('<div class="card sub">'+tr('No bottles yet.')+'</div>');
 }
-function scorePrompt(label){
-  const value=prompt(label+' score 1-10','');
+function modalInput(label, opts={}){
+  return new Promise(resolve=>{
+    const backdrop=document.createElement('div');
+    backdrop.className='input-modal-backdrop';
+    const isTextarea=opts.multiline===true;
+    const inputHtml=isTextarea
+      ? `<textarea id="modalInputField" autocomplete="off" autocorrect="on" spellcheck="true">${esc(opts.value||'')}</textarea>`
+      : `<input id="modalInputField" type="${opts.type||'text'}" inputmode="${opts.inputmode||'text'}" autocomplete="off" value="${esc(opts.value||'')}">`;
+    backdrop.innerHTML=`
+      <div class="input-modal">
+        <h3>${esc(label)}</h3>
+        ${inputHtml}
+        <div class="input-modal-actions">
+          <button type="button" id="modalCancel">${tr('Cancel')}</button>
+          <button type="button" id="modalOk">OK</button>
+        </div>
+      </div>`;
+    document.body.appendChild(backdrop);
+    const input=backdrop.querySelector('#modalInputField');
+    const done=(value)=>{
+      backdrop.remove();
+      resolve(value);
+    };
+    backdrop.querySelector('#modalCancel').onclick=()=>done(null);
+    backdrop.querySelector('#modalOk').onclick=()=>done(input.value);
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter' && !isTextarea){e.preventDefault();done(input.value);}
+      if(e.key==='Escape'){e.preventDefault();done(null);}
+    });
+    setTimeout(()=>input.focus(),60);
+  });
+}
+async function scorePrompt(label){
+  const value=await modalInput(label+' score 1-10',{type:'number',inputmode:'decimal'});
   if(value===null)return null;
   const n=dec(value);
   if(!n)return 0;
   return Math.max(1,Math.min(10,n));
 }
-function addTastingForBottle(id){
+async function addTastingForBottle(id){
   const b=getBottle(id); if(!b)return;
   if(bottleStatus(id)==='empty'){alert('This bottle is empty. Use New bottle purchased instead.');return;}
   const base=getBase(b.baseId); if(!base)return;
-  const date=prompt('Tasting date',new Date().toISOString().slice(0,10)); if(!date)return;
-  const mlAmount=dec(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
+  const date=await modalInput('Tasting date',{type:'date',inputmode:'numeric',value:new Date().toISOString().slice(0,10)}); if(!date)return;
+  const mlAmount=dec(await modalInput('Amount ml',{type:'number',inputmode:'decimal',value:String(settings.defaultTastingMl||20)})); if(!mlAmount)return;
   const remainingBefore=bottleVolume(id);
   if(mlAmount>remainingBefore){
     const ok=confirm('Tasting amount is higher than calculated remaining volume. Remaining: '+ml(remainingBefore)+'. Continue and mark bottle as empty?');
     if(!ok)return;
   }
 
-  const appearance=scorePrompt('Appearance');
+  const appearance=await scorePrompt('Appearance');
   if(appearance===null)return;
-  const nose=scorePrompt('Nose / smell');
+  const nose=await scorePrompt('Nose / smell');
   if(nose===null)return;
-  const tasteNeat=scorePrompt('Taste neat / undiluted');
+  const tasteNeat=await scorePrompt('Taste neat / undiluted');
   if(tasteNeat===null)return;
-  const tasteWater=scorePrompt('Taste with water');
+  const tasteWater=await scorePrompt('Taste with water');
   if(tasteWater===null)return;
-  const finish=scorePrompt('Finish / aftertaste');
+  const finish=await scorePrompt('Finish / aftertaste');
   if(finish===null)return;
 
   const scoreValues=[appearance,nose,tasteNeat,tasteWater,finish].filter(n=>n>0);
   const score=scoreValues.length ? Math.round((scoreValues.reduce((a,b)=>a+b,0)/scoreValues.length)*10)/10 : 0;
-  const notes=prompt('Notes','')||'';
+  const notes=(await modalInput('Notes',{multiline:true,value:''}))||'';
 
   if(!b.openedDate)b.openedDate=date;
   state.tastings.unshift({
