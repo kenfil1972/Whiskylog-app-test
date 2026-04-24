@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#130c08">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="WhiskyLog">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>WhiskyLog v1.10</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">Premium Spirits Journal</div>
+      <h1>WhiskyLog</h1>
+    </div>
+    <button id="backupButton" class="ghost">Backup</button>
+  </header>
+
+  <main>
+    <section class="view active" data-view="home">
+      <div class="card hero">
+        <div class="eyebrow">Dashboard</div>
+        <h2>Your cellar overview</h2>
+        <p>Track unopened, opened and empty bottles with tastings, images, notes and weight-based volume.</p>
+      </div>
+
+      <div class="grid three">
+        <button class="card action category-action" data-go="unopened"><div><span>📦</span><strong>Unopened bottles</strong><small>Stored bottles not yet tasted</small></div><div class="mini-bottle-strip" id="homeUnopenedImages"></div></button>
+        <button class="card action category-action" data-go="opened"><div><span>🥃</span><strong>Opened bottles</strong><small>Bottles currently in use</small></div><div class="mini-bottle-strip" id="homeOpenedImages"></div></button>
+        <button class="card action category-action" data-go="empty"><div><span>🗃️</span><strong>Empty bottles</strong><small>Archive and final notes</small></div><div class="mini-bottle-strip" id="homeEmptyImages"></div></button>
+      </div>
+
+      <div class="grid two">
+        <button class="card action" data-go="library"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types for future purchases</small></button>
+        <button class="card action" data-go="new-bottle"><span>➕</span><strong>Add new bottle</strong><small>Add a bottle from your library</small></button>
+        <button class="card action" data-go="opened"><span>📝</span><strong>Add test of bottle</strong><small>Open a bottle detail page and register a tasting</small></button>
+      </div>
+
+      <div class="grid four">
+        <div class="card stat"><div class="label">Total cost</div><div class="value" id="totalCost">0.00</div></div>
+        <div class="card stat"><div class="label">Total volume</div><div class="value" id="totalVolume">0 ml</div></div>
+        <div class="card stat"><div class="label">Opened</div><div class="value" id="openedCount">0</div></div>
+        <div class="card stat"><div class="label">Tastings</div><div class="value" id="tastingCount">0</div></div>
+      </div>
+
+      <div class="grid two">
+        <div class="card"><div class="section-head"><h3>Best value</h3></div><div id="bestValueList" class="list"></div></div>
+        <div class="card"><div class="section-head"><h3>Low stock</h3></div><div id="lowStockList" class="list"></div></div>
+      </div>
+
+      <div class="grid two">
+        <div class="card"><div class="section-head"><h3>Recently tasted</h3></div><div id="recentList" class="list"></div></div>
+        <div class="card"><div class="section-head"><h3>Volume by type</h3></div><div id="typeVolumeList" class="list"></div></div>
+      </div>
+    </section>
+
+    <section class="view" data-view="library">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Add bottle to library</h2>
+        <p>Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.</p>
+      </div>
+      <form id="baseForm" class="card form">
+        <input type="hidden" name="editId">
+        <div class="grid two">
+          <label>Name<input name="name" required></label>
+          <label>Distillery / producer<input name="distillery"></label>
+        </div>
+        <div class="grid three">
+          <label>Type<select name="type" id="typeSelect"></select></label>
+          <label>ABV %<input name="abv" type="number" step="0.1"></label>
+          <label>Bottle volume ml<input name="volume" type="number"></label>
+        </div>
+        <div class="grid three">
+          <label>Full bottle weight g<input name="fullWeight" type="number"></label>
+          <label>Calculated empty weight<div id="emptyHint" class="readonly">—</div></label>
+          <div class="hidden" id="densityHint">—</div>
+        </div>
+        <div class="grid two">
+          <label>Region / country<input name="region"></label>
+          <label>Image<input id="baseImageInput" type="file" accept="image/*"></label>
+        </div>
+        <img id="baseImagePreview" class="preview hidden" alt="">
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <div class="grid two">
+          <button class="primary" type="submit" id="baseSaveButton">Save library item</button>
+          <button class="ghost hidden" type="button" id="baseCancelButton">Cancel</button>
+        </div>
+      </form>
+      <div class="card">
+        <div class="section-head"><h3>Library items</h3><input id="baseSearch" class="search"></div>
+        <div id="baseList" class="list"></div>
+      </div>
+    </section>
+
+    <section class="view" data-view="new-bottle">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Add bottle</h2>
+        <p>New bottles are stored as unopened until the first tasting is registered.</p>
+      </div>
+      <form id="bottleForm" class="card form">
+        <input type="hidden" name="editId">
+        <label>Library item<select name="baseId" id="basePick"></select></label>
+        <div class="grid three">
+          <label>Batch no.<input name="batchNo"></label>
+          <label>Bottle no.<input name="bottleNo"></label>
+          <label>Price<input name="price" type="text" inputmode="decimal"></label>
+        </div>
+        <div class="grid two">
+          <label>Purchase place<input name="purchasePlace"></label>
+          <label>Purchase date<input name="purchaseDate" type="date"></label>
+        </div>
+        <div class="grid two">
+          <label>Current weight g<input name="currentWeight" type="number"></label>
+          <label>Comments<textarea name="comments" rows="2"></textarea></label>
+        </div>
+        <div class="grid two">
+          <button class="primary" type="submit" id="bottleSaveButton">Save bottle</button>
+          <button class="ghost hidden" type="button" id="bottleCancelButton">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="view" data-view="unopened">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Unopened bottles</h2>
+        <p>Purchase date, ABV, volume and key bottle details.</p>
+      </div>
+      <div id="unopenedList" class="list"></div>
+    </section>
+
+    <section class="view" data-view="opened">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Opened bottles</h2>
+        <p>Purchase date, opened date, last tasted and remaining volume.</p>
+      </div>
+      <div id="openedList" class="list"></div>
+    </section>
+
+    <section class="view" data-view="empty">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Empty bottles</h2>
+        <p>Finished bottles with purchase, opened and last tasting dates.</p>
+      </div>
+      <div id="emptyList" class="list"></div>
+    </section>
+
+    <section class="view" data-view="bottle-detail">
+      <button class="back" id="detailBackButton">← Home</button>
+      <div id="bottleDetail"></div>
+    </section>
+
+    <section class="view" data-view="backup">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Backup</h2>
+        <p>Export, import or reset local data.</p>
+      </div>
+      <div class="card form">
+        <button id="exportButton" class="primary" type="button">Export backup</button>
+        <label>Import backup<input id="importInput" type="file" accept="application/json"></label>
+        <button id="resetButton" class="danger" type="button">Reset all data</button>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
