@@ -292,3 +292,18 @@ form[action="javascript:void(0)"] button[type="submit"]{touch-action:manipulatio
 .catalog-hard-row{
   display:none !important;
 }
+
+/* v1.27 definitive page separation */
+section.view{
+  display:none !important;
+}
+section.view.active{
+  display:block !important;
+}
+section.view[hidden]{
+  display:none !important;
+}
+#catalogPickerCard,
+#fillFromCatalogButton{
+  display:none !important;
+}

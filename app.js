@@ -139,7 +139,12 @@ function init(){
 
 }
 function show(name){
-  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));
+  document.querySelectorAll('section.view').forEach(v=>{
+    const active=v.dataset.view===name;
+    v.classList.toggle('active',active);
+    v.hidden=!active;
+    v.style.display=active?'block':'none';
+  });
   window.scrollTo({top:0,behavior:'smooth'});
 }
 async function handleBaseImage(e){

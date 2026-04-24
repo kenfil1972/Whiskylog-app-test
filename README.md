@@ -1,3 +1,12 @@
+# WhiskyLog v1.27 Page Separation Fixed
+
+Fixes:
+- Only one page/view is visible at a time.
+- Adds hard CSS rule: section.view hidden unless active.
+- Adds inline fallback navigation so page switching works even if app.js has issues.
+- Removes leftover catalog button/card remnants from the Library page.
+- Keeps v1.26 stability fixes.
+
 # WhiskyLog v1.26 Stability Fixed
 
 Fixes:

@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.26</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=126">
+  <title>WhiskyLog v1.27</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=127">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=126">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=127">
 </head>
 <body>
 <div class="app">
@@ -124,8 +124,7 @@
         <img id="baseImagePreview" class="preview hidden" alt="">
         <label>Notes<textarea name="notes" rows="3"></textarea></label>
         <div class="grid two">
-          <button class="ghost" type="button" id="fillFromCatalogButton">Fill from catalog suggestion</button>
-          <button class="primary" type="submit" id="baseSaveButton">Save library item</button>
+<button class="primary" type="submit" id="baseSaveButton">Save library item</button>
           <button class="ghost hidden" type="button" id="baseCancelButton">Cancel</button>
         </div>
       </form>
@@ -329,26 +328,9 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=126"></script>
+<script src="/Whiskylog-app-test/app.js?v=127"></script>
 
-<script>/* v1.19 navigation fallback */
-(function(){
-  function showView(name){
-    document.querySelectorAll('.view').forEach(function(v){
-      v.classList.toggle('active', v.dataset.view === name);
-    });
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-  window.show = window.show || showView;
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('[data-go]');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    showView(btn.getAttribute('data-go'));
-  }, true);
-})();
-</script>
+
 
 
 <script>
@@ -496,6 +478,39 @@
   document.addEventListener('DOMContentLoaded', init);
   setTimeout(init, 250);
   setTimeout(init, 1000);
+})();
+</script>
+
+
+<script>
+/* v1.27 page separation hardfix */
+(function(){
+  function showOnly(name){
+    if(!name) name='home';
+    document.querySelectorAll('section.view').forEach(function(v){
+      var isActive = v.getAttribute('data-view') === name;
+      v.classList.toggle('active', isActive);
+      v.hidden = !isActive;
+      v.style.display = isActive ? 'block' : 'none';
+    });
+    try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+  }
+
+  window.show = showOnly;
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-go]');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showOnly(btn.getAttribute('data-go'));
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    showOnly('home');
+  });
+
+  setTimeout(function(){ showOnly('home'); }, 300);
 })();
 </script>
 
