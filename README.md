@@ -1,3 +1,10 @@
+# WhiskyLog v1.29 Type Dropdown Fixed
+
+Fix:
+- Type dropdown now has a fixed selection list.
+- Includes Whisky, Single Malt Scotch, Bourbon, Rum, Cognac, Aquavit, Gin, Tequila, Mezcal and more.
+- Added inline fallback so the dropdown is populated even if app.js initialization fails.
+
 # WhiskyLog v1.28 View Structure Fixed
 
 Fix:

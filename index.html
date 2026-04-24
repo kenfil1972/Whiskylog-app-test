@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.28</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=128">
+  <title>WhiskyLog v1.29</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=129">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=128">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=129">
 </head>
 <body>
 <div class="app">
@@ -107,7 +107,34 @@
         </div>
         <div class="grid three">
           <label>Type
-            <select name="type"></select>
+            <select name="type">
+              <option value="">Choose type</option>
+              <option value="Whisky">Whisky</option>
+              <option value="Single Malt Scotch">Single Malt Scotch</option>
+              <option value="Blended Scotch">Blended Scotch</option>
+              <option value="Bourbon">Bourbon</option>
+              <option value="Rye Whiskey">Rye Whiskey</option>
+              <option value="Tennessee Whiskey">Tennessee Whiskey</option>
+              <option value="Irish Whiskey">Irish Whiskey</option>
+              <option value="Japanese Whisky">Japanese Whisky</option>
+              <option value="Canadian Whisky">Canadian Whisky</option>
+              <option value="Rum">Rum</option>
+              <option value="Dark Rum">Dark Rum</option>
+              <option value="Aged Rum">Aged Rum</option>
+              <option value="Agricole Rum">Agricole Rum</option>
+              <option value="Cognac">Cognac</option>
+              <option value="Armagnac">Armagnac</option>
+              <option value="Brandy">Brandy</option>
+              <option value="Calvados">Calvados</option>
+              <option value="Aquavit">Aquavit</option>
+              <option value="Gin">Gin</option>
+              <option value="Vodka">Vodka</option>
+              <option value="Tequila">Tequila</option>
+              <option value="Mezcal">Mezcal</option>
+              <option value="Liqueur">Liqueur</option>
+              <option value="Amaro">Amaro</option>
+              <option value="Other">Other</option>
+            </select>
           </label>
           <label>ABV %<input name="abv" type="text" inputmode="decimal"></label>
           <label>Bottle volume ml<input name="volume" type="text" inputmode="decimal"></label>
@@ -333,7 +360,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=128"></script>
+<script src="/Whiskylog-app-test/app.js?v=129"></script>
 
 
 
@@ -543,6 +570,27 @@
   }, true);
   document.addEventListener('DOMContentLoaded', function(){ showOnly('home'); });
   setTimeout(function(){ showOnly('home'); }, 300);
+})();
+</script>
+
+
+<script>
+/* v1.29 type dropdown hardfix */
+(function(){
+  var TYPES = ["Whisky", "Single Malt Scotch", "Blended Scotch", "Bourbon", "Rye Whiskey", "Tennessee Whiskey", "Irish Whiskey", "Japanese Whisky", "Canadian Whisky", "Rum", "Dark Rum", "Aged Rum", "Agricole Rum", "Cognac", "Armagnac", "Brandy", "Calvados", "Aquavit", "Gin", "Vodka", "Tequila", "Mezcal", "Liqueur", "Amaro", "Other"];
+  function fillTypeSelects(){
+    document.querySelectorAll('select[name="type"]').forEach(function(sel){
+      if(sel.options.length > 1) return;
+      var current = sel.value || '';
+      sel.innerHTML = '<option value="">Choose type</option>' + TYPES.map(function(t){
+        return '<option value="'+t.replace(/"/g,'&quot;')+'">'+t+'</option>';
+      }).join('');
+      if(current) sel.value = current;
+    });
+  }
+  document.addEventListener('DOMContentLoaded', fillTypeSelects);
+  setTimeout(fillTypeSelects, 250);
+  setTimeout(fillTypeSelects, 1000);
 })();
 </script>
 
