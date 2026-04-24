@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.20</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=120">
+  <title>WhiskyLog v1.21</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=121">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=120">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=121">
 </head>
 <body>
 <div class="app">
@@ -68,7 +68,7 @@
       </div>
 
       <div class="grid two">
-        <button class="card action" data-go="opened"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for an opened or unopened bottle</small></button>
+        <button class="card action" data-go="add-tasting"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for an opened or unopened bottle</small></button>
         <button class="card action" data-go="new-bottle"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
         <button class="card action" data-go="library"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types for future purchases</small></button>
         <button class="card action" data-go="wishlist"><span>⭐</span><strong>Wishlist</strong><small>Track up to 50 future bottles</small></button>
@@ -161,6 +161,20 @@
         </div>
       </form>
     </section>
+
+
+    <section class="view" data-view="add-tasting">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Add bottle tasting</h2>
+        <p>Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.</p>
+      </div>
+      <div class="card">
+        <div class="section-head"><h3>Choose bottle</h3></div>
+        <div id="tastingBottleList" class="list"></div>
+      </div>
+    </section>
+
 
     <section class="view" data-view="unopened">
       <button class="back" data-go="home">← Home</button>
@@ -313,7 +327,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=120"></script>
+<script src="/Whiskylog-app-test/app.js?v=121"></script>
 
 <script>/* v1.19 navigation fallback */
 (function(){

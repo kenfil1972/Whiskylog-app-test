@@ -327,6 +327,7 @@ function renderAnalytics(){
 
 
 
+
 function setFieldValue(form, selector, value){
   const el=form.querySelector(selector);
   if(!el || value===undefined || value===null) return;
@@ -349,16 +350,15 @@ function fillLibraryFromCatalog(){
   if(!f) return false;
   const nameEl=f.querySelector('[name="name"]');
   const item=findCatalogByName(nameEl ? nameEl.value : '');
-  if(!item){
-    alert('No matching catalog item found.');
-    return false;
-  }
+  if(!item){ alert('No matching catalog item found.'); return false; }
+
   setFieldValue(f,'[name="name"]',item.name||'');
   setFieldValue(f,'[name="type"]',item.type||'Whisky');
   setFieldValue(f,'[name="abv"]',item.abv ?? '');
   setFieldValue(f,'[name="volume"]',item.volume ?? '');
   setFieldValue(f,'[name="region"]',item.region||'');
-  if(item.distillery){ setFieldValue(f,'[name="distillery"]',item.distillery); }
+  setFieldValue(f,'[name="distillery"]',item.distillery||'');
+
   if(item.image){
     pendingBaseImage=item.image;
     const p=document.getElementById('baseImagePreview');
@@ -370,10 +370,8 @@ function fillLibraryFromCatalog(){
 function attachCatalogAutoFill(){
   const input=document.getElementById('libraryNameInput');
   if(!input) return;
-  const tryFill=()=>{
-    const item=findCatalogByName(input.value);
-    if(item) fillLibraryFromCatalog();
-  };
+  const tryFill=()=>{ const item=findCatalogByName(input.value); if(item) fillLibraryFromCatalog(); };
+  input.addEventListener('input', ()=>{ const item=findCatalogByName(input.value); if(item && normalizeText(item.name)===normalizeText(input.value)) fillLibraryFromCatalog(); });
   input.addEventListener('change', tryFill);
   input.addEventListener('blur', tryFill);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ setTimeout(tryFill,0); } });
@@ -446,8 +444,27 @@ function renderWishlist(){
   el.innerHTML=html;
 }
 
-function render(){updateAppTitle();renderPickers();renderHome();renderBaseList();renderAllBottleLists();renderWishlist();renderAnalytics();}
+
+function renderTastingBottleList(){
+  const el=document.getElementById('tastingBottleList');
+  if(!el) return;
+  const items=state.bottles.filter(b=>['unopened','opened'].includes(bottleStatus(b.id)));
+  if(!items.length){
+    el.innerHTML='<div class="sub">No unopened or opened bottles available. Add a bottle to your collection first.</div>';
+    return;
+  }
+  el.innerHTML=items.map(b=>{
+    const base=getBase(b.baseId);
+    const status=bottleStatus(b.id);
+    return `<div class="item" onclick="addTastingForBottle('${b.id}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${status==='unopened'?'Unopened':'Opened'} · ${base?.abv||'—'}% · ${ml(bottleVolume(b.id))} left</div><div class="sub">${esc(base?.type||'')}</div></div><div class="side"><button class="smallbtn" onclick="event.stopPropagation();addTastingForBottle('${b.id}')">Add tasting</button></div></div>`;
+  }).join('');
+}
+
+function render(){updateAppTitle();renderPickers();renderHome();renderBaseList();renderAllBottleLists();renderTastingBottleList();renderWishlist();renderAnalytics();}
 function renderPickers(){document.getElementById('basePick').innerHTML=state.bases.length?state.bases.map(b=>`<option value="${b.id}">${esc(b.name)} — ${esc(b.type)}</option>`).join(''):'<option value="">No library items</option>';}
+
+
+
 
 function renderHomeCategoryImages(){
   renderCategoryStrip('unopened','homeUnopenedImages');
@@ -456,16 +473,16 @@ function renderHomeCategoryImages(){
 }
 function renderCategoryStrip(status, targetId){
   const el=document.getElementById(targetId);
-  if(!el)return;
+  if(!el) return;
   const items=state.bottles.filter(b=>bottleStatus(b.id)===status).slice(0,4);
   let html='';
   for(let i=0;i<4;i++){
     const b=items[i];
     const base=b?getBase(b.baseId):null;
-    if(base&&base.image){
-      html+=`<img src="${base.image}" alt="">`;
+    if(base && base.image){
+      html += `<img src="${base.image}" alt="">`;
     }else{
-      html+=`<div class="fallback-bottle">🥃</div>`;
+      html += `<div class="fallback-bottle">🥃</div>`;
     }
   }
   el.innerHTML=html;

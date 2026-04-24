@@ -1,3 +1,12 @@
+# WhiskyLog v1.21 Tasting, Autofill and Images Fixed
+
+Fixes:
+- Catalog autofill now fills name, type, ABV, volume, distillery/producer and region.
+- Add bottle tasting now has its own page.
+- Add bottle tasting lists both unopened and opened bottles.
+- Tasting an unopened bottle sets opened date and moves it to Opened bottles.
+- Home category image strips restored with fallback whisky bottle icons.
+
 # WhiskyLog v1.20 Expanded Bottle Catalog
 
 New:

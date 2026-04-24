@@ -185,3 +185,28 @@ canvas{
 /* v1.19 navigation robustness */
 [data-go]{cursor:pointer;touch-action:manipulation;}
 .view{min-height:20px;}
+
+/* v1.21 tasting picker + restored home bottle image strips */
+#tastingBottleList .item{cursor:pointer;}
+.mini-bottle-strip{
+  display:grid !important;
+  grid-template-columns:repeat(2,34px) !important;
+  grid-template-rows:repeat(2,34px) !important;
+  gap:5px !important;
+  min-width:73px;
+}
+.mini-bottle-strip img,
+.mini-bottle-strip .fallback-bottle{
+  width:34px !important;
+  height:34px !important;
+  border-radius:9px !important;
+  object-fit:cover !important;
+  border:1px solid rgba(216,165,92,.35) !important;
+  background:#120b07 !important;
+}
+.fallback-bottle{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:20px !important;
+}
