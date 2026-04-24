@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.31</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=131">
+  <title>WhiskyLog v1.32</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=132">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=131">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=132">
 </head>
 <body>
 <div class="app">
@@ -360,7 +360,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=131"></script>
+<script src="/Whiskylog-app-test/app.js?v=132"></script>
 
 
 
@@ -756,6 +756,106 @@
   document.addEventListener('DOMContentLoaded', init);
   setTimeout(init,300);
   setTimeout(init,1000);
+})();
+</script>
+
+
+<script>
+/* v1.32 new bottle picker hardfix */
+(function(){
+  function key(){ return window.KEY || 'whiskylog_appstore_v19'; }
+  function readState(){
+    try{
+      return Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, JSON.parse(localStorage.getItem(key()) || '{}'));
+    }catch(e){
+      return {bases:[],bottles:[],tastings:[],comments:[],wishlist:[]};
+    }
+  }
+  function writeState(s){
+    localStorage.setItem(key(), JSON.stringify(s));
+    try{
+      if(window.state){
+        window.state.bases=s.bases||[];
+        window.state.bottles=s.bottles||[];
+        window.state.tastings=s.tastings||[];
+        window.state.comments=s.comments||[];
+        window.state.wishlist=s.wishlist||[];
+      }
+    }catch(e){}
+  }
+  function dec(v){
+    v=String(v==null?'':v).replace(',','.').replace(/[^\d.-]/g,'');
+    var n=Number(v);
+    return Number.isFinite(n)?n:0;
+  }
+  function uid(){
+    return 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+  }
+  function populateBaseSelect(){
+    var form=document.getElementById('bottleForm');
+    if(!form) return;
+    var sel=form.querySelector('[name="baseId"]');
+    if(!sel) return;
+    var current=sel.value;
+    var s=readState();
+    var bases=Array.isArray(s.bases)?s.bases:[];
+    sel.innerHTML='<option value="">Choose library item</option>' + bases.map(function(b){
+      var label=(b.name||'Unnamed') + (b.abv?(' · '+b.abv+'%'):'') + (b.volume?(' · '+b.volume+' ml'):'');
+      return '<option value="'+String(b.id).replace(/"/g,'&quot;')+'">'+label.replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];})+'</option>';
+    }).join('');
+    if(current && bases.some(function(b){return b.id===current;})) sel.value=current;
+  }
+  function saveBottle(e){
+    if(e){e.preventDefault(); e.stopPropagation();}
+    var form=document.getElementById('bottleForm');
+    if(!form) return false;
+    var baseId=form.querySelector('[name="baseId"]')?.value || '';
+    if(!baseId){ alert('Choose a library item first.'); return false; }
+    var s=readState();
+    var base=(s.bases||[]).find(function(b){return b.id===baseId;});
+    if(!base){ alert('Library item was not found. Go back and check that the library item is saved.'); populateBaseSelect(); return false; }
+    var id=uid();
+    var purchaseDate=form.querySelector('[name="purchaseDate"]')?.value || new Date().toISOString().slice(0,10);
+    var currentWeight=dec(form.querySelector('[name="currentWeight"]')?.value);
+    var bottle={
+      id:id,
+      baseId:baseId,
+      batchNo:(form.querySelector('[name="batchNo"]')?.value || '').trim(),
+      bottleNo:(form.querySelector('[name="bottleNo"]')?.value || '').trim(),
+      price:dec(form.querySelector('[name="price"]')?.value),
+      purchasePlace:(form.querySelector('[name="purchasePlace"]')?.value || '').trim(),
+      purchaseDate:purchaseDate,
+      openedDate:'',
+      currentWeight:currentWeight || dec(base.fullWeight),
+      comments:(form.querySelector('[name="comments"]')?.value || '').trim()
+    };
+    if(!Array.isArray(s.bottles)) s.bottles=[];
+    s.bottles.unshift(bottle);
+    writeState(s);
+    try{ form.reset(); }catch(err){}
+    populateBaseSelect();
+    if(typeof render==='function'){ try{ render(); }catch(err){} }
+    if(typeof show==='function'){ show('unopened'); }
+    alert('Bottle saved.');
+    return false;
+  }
+  function init(){
+    populateBaseSelect();
+    var form=document.getElementById('bottleForm');
+    if(form){
+      form.setAttribute('autocomplete','off');
+      form.onsubmit=function(e){ return saveBottle(e); };
+    }
+    var btn=document.getElementById('bottleSaveButton');
+    if(btn){
+      btn.type='button';
+      btn.onclick=function(e){ return saveBottle(e); };
+    }
+  }
+  document.addEventListener('DOMContentLoaded',init);
+  setTimeout(init,300);
+  setTimeout(init,1000);
+  window.wl32PopulateBaseSelect=populateBaseSelect;
 })();
 </script>
 

@@ -867,3 +867,17 @@ setTimeout(wl30_attachLibraryFix, 300);
 setTimeout(wl30_attachLibraryFix, 1000);
 
 /* v1.31 form controls fixed: inline fallback handles baseForm save/cancel and empty weight. */
+
+/* v1.32 new bottle picker fallback */
+function wl32PopulateBaseSelectFallback(){
+  try{
+    const sel=document.querySelector('#bottleForm [name="baseId"]');
+    if(!sel) return;
+    const raw=localStorage.getItem(KEY);
+    const s=Object.assign({bases:[]}, raw?JSON.parse(raw):{});
+    const current=sel.value;
+    sel.innerHTML='<option value="">Choose library item</option>'+(s.bases||[]).map(b=>`<option value="${b.id}">${b.name||'Unnamed'}${b.abv?' · '+b.abv+'%':''}${b.volume?' · '+b.volume+' ml':''}</option>`).join('');
+    if(current) sel.value=current;
+  }catch(e){}
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(wl32PopulateBaseSelectFallback,150));

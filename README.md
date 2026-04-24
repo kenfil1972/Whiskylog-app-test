@@ -1,3 +1,11 @@
+# WhiskyLog v1.32 New Bottle Picker Fixed
+
+Fix:
+- Add bottle → Library item dropdown is populated from saved library items.
+- Added direct fallback save handler for new bottle.
+- Saved bottle is stored as unopened.
+- Current weight defaults to library full bottle weight when not entered.
+
 # WhiskyLog v1.31 Form Controls Fixed
 
 Fixes:
