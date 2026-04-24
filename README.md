@@ -1,3 +1,19 @@
+# WhiskyLog v1.15 PWA Fixed
+
+Fixes for iPhone Home Screen app mode:
+- Correct GitHub Pages base path: /Whiskylog-app-test/
+- Correct manifest start_url and scope
+- Correct absolute asset paths
+- Service worker caching disabled to avoid stale/broken iOS PWA behavior
+- Use this URL before adding to Home Screen:
+  https://kenfil1972.github.io/Whiskylog-app-test/index.html
+
+After uploading:
+1. Delete old Home Screen icon.
+2. Open the URL in Safari.
+3. Refresh once.
+4. Share → Add to Home Screen.
+
 # WhiskyLog v1.14
 
 Bugfix:

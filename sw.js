@@ -1,1 +1,12 @@
-const CACHE='whiskylog-v19';const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});
+// WhiskyLog v1.15
+// Service worker intentionally disabled for GitHub Pages/iOS PWA stability.
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    self.registration.unregister().then(() => self.clients.matchAll()).then(clients => {
+      clients.forEach(client => client.navigate(client.url));
+    })
+  );
+});
