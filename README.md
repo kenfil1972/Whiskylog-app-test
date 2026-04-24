@@ -1,3 +1,15 @@
+# WhiskyLog v1.20 Expanded Bottle Catalog
+
+New:
+- Expanded static starter catalog with 161 relevant spirits.
+- Includes whisky, bourbon, rye, rum, cognac, brandy, calvados, armagnac, aquavit, gin, tequila, mezcal, vodka and liqueurs.
+- Catalog fields include name, type, ABV, volume, distillery/producer and origin/region.
+- Designed for autofill in Add bottle to library.
+- Prices are intentionally set to 0 because Vinmonopolet prices and availability change and should be edited manually.
+
+Important:
+This is a curated static starter catalog, not a complete live Vinmonopolet database.
+
 # WhiskyLog v1.19 Navigation Fixed
 
 Fix:
