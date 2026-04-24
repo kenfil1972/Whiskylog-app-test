@@ -308,7 +308,9 @@ function openBottleDetail(id,returnView='home'){
   document.getElementById('bottleDetail').innerHTML=`
     <div class="card themed">${thumb(base)}<h2>${esc(bottleName(b))}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} left</p></div>
     <div class="grid two">
-      <button class="primary" type="button" onclick="addTastingForBottle('${id}')">Add tasting</button>
+      ${bottleStatus(id)==='empty'
+        ? `<button class="primary" type="button" onclick="newBottlePurchased('${id}')">New bottle purchased</button>`
+        : `<button class="primary" type="button" onclick="addTastingForBottle('${id}')">Add tasting</button>`}
       ${bottleStatus(id)==='opened'?`<button class="ghost" type="button" onclick="markEmpty('${id}')">Last sip enjoyed</button>`:''}
     </div>
     <div class="card"><h3>Notes</h3><p>${esc(b.comments||base.notes||'No notes.')}</p></div>
@@ -331,6 +333,7 @@ function renderTastingPicker(){
 }
 function addTastingForBottle(id){
   const b=getBottle(id); if(!b)return;
+  if(bottleStatus(id)==='empty'){alert('This bottle is empty. Use New bottle purchased instead.');return;}
   const date=prompt('Tasting date',new Date().toISOString().slice(0,10)); if(!date)return;
   const mlAmount=dec(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
   const score=dec(prompt('Score 1-10',''));
@@ -338,6 +341,31 @@ function addTastingForBottle(id){
   if(!b.openedDate)b.openedDate=date;
   state.tastings.unshift({id:uid(),bottleId:id,date,ml:mlAmount,score,notes});
   save(); render(); show('opened');
+}
+
+
+function newBottlePurchased(oldBottleId){
+  const old=getBottle(oldBottleId);
+  if(!old){alert('Bottle not found.');return;}
+  const base=getBase(old.baseId);
+  if(!base){alert('Library item not found.');return;}
+  const today=new Date().toISOString().slice(0,10);
+  const newBottle={
+    id:uid(),
+    baseId:old.baseId,
+    batchNo:'',
+    bottleNo:'',
+    price:0,
+    purchasePlace:old.purchasePlace||'',
+    purchaseDate:today,
+    openedDate:'',
+    currentWeight:dec(base.fullWeight),
+    comments:'Created from empty bottle: '+bottleName(old)
+  };
+  state.bottles.unshift(newBottle);
+  save();
+  render();
+  openBottleDetail(newBottle.id,'unopened');
 }
 
 function renderWishlist(){

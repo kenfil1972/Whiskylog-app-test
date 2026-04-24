@@ -1,3 +1,11 @@
+# WhiskyLog v1.34 Empty Bottle Repurchase Fixed
+
+Fixes:
+- Empty bottles no longer show Add tasting.
+- Empty bottles show New bottle purchased instead.
+- New bottle purchased creates a new unopened bottle from the same library item.
+- Add tasting is blocked defensively if a bottle is empty.
+
 # WhiskyLog v1.33 Stable Rollback
 
 Clean stable rollback version built from scratch.
