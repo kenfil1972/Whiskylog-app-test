@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.30</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=130">
+  <title>WhiskyLog v1.31</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=131">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=130">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=131">
 </head>
 <body>
 <div class="app">
@@ -99,10 +99,10 @@
         <p>Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.</p>
       </div>
 
-      <form id="baseForm" class="card form" action="javascript:void(0)">
+      <form id="baseForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" required autocomplete="off"></label>
+          <label>Name<input name="name" required autocomplete="new-password"></label>
           <label>Distillery / producer<input name="distillery" autocomplete="off"></label>
         </div>
         <div class="grid three">
@@ -136,21 +136,21 @@
               <option value="Other">Other</option>
             </select>
           </label>
-          <label>ABV %<input name="abv" type="text" inputmode="decimal"></label>
-          <label>Bottle volume ml<input name="volume" type="text" inputmode="decimal"></label>
+          <label>ABV %<input name="abv" autocomplete="off" type="text" inputmode="decimal"></label>
+          <label>Bottle volume ml<input name="volume" autocomplete="off" type="text" inputmode="decimal"></label>
         </div>
         <div class="grid two">
-          <label>Full bottle weight g<input name="fullWeight" type="text" inputmode="decimal"></label>
+          <label>Full bottle weight g<input name="fullWeight" autocomplete="off" type="text" inputmode="decimal"></label>
           <label>Calculated empty weight<input id="emptyWeightHint" readonly value="—"></label>
         </div>
         <div class="grid two">
-          <label>Region / country<input name="region"></label>
+          <label>Region / country<input name="region" autocomplete="off"></label>
           <label>Image<input name="image" type="file" accept="image/*"></label>
         </div>
         <img id="baseImagePreview" class="preview hidden" alt="">
         <label>Notes<textarea name="notes" rows="3"></textarea></label>
         <div class="grid two">
-          <button class="primary" type="submit" id="baseSaveButton">Save library item</button>
+          <button class="primary" type="button" id="baseSaveButton">Save library item</button>
           <button class="ghost" type="button" id="baseCancelButton">Cancel</button>
         </div>
       </form>
@@ -172,7 +172,7 @@
         <h2>Add bottle</h2>
         <p>New bottles are stored as unopened until the first tasting is registered.</p>
       </div>
-      <form id="bottleForm" class="card form" action="javascript:void(0)">
+      <form id="bottleForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <input type="hidden" name="editId">
         <label>Library item<select name="baseId" id="basePick"></select></label>
         <div class="grid three">
@@ -249,10 +249,10 @@
         <h2>Wishlist</h2>
         <p>Track up to 50 bottles. The top 5 can include images; the rest are listed by name.</p>
       </div>
-      <form id="wishlistForm" class="card form" action="javascript:void(0)">
+      <form id="wishlistForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" required list="catalogSuggestions"></label>
+          <label>Name<input name="name" autocomplete="new-password" required list="catalogSuggestions"></label>
           <label>Image URL<input name="image"></label>
         </div>
         <div class="grid three">
@@ -279,7 +279,7 @@
         <h2>Settings</h2>
         <p>Personalize the app.</p>
       </div>
-      <form id="settingsForm" class="card form" action="javascript:void(0)">
+      <form id="settingsForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <div class="grid two">
           <label>Name<input name="ownerName"></label>
           <label>Currency
@@ -360,7 +360,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=130"></script>
+<script src="/Whiskylog-app-test/app.js?v=131"></script>
 
 
 
@@ -591,6 +591,171 @@
   document.addEventListener('DOMContentLoaded', fillTypeSelects);
   setTimeout(fillTypeSelects, 250);
   setTimeout(fillTypeSelects, 1000);
+})();
+</script>
+
+
+<script>
+/* v1.31 library form controls hardfix */
+(function(){
+  function dec(v){
+    v = String(v == null ? '' : v).replace(',', '.').replace(/[^\d.-]/g,'');
+    var n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function density(abv){
+    abv = dec(abv);
+    var t = [
+      [0,0.9982],[5,0.9892],[10,0.9807],[15,0.9723],[20,0.9640],[25,0.9559],
+      [30,0.9479],[35,0.9399],[40,0.9319],[45,0.9239],[50,0.9157],[55,0.9073],[60,0.8987]
+    ];
+    if(abv <= 0) return t[0][1];
+    if(abv >= 60) return t[t.length-1][1];
+    for(var i=0;i<t.length-1;i++){
+      var a=t[i], b=t[i+1];
+      if(abv >= a[0] && abv <= b[0]){
+        var r=(abv-a[0])/(b[0]-a[0]);
+        return a[1] + (b[1]-a[1])*r;
+      }
+    }
+    return 0.9319;
+  }
+  function uid(){
+    return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  }
+  function getKey(){
+    return window.KEY || 'whiskylog_appstore_v19';
+  }
+  function readState(){
+    try{
+      var raw = localStorage.getItem(getKey());
+      return Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, raw ? JSON.parse(raw) : {});
+    }catch(e){
+      return {bases:[],bottles:[],tastings:[],comments:[],wishlist:[]};
+    }
+  }
+  function writeState(s){
+    localStorage.setItem(getKey(), JSON.stringify(s));
+    try{
+      if(window.state){
+        window.state.bases=s.bases||[];
+        window.state.bottles=s.bottles||[];
+        window.state.tastings=s.tastings||[];
+        window.state.comments=s.comments||[];
+        window.state.wishlist=s.wishlist||[];
+      }
+    }catch(e){}
+  }
+  function calcEmpty(){
+    var f=document.getElementById('baseForm');
+    if(!f) return 0;
+    var abv=dec(f.querySelector('[name="abv"]') && f.querySelector('[name="abv"]').value);
+    var vol=dec(f.querySelector('[name="volume"]') && f.querySelector('[name="volume"]').value);
+    var full=dec(f.querySelector('[name="fullWeight"]') && f.querySelector('[name="fullWeight"]').value);
+    if(!vol || !full) return 0;
+    return Math.max(0, Math.round(full - (vol * density(abv))));
+  }
+  function updateHint(){
+    var hint=document.getElementById('emptyWeightHint');
+    if(!hint) return;
+    var v=calcEmpty();
+    hint.value = v ? String(v) : '—';
+  }
+  function selectedImage(){
+    try{
+      if(window.pendingBaseImage) return window.pendingBaseImage;
+    }catch(e){}
+    return '';
+  }
+  function saveLibrary(){
+    var f=document.getElementById('baseForm');
+    if(!f) return false;
+    var nameEl=f.querySelector('[name="name"]');
+    var name=(nameEl && nameEl.value || '').trim();
+    if(!name){ alert('Name is required.'); return false; }
+
+    var hidden=f.querySelector('[name="editId"]');
+    var id=(hidden && hidden.value || '').trim() || uid();
+    var item={
+      id:id,
+      name:name,
+      distillery:(f.querySelector('[name="distillery"]')?.value || '').trim(),
+      type:(f.querySelector('[name="type"]')?.value || '').trim(),
+      abv:dec(f.querySelector('[name="abv"]')?.value),
+      volume:dec(f.querySelector('[name="volume"]')?.value),
+      fullWeight:dec(f.querySelector('[name="fullWeight"]')?.value),
+      emptyWeight:calcEmpty(),
+      region:(f.querySelector('[name="region"]')?.value || '').trim(),
+      image:selectedImage(),
+      notes:(f.querySelector('[name="notes"]')?.value || '').trim()
+    };
+
+    var s=readState();
+    if(!Array.isArray(s.bases)) s.bases=[];
+    var idx=s.bases.findIndex(function(x){return x.id===id;});
+    if(idx >= 0) s.bases[idx]=Object.assign({}, s.bases[idx], item);
+    else s.bases.unshift(item);
+    writeState(s);
+
+    f.reset();
+    if(hidden) hidden.value='';
+    try{ window.pendingBaseImage=''; }catch(e){}
+    var prev=document.getElementById('baseImagePreview');
+    if(prev){ prev.classList.add('hidden'); prev.removeAttribute('src');}
+    updateHint();
+
+    if(typeof render === 'function'){ try{ render(); }catch(e){} }
+    if(typeof show === 'function'){ try{ show('library'); }catch(e){} }
+    alert('Library item saved.');
+    return false;
+  }
+  function cancelLibrary(){
+    var f=document.getElementById('baseForm');
+    if(f) f.reset();
+    var hidden=f && f.querySelector('[name="editId"]');
+    if(hidden) hidden.value='';
+    try{ window.pendingBaseImage=''; }catch(e){}
+    updateHint();
+    if(typeof show === 'function') show('library');
+    return false;
+  }
+  function init(){
+    var f=document.getElementById('baseForm');
+    if(!f) return;
+
+    f.setAttribute('autocomplete','off');
+    f.querySelectorAll('input, textarea').forEach(function(el){
+      el.setAttribute('autocomplete', el.name === 'name' ? 'new-password' : 'off');
+      el.setAttribute('autocorrect','off');
+      el.setAttribute('autocapitalize','none');
+      el.setAttribute('spellcheck','false');
+    });
+
+    ['abv','volume','fullWeight'].forEach(function(n){
+      var el=f.querySelector('[name="'+n+'"]');
+      if(el){
+        el.addEventListener('input', updateHint);
+        el.addEventListener('change', updateHint);
+      }
+    });
+
+    f.onsubmit=function(e){ e.preventDefault(); e.stopPropagation(); return saveLibrary(); };
+
+    var save=document.getElementById('baseSaveButton');
+    if(save){
+      save.type='button';
+      save.onclick=function(e){ e.preventDefault(); e.stopPropagation(); return saveLibrary(); };
+    }
+    var cancel=document.getElementById('baseCancelButton');
+    if(cancel){
+      cancel.type='button';
+      cancel.onclick=function(e){ e.preventDefault(); e.stopPropagation(); return cancelLibrary(); };
+    }
+    updateHint();
+  }
+  document.addEventListener('DOMContentLoaded', init);
+  setTimeout(init,300);
+  setTimeout(init,1000);
 })();
 </script>
 

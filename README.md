@@ -1,3 +1,12 @@
+# WhiskyLog v1.31 Form Controls Fixed
+
+Fixes:
+- Browser/iOS autofill disabled on Library form fields.
+- Save library item has a direct inline fallback handler.
+- Cancel has a direct inline fallback handler.
+- Calculated empty weight updates from ABV, volume and full bottle weight.
+- Decimal comma and dot both work.
+
 # WhiskyLog v1.30 Library Save + Weight Fixed
 
 Fix:

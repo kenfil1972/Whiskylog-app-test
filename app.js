@@ -865,3 +865,5 @@ function wl30_attachLibraryFix(){
 document.addEventListener('DOMContentLoaded', wl30_attachLibraryFix);
 setTimeout(wl30_attachLibraryFix, 300);
 setTimeout(wl30_attachLibraryFix, 1000);
+
+/* v1.31 form controls fixed: inline fallback handles baseForm save/cancel and empty weight. */

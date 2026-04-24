@@ -318,3 +318,9 @@ main > section.view.active{
 main > section.view[hidden]{
   display:none !important;
 }
+
+/* v1.31 form controls */
+#baseForm input,
+#baseForm textarea{
+  -webkit-text-security: none;
+}
