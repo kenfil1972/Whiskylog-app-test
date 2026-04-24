@@ -36,10 +36,7 @@ const settings=Object.assign({currency:"NOK",ownerName:"Kenneth",language:"en",d
   }
 })();
 function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}
-function updateAppTitle(){
-  const el=document.getElementById('appTitle');
-  if(el){ el.textContent=(settings.ownerName?settings.ownerName+'\'s ':'')+'WhiskyLog'; }
-}
+function updateAppTitle(){const el=document.getElementById('appTitle');if(el){el.textContent=(settings.ownerName||'Kenneth')+"'s WhiskyLog";}}
 function formatMoney(value){
   return `${formatPrice(value)} ${settings.currency||'NOK'}`;
 }

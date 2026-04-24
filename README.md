@@ -1,3 +1,7 @@
+# WhiskyLog v1.25 Catalog + Title Hardfix
+
+Embedded fallback catalog and title hardfix.
+
 # WhiskyLog v1.24 Catalog Hardfix
 
 Fix:
