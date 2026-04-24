@@ -1,0 +1,51 @@
+# WhiskyLog v1.11 Premium
+
+Full verified package based on v1.10.
+
+New in v1.11:
+- Add new bottle renamed to Add new bottle to collection
+- Add test of bottle renamed to Add bottle tasting
+- Currency dropdown added (NOK, SEK, DKK, EUR, USD)
+- Total cost and bottle prices now display selected currency
+- New Analytics page:
+  - Purchases / inventory value chart
+  - Tasting volume per day chart
+  - Stock volume chart
+  - Time range selector: 1 month, 3 months, 6 months, 9 months, 1 year, 5 years, 10 years, All
+- Keeps v1.10 features:
+  - Unopened / Opened / Empty bottle categories
+  - Bottle detail pages
+  - Last sip enjoyed
+  - Hidden density field
+  - Price comma/period parsing
+  - Table-based ABV density
+
+# WhiskyLog v1.10 Premium
+
+Full verified package based on v1.9.
+
+New in v1.10:
+- Home category cards show four bottle images on the right
+- Missing images use a whisky-themed fallback bottle
+- Library button renamed to Add bottle to library
+- Library purpose clarified
+- Add test of bottle card added
+- Calculated density hidden from UI, still used internally
+- Opened bottle detail action renamed to Last sip enjoyed
+- Last sip enjoyed asks for confirmation and marks bottle empty irreversibly
+- Empty status respects forced empty flag
+- Existing v1.9 features retained: Unopened / Opened / Empty pages, bottle detail pages, tasting registration, comments, images, backup/import, price comma/period parsing, table-based density calculation
+
+# WhiskyLog v1.9 Premium
+
+New:
+- Home has separate cards for Unopened, Opened and Empty bottles
+- Each category has its own page
+- Each bottle has a detail page
+- Add tasting, comments, weighing and summary from bottle detail
+- Bottle moves from unopened to opened on first tasting
+- Bottle moves from opened to empty when remaining volume is 0 ml
+- Bottom navigation removed
+- Each page has a Home button
+- Main text is white, secondary text is light brown
+- Price supports comma and period decimals and displays two decimals
