@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.32</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=132">
+  <title>WhiskyLog v1.33</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=133">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=132">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=133">
 </head>
 <body>
 <div class="app">
@@ -20,127 +20,84 @@
       <div class="eyebrow">Premium Spirits Journal</div>
       <h1 id="appTitle">WhiskyLog</h1>
     </div>
-    <button id="backupButton" class="ghost">Backup</button>
+    <button class="ghost small" id="backupButton" type="button">Backup</button>
   </header>
 
   <main>
-      <datalist id="catalogSuggestions"></datalist>
     <section class="view active" data-view="home">
       <div class="card hero">
         <div class="eyebrow">Dashboard</div>
         <h2>Your cellar overview</h2>
-        <p>Track unopened, opened and empty bottles with tastings, images, notes and weight-based volume.</p>
+        <p>Track unopened, opened and empty bottles with tastings, notes and weight-based volume.</p>
       </div>
 
-      <div class="grid three" id="statusCardsGrid">
-        <button class="card action category-action" data-go="unopened" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
-          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span style="display:inline-block;line-height:1;">📦</span>
-              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Unopened bottles</strong>
-            </div>
-            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Stored bottles not yet tasted</small>
-          </div>
-          <div class="mini-bottle-strip" id="homeUnopenedImages"></div>
+      <div class="grid three">
+        <button class="card action status-card" data-go="unopened" type="button">
+          <div><span>📦</span><strong>Unopened bottles</strong><small>Stored bottles not yet tasted</small></div>
+          <div class="mini-strip" id="homeUnopenedImages"></div>
         </button>
-
-        <button class="card action category-action" data-go="opened" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
-          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span style="display:inline-block;line-height:1;">🥃</span>
-              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Opened bottles</strong>
-            </div>
-            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Bottles open for tasting</small>
-          </div>
-          <div class="mini-bottle-strip" id="homeOpenedImages"></div>
+        <button class="card action status-card" data-go="opened" type="button">
+          <div><span>🥃</span><strong>Opened bottles</strong><small>Bottles open for tasting</small></div>
+          <div class="mini-strip" id="homeOpenedImages"></div>
         </button>
-
-        <button class="card action category-action" data-go="empty" style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;text-align:left;">
-          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-              <span style="display:inline-block;line-height:1;">🗃️</span>
-              <strong style="display:block;color:#fff;line-height:1.2;white-space:normal;">Empty bottles</strong>
-            </div>
-            <small style="display:block;color:#d5b88f;line-height:1.35;white-space:normal;">Archive and final notes</small>
-          </div>
-          <div class="mini-bottle-strip" id="homeEmptyImages"></div>
+        <button class="card action status-card" data-go="empty" type="button">
+          <div><span>🗃️</span><strong>Empty bottles</strong><small>Archive and final notes</small></div>
+          <div class="mini-strip" id="homeEmptyImages"></div>
         </button>
       </div>
 
       <div class="grid two">
-        <button class="card action" data-go="add-tasting"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for an opened or unopened bottle</small></button>
-        <button class="card action" data-go="new-bottle"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
-        <button class="card action" data-go="library"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types for future purchases</small></button>
-        <button class="card action" data-go="wishlist"><span>⭐</span><strong>Wishlist</strong><small>Track up to 50 future bottles</small></button>
-        <button class="card action" data-go="settings"><span>⚙️</span><strong>Settings</strong><small>Name, currency, language and preferences</small></button>
-        <button class="card action" data-go="analytics"><span>📈</span><strong>Analytics</strong><small>Charts for value, tastings and stock volume</small></button>
+        <button class="card action" data-go="add-tasting" type="button"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for unopened or opened bottles</small></button>
+        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
+        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types</small></button>
+        <button class="card action" data-go="wishlist" type="button"><span>⭐</span><strong>Wishlist</strong><small>Track up to 50 future bottles</small></button>
+        <button class="card action" data-go="settings" type="button"><span>⚙️</span><strong>Settings</strong><small>Name, currency and preferences</small></button>
+        <button class="card action" data-go="analytics" type="button"><span>📈</span><strong>Analytics</strong><small>Simple stock and tasting summary</small></button>
       </div>
-<div class="grid four">
-        <div class="card stat"><div class="label">Total cost</div><div class="value" id="totalCost">0.00 NOK</div></div>
-        <div class="card stat"><div class="label">Total volume</div><div class="value" id="totalVolume">0 ml</div></div>
-        <div class="card stat"><div class="label">Opened</div><div class="value" id="openedCount">0</div></div>
-        <div class="card stat"><div class="label">Tastings</div><div class="value" id="tastingCount">0</div></div>
+
+      <div class="grid four">
+        <div class="card metric"><small>Total cost</small><strong id="mCost">0.00 NOK</strong></div>
+        <div class="card metric"><small>Total volume</small><strong id="mVolume">0 ml</strong></div>
+        <div class="card metric"><small>Opened</small><strong id="mOpened">0</strong></div>
+        <div class="card metric"><small>Tastings</small><strong id="mTastings">0</strong></div>
       </div>
 
       <div class="grid two">
-        <div class="card"><div class="section-head"><h3>Best value</h3></div><div id="bestValueList" class="list"></div></div>
-        <div class="card"><div class="section-head"><h3>Low stock</h3></div><div id="lowStockList" class="list"></div></div>
-      </div>
-
-      <div class="grid two">
-        <div class="card"><div class="section-head"><h3>Recently tasted</h3></div><div id="recentList" class="list"></div></div>
-        <div class="card"><div class="section-head"><h3>Volume by type</h3></div><div id="typeVolumeList" class="list"></div></div>
+        <div class="card"><h3>Best value</h3><div id="bestValue" class="sub">No bottles yet.</div></div>
+        <div class="card"><h3>Low stock</h3><div id="lowStock" class="sub">No low-stock bottles.</div></div>
       </div>
     </section>
-    <section class="view" data-view="library">
-      <button class="back" data-go="home">← Home</button>
+
+    <section class="view" data-view="library" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
       <div class="card themed">
         <h2>Add bottle to library</h2>
         <p>Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.</p>
       </div>
-
       <form id="baseForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" required autocomplete="new-password"></label>
-          <label>Distillery / producer<input name="distillery" autocomplete="off"></label>
+          <label>Name<input name="name" required autocomplete="new-password" autocorrect="off" spellcheck="false"></label>
+          <label>Distillery / producer<input name="distillery" autocomplete="off" autocorrect="off" spellcheck="false"></label>
         </div>
         <div class="grid three">
           <label>Type
-            <select name="type">
+            <select name="type" required>
               <option value="">Choose type</option>
-              <option value="Whisky">Whisky</option>
-              <option value="Single Malt Scotch">Single Malt Scotch</option>
-              <option value="Blended Scotch">Blended Scotch</option>
-              <option value="Bourbon">Bourbon</option>
-              <option value="Rye Whiskey">Rye Whiskey</option>
-              <option value="Tennessee Whiskey">Tennessee Whiskey</option>
-              <option value="Irish Whiskey">Irish Whiskey</option>
-              <option value="Japanese Whisky">Japanese Whisky</option>
-              <option value="Canadian Whisky">Canadian Whisky</option>
-              <option value="Rum">Rum</option>
-              <option value="Dark Rum">Dark Rum</option>
-              <option value="Aged Rum">Aged Rum</option>
-              <option value="Agricole Rum">Agricole Rum</option>
-              <option value="Cognac">Cognac</option>
-              <option value="Armagnac">Armagnac</option>
-              <option value="Brandy">Brandy</option>
-              <option value="Calvados">Calvados</option>
-              <option value="Aquavit">Aquavit</option>
-              <option value="Gin">Gin</option>
-              <option value="Vodka">Vodka</option>
-              <option value="Tequila">Tequila</option>
-              <option value="Mezcal">Mezcal</option>
-              <option value="Liqueur">Liqueur</option>
-              <option value="Amaro">Amaro</option>
-              <option value="Other">Other</option>
+              <option>Whisky</option><option>Single Malt Scotch</option><option>Blended Scotch</option>
+              <option>Bourbon</option><option>Rye Whiskey</option><option>Tennessee Whiskey</option>
+              <option>Irish Whiskey</option><option>Japanese Whisky</option><option>Canadian Whisky</option>
+              <option>Rum</option><option>Dark Rum</option><option>Aged Rum</option><option>Agricole Rum</option>
+              <option>Cognac</option><option>Armagnac</option><option>Brandy</option><option>Calvados</option>
+              <option>Aquavit</option><option>Gin</option><option>Vodka</option><option>Tequila</option><option>Mezcal</option>
+              <option>Liqueur</option><option>Amaro</option><option>Other</option>
             </select>
           </label>
-          <label>ABV %<input name="abv" autocomplete="off" type="text" inputmode="decimal"></label>
-          <label>Bottle volume ml<input name="volume" autocomplete="off" type="text" inputmode="decimal"></label>
+          <label>ABV %<input name="abv" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label>Bottle volume ml<input name="volume" type="text" inputmode="decimal" autocomplete="off"></label>
         </div>
         <div class="grid two">
-          <label>Full bottle weight g<input name="fullWeight" autocomplete="off" type="text" inputmode="decimal"></label>
+          <label>Full bottle weight g<input name="fullWeight" type="text" inputmode="decimal" autocomplete="off"></label>
           <label>Calculated empty weight<input id="emptyWeightHint" readonly value="—"></label>
         </div>
         <div class="grid two">
@@ -148,716 +105,122 @@
           <label>Image<input name="image" type="file" accept="image/*"></label>
         </div>
         <img id="baseImagePreview" class="preview hidden" alt="">
-        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <label>Notes<textarea name="notes" rows="3" autocomplete="off"></textarea></label>
         <div class="grid two">
-          <button class="primary" type="button" id="baseSaveButton">Save library item</button>
+          <button class="primary" type="submit">Save library item</button>
           <button class="ghost" type="button" id="baseCancelButton">Cancel</button>
         </div>
       </form>
-
       <div class="card">
-        <div class="section-head">
-          <h3>Library items</h3>
-          <input id="baseSearch" placeholder="Search library">
-        </div>
+        <div class="section-head"><h3>Library items</h3><input id="baseSearch" placeholder="Search library" autocomplete="off"></div>
         <div id="baseList" class="list"></div>
       </div>
     </section>
 
-
-
-    <section class="view" data-view="new-bottle">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Add bottle</h2>
-        <p>New bottles are stored as unopened until the first tasting is registered.</p>
-      </div>
+    <section class="view" data-view="new-bottle" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Add bottle</h2><p>New bottles are stored as unopened until the first tasting is registered.</p></div>
       <form id="bottleForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <input type="hidden" name="editId">
-        <label>Library item<select name="baseId" id="basePick"></select></label>
-        <div class="grid three">
-          <label>Batch no.<input name="batchNo"></label>
-          <label>Bottle no.<input name="bottleNo"></label>
-          <label>Price<input name="price" type="text" inputmode="decimal"></label>
+        <label>Library item<select name="baseId" required><option value="">Choose library item</option></select></label>
+        <div class="grid two">
+          <label>Batch no.<input name="batchNo" autocomplete="off"></label>
+          <label>Bottle no.<input name="bottleNo" autocomplete="off"></label>
         </div>
         <div class="grid two">
-          <label>Purchase place<input name="purchasePlace"></label>
+          <label>Price<input name="price" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label>Purchase place<input name="purchasePlace" autocomplete="off"></label>
+        </div>
+        <div class="grid two">
           <label>Purchase date<input name="purchaseDate" type="date"></label>
+          <label>Current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
         </div>
-        <div class="grid two">
-          <label>Current weight g<input name="currentWeight" type="number"></label>
-          <label>Comments<textarea name="comments" rows="2"></textarea></label>
-        </div>
-        <div class="grid two">
-          <button class="primary" type="submit" id="bottleSaveButton">Save bottle</button>
-          <button class="ghost hidden" type="button" id="bottleCancelButton">Cancel</button>
-        </div>
+        <label>Comments<textarea name="comments" rows="3"></textarea></label>
+        <button class="primary" type="submit">Save bottle</button>
       </form>
     </section>
 
-
-    <section class="view" data-view="add-tasting">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Add bottle tasting</h2>
-        <p>Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.</p>
-      </div>
-      <div class="card">
-        <div class="section-head"><h3>Choose bottle</h3></div>
-        <div id="tastingBottleList" class="list"></div>
-      </div>
+    <section class="view" data-view="add-tasting" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Add bottle tasting</h2><p>Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.</p></div>
+      <div class="card"><div id="tastingBottleList" class="list"></div></div>
     </section>
 
-
-    <section class="view" data-view="unopened">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Unopened bottles</h2>
-        <p>Purchase date, ABV, volume and key bottle details.</p>
-      </div>
+    <section class="view" data-view="unopened" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Unopened bottles</h2><p>Purchase date, ABV and volume.</p></div>
       <div id="unopenedList" class="list"></div>
     </section>
 
-    <section class="view" data-view="opened">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Opened bottles</h2>
-        <p>Purchase date, opened date, last tasted and remaining volume.</p>
-      </div>
+    <section class="view" data-view="opened" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Opened bottles</h2><p>Purchase date, opened date, last tasted and remaining volume.</p></div>
       <div id="openedList" class="list"></div>
     </section>
 
-    <section class="view" data-view="empty">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Empty bottles</h2>
-        <p>Finished bottles with purchase, opened and last tasting dates.</p>
-      </div>
+    <section class="view" data-view="empty" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Empty bottles</h2><p>Archive and final notes.</p></div>
       <div id="emptyList" class="list"></div>
     </section>
 
-    <section class="view" data-view="bottle-detail">
-      <button class="back" id="detailBackButton">← Home</button>
+    <section class="view" data-view="bottle-detail" hidden>
+      <button class="back" id="detailBack" type="button">← Back</button>
       <div id="bottleDetail"></div>
     </section>
 
-
-
-    <section class="view" data-view="wishlist">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Wishlist</h2>
-        <p>Track up to 50 bottles. The top 5 can include images; the rest are listed by name.</p>
-      </div>
+    <section class="view" data-view="wishlist" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Wishlist</h2><p>Track up to 50 future bottles.</p></div>
       <form id="wishlistForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" autocomplete="new-password" required list="catalogSuggestions"></label>
-          <label>Image URL<input name="image"></label>
+          <label>Name<input name="name" required autocomplete="off"></label>
+          <label>Type<input name="type" autocomplete="off"></label>
         </div>
-        <div class="grid three">
-          <label>Type<input name="type"></label>
+        <div class="grid two">
           <label>Target price<input name="targetPrice" type="text" inputmode="decimal"></label>
           <label>Priority<input name="priority" type="number" min="1" max="50"></label>
         </div>
-        <label>Notes<textarea name="notes" rows="2"></textarea></label>
-        <div class="grid two">
-          <button class="primary" type="submit">Save wishlist item</button>
-          <button class="ghost" type="button" id="wishlistCancelButton">Cancel</button>
-        </div>
+        <label>Image URL / note<input name="image" autocomplete="off"></label>
+        <label>Notes<textarea name="notes" rows="3"></textarea></label>
+        <div class="grid two"><button class="primary" type="submit">Save wishlist item</button><button class="ghost" type="button" id="wishlistCancelButton">Cancel</button></div>
       </form>
-      <div class="card">
-        <div class="section-head"><h3>Wishlist items</h3></div>
-        <div id="wishlistList" class="list"></div>
-      </div>
+      <div class="card"><div id="wishlistList" class="list"></div></div>
     </section>
 
-
-    <section class="view" data-view="settings">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Settings</h2>
-        <p>Personalize the app.</p>
-      </div>
+    <section class="view" data-view="settings" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Settings</h2><p>Personalize the app.</p></div>
       <form id="settingsForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <div class="grid two">
-          <label>Name<input name="ownerName"></label>
-          <label>Currency
-            <select name="currency">
-              <option value="NOK">NOK</option>
-              <option value="SEK">SEK</option>
-              <option value="DKK">DKK</option>
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-            </select>
-          </label>
+          <label>Name<input name="ownerName" autocomplete="off"></label>
+          <label>Currency<select name="currency"><option>NOK</option><option>SEK</option><option>DKK</option><option>EUR</option><option>USD</option></select></label>
         </div>
         <div class="grid two">
-          <label>Language
-            <select name="language">
-              <option value="en">English</option>
-              <option value="no">Norwegian</option>
-            </select>
-          </label>
-          <label>Default tasting amount ml<input name="defaultTastingMl" type="number"></label>
+          <label>Language<select name="language"><option value="en">English</option><option value="no">Norwegian</option></select></label>
+          <label>Default tasting amount ml<input name="defaultTastingMl" type="number" min="1"></label>
         </div>
         <button class="primary" type="submit">Save settings</button>
       </form>
     </section>
 
-
-    <section class="view" data-view="analytics">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Analytics</h2>
-        <p>Charts for inventory value, tasting volume and stock volume.</p>
-      </div>
-
-      <div class="card compact">
-        <div class="section-head">
-          <h3>Time range</h3>
-          <select id="analyticsRange">
-            <option value="1m">1 month</option>
-            <option value="3m">3 months</option>
-            <option value="6m">6 months</option>
-            <option value="9m">9 months</option>
-            <option value="1y">1 year</option>
-            <option value="5y">5 years</option>
-            <option value="10y">10 years</option>
-            <option value="all">All</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-head"><h3>Purchases / inventory value</h3></div>
-        <canvas id="valueChart" height="180"></canvas>
-      </div>
-
-      <div class="card">
-        <div class="section-head"><h3>Tasting volume per day</h3></div>
-        <canvas id="tastingChart" height="180"></canvas>
-      </div>
-
-      <div class="card">
-        <div class="section-head"><h3>Stock volume</h3></div>
-        <canvas id="stockChart" height="180"></canvas>
-      </div>
+    <section class="view" data-view="analytics" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Analytics</h2><p>Simple summary for value, tastings and stock volume.</p></div>
+      <div id="analyticsContent" class="grid two"></div>
     </section>
 
-
-    <section class="view" data-view="backup">
-      <button class="back" data-go="home">← Home</button>
-      <div class="card themed">
-        <h2>Backup</h2>
-        <p>Export, import or reset local data.</p>
-      </div>
+    <section class="view" data-view="backup" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed"><h2>Backup</h2><p>Export or import local data.</p></div>
       <div class="card form">
-        <button id="exportButton" class="primary" type="button">Export backup</button>
-        <label>Import backup<input id="importInput" type="file" accept="application/json"></label>
-        <button id="resetButton" class="danger" type="button">Reset all data</button>
+        <button class="primary" id="exportData" type="button">Export backup</button>
+        <label>Import JSON<textarea id="importText" rows="6"></textarea></label>
+        <button class="ghost" id="importData" type="button">Import backup</button>
       </div>
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=132"></script>
-
-
-
-
-<script>
-/* v1.24 catalog hardfix */
-(function(){
-  function norm(v){ return String(v||'').trim().toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' '); }
-  function esc(v){ return String(v||'').replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
-  function setVal(selector, value){
-    var el=document.querySelector(selector);
-    if(!el) return;
-    el.value = value == null ? '' : String(value);
-    el.dispatchEvent(new Event('input',{bubbles:true}));
-    el.dispatchEvent(new Event('change',{bubbles:true}));
-  }
-  function getCatalog(){
-    return window.WHISKYLOG_CATALOG || window.PRELOADED_CATALOG || [];
-  }
-  function applyItem(item){
-    if(!item) return;
-    setVal('#baseForm [name="name"]', item.name || '');
-    setVal('#baseForm [name="type"]', item.type || 'Whisky');
-    setVal('#baseForm [name="abv"]', item.abv || '');
-    setVal('#baseForm [name="volume"]', item.volume || '');
-    setVal('#baseForm [name="distillery"]', item.distillery || '');
-    setVal('#baseForm [name="region"]', item.region || '');
-    if(typeof updateBaseHints === 'function') updateBaseHints();
-  }
-  function render(query){
-    var box=document.getElementById('catalogSuggestionsBox');
-    if(!box) return;
-    var q=norm(query);
-    var cat=getCatalog();
-    var items=cat.filter(function(p){
-      return !q || norm([p.name,p.type,p.distillery,p.region].join(' ')).indexOf(q) !== -1;
-    }).slice(0,30);
-    if(!items.length){
-      box.innerHTML='<div class="sub">No catalog matches.</div>';
-      return;
-    }
-    box.innerHTML=items.map(function(p,i){
-      return '<button type="button" class="catalog-hard-row" data-catalog-name="'+esc(p.name)+'">'
-        + '<strong>'+esc(p.name)+'</strong>'
-        + '<small>'+esc(p.type)+' · '+esc(p.distillery)+' · '+esc(p.abv)+'% · '+esc(p.volume)+' ml · '+esc(p.region)+'</small>'
-        + '</button>';
-    }).join('');
-  }
-  function init(){
-    var input=document.getElementById('catalogSearchInput');
-    var box=document.getElementById('catalogSuggestionsBox');
-    if(!input || !box) return;
-    render('');
-    input.addEventListener('input', function(){ render(input.value); });
-    input.addEventListener('focus', function(){ render(input.value); });
-    box.addEventListener('click', function(e){
-      var row=e.target.closest('.catalog-hard-row');
-      if(!row) return;
-      e.preventDefault();
-      var name=row.getAttribute('data-catalog-name');
-      var item=getCatalog().find(function(p){ return p.name === name; });
-      applyItem(item);
-      input.value = name;
-      render(name);
-    });
-  }
-  document.addEventListener('DOMContentLoaded', init);
-  setTimeout(init, 500);
-})();
-</script>
-
-
-
-
-
-<script>
-/* v1.26 settings/title stability fix */
-(function(){
-  var SETTINGS_KEYS = ['whiskylog_settings_v26','whiskylog_settings_v22','whiskylog_settings_v11','whiskylog_settings_v25'];
-  function readSettings(){
-    for(var i=0;i<SETTINGS_KEYS.length;i++){
-      try{
-        var obj = JSON.parse(localStorage.getItem(SETTINGS_KEYS[i]) || '{}');
-        if(obj && (obj.ownerName || obj.currency || obj.language || obj.defaultTastingMl)) return obj;
-      }catch(e){}
-    }
-    return {};
-  }
-  function writeSettings(obj){
-    localStorage.setItem('whiskylog_settings_v26', JSON.stringify(obj));
-    localStorage.setItem('whiskylog_settings_v22', JSON.stringify(obj));
-  }
-  function cleanUrl(){
-    if(location.search && /ownerName|currency|language|defaultTastingMl/.test(location.search)){
-      history.replaceState(null,'',location.pathname);
-    }
-  }
-  function titleFromName(name){
-    name = String(name || '').trim() || 'Kenneth';
-    return name + "'s WhiskyLog";
-  }
-  function updateTitle(name){
-    var el=document.getElementById('appTitle');
-    if(el) el.textContent = titleFromName(name || readSettings().ownerName);
-  }
-  function init(){
-    cleanUrl();
-    var current = readSettings();
-    if(!current.ownerName) current.ownerName = 'Kenneth';
-    updateTitle(current.ownerName);
-
-    var form = document.getElementById('settingsForm');
-    if(!form) return;
-
-    if(form.ownerName) form.ownerName.value = current.ownerName || 'Kenneth';
-    if(form.currency && current.currency) form.currency.value = current.currency;
-    if(form.language && current.language) form.language.value = current.language;
-    if(form.defaultTastingMl && current.defaultTastingMl) form.defaultTastingMl.value = current.defaultTastingMl;
-
-    if(form.ownerName){
-      form.ownerName.addEventListener('input', function(){ updateTitle(form.ownerName.value); });
-    }
-
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      var saved = {
-        ownerName: form.ownerName ? (form.ownerName.value.trim() || 'Kenneth') : 'Kenneth',
-        currency: form.currency ? form.currency.value : 'NOK',
-        language: form.language ? form.language.value : 'en',
-        defaultTastingMl: form.defaultTastingMl ? Number(form.defaultTastingMl.value || 20) : 20
-      };
-      writeSettings(saved);
-      updateTitle(saved.ownerName);
-      if(typeof settings === 'object'){
-        settings.ownerName=saved.ownerName;
-        settings.currency=saved.currency;
-        settings.language=saved.language;
-        settings.defaultTastingMl=saved.defaultTastingMl;
-      }
-      if(typeof saveSettings === 'function') try{ saveSettings(); }catch(e){}
-      if(typeof render === 'function') try{ render(); }catch(e){}
-      if(typeof show === 'function') show('home');
-      return false;
-    }, true);
-  }
-  document.addEventListener('DOMContentLoaded', init);
-  setTimeout(init, 250);
-  setTimeout(init, 1000);
-})();
-</script>
-
-
-<script>
-/* v1.27 page separation hardfix */
-(function(){
-  function showOnly(name){
-    if(!name) name='home';
-    document.querySelectorAll('section.view').forEach(function(v){
-      var isActive = v.getAttribute('data-view') === name;
-      v.classList.toggle('active', isActive);
-      v.hidden = !isActive;
-      v.style.display = isActive ? 'block' : 'none';
-    });
-    try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
-  }
-
-  window.show = showOnly;
-
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('[data-go]');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    showOnly(btn.getAttribute('data-go'));
-  }, true);
-
-  document.addEventListener('DOMContentLoaded', function(){
-    showOnly('home');
-  });
-
-  setTimeout(function(){ showOnly('home'); }, 300);
-})();
-</script>
-
-
-<script>
-/* v1.28 page separation hardfix */
-(function(){
-  function showOnly(name){
-    name = name || 'home';
-    document.querySelectorAll('main > section.view').forEach(function(v){
-      var active = v.getAttribute('data-view') === name;
-      v.classList.toggle('active', active);
-      v.hidden = !active;
-      v.style.display = active ? 'block' : 'none';
-    });
-    try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
-  }
-  window.show = showOnly;
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('[data-go]');
-    if(!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-    showOnly(btn.getAttribute('data-go'));
-  }, true);
-  document.addEventListener('DOMContentLoaded', function(){ showOnly('home'); });
-  setTimeout(function(){ showOnly('home'); }, 300);
-})();
-</script>
-
-
-<script>
-/* v1.29 type dropdown hardfix */
-(function(){
-  var TYPES = ["Whisky", "Single Malt Scotch", "Blended Scotch", "Bourbon", "Rye Whiskey", "Tennessee Whiskey", "Irish Whiskey", "Japanese Whisky", "Canadian Whisky", "Rum", "Dark Rum", "Aged Rum", "Agricole Rum", "Cognac", "Armagnac", "Brandy", "Calvados", "Aquavit", "Gin", "Vodka", "Tequila", "Mezcal", "Liqueur", "Amaro", "Other"];
-  function fillTypeSelects(){
-    document.querySelectorAll('select[name="type"]').forEach(function(sel){
-      if(sel.options.length > 1) return;
-      var current = sel.value || '';
-      sel.innerHTML = '<option value="">Choose type</option>' + TYPES.map(function(t){
-        return '<option value="'+t.replace(/"/g,'&quot;')+'">'+t+'</option>';
-      }).join('');
-      if(current) sel.value = current;
-    });
-  }
-  document.addEventListener('DOMContentLoaded', fillTypeSelects);
-  setTimeout(fillTypeSelects, 250);
-  setTimeout(fillTypeSelects, 1000);
-})();
-</script>
-
-
-<script>
-/* v1.31 library form controls hardfix */
-(function(){
-  function dec(v){
-    v = String(v == null ? '' : v).replace(',', '.').replace(/[^\d.-]/g,'');
-    var n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function density(abv){
-    abv = dec(abv);
-    var t = [
-      [0,0.9982],[5,0.9892],[10,0.9807],[15,0.9723],[20,0.9640],[25,0.9559],
-      [30,0.9479],[35,0.9399],[40,0.9319],[45,0.9239],[50,0.9157],[55,0.9073],[60,0.8987]
-    ];
-    if(abv <= 0) return t[0][1];
-    if(abv >= 60) return t[t.length-1][1];
-    for(var i=0;i<t.length-1;i++){
-      var a=t[i], b=t[i+1];
-      if(abv >= a[0] && abv <= b[0]){
-        var r=(abv-a[0])/(b[0]-a[0]);
-        return a[1] + (b[1]-a[1])*r;
-      }
-    }
-    return 0.9319;
-  }
-  function uid(){
-    return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
-  }
-  function getKey(){
-    return window.KEY || 'whiskylog_appstore_v19';
-  }
-  function readState(){
-    try{
-      var raw = localStorage.getItem(getKey());
-      return Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, raw ? JSON.parse(raw) : {});
-    }catch(e){
-      return {bases:[],bottles:[],tastings:[],comments:[],wishlist:[]};
-    }
-  }
-  function writeState(s){
-    localStorage.setItem(getKey(), JSON.stringify(s));
-    try{
-      if(window.state){
-        window.state.bases=s.bases||[];
-        window.state.bottles=s.bottles||[];
-        window.state.tastings=s.tastings||[];
-        window.state.comments=s.comments||[];
-        window.state.wishlist=s.wishlist||[];
-      }
-    }catch(e){}
-  }
-  function calcEmpty(){
-    var f=document.getElementById('baseForm');
-    if(!f) return 0;
-    var abv=dec(f.querySelector('[name="abv"]') && f.querySelector('[name="abv"]').value);
-    var vol=dec(f.querySelector('[name="volume"]') && f.querySelector('[name="volume"]').value);
-    var full=dec(f.querySelector('[name="fullWeight"]') && f.querySelector('[name="fullWeight"]').value);
-    if(!vol || !full) return 0;
-    return Math.max(0, Math.round(full - (vol * density(abv))));
-  }
-  function updateHint(){
-    var hint=document.getElementById('emptyWeightHint');
-    if(!hint) return;
-    var v=calcEmpty();
-    hint.value = v ? String(v) : '—';
-  }
-  function selectedImage(){
-    try{
-      if(window.pendingBaseImage) return window.pendingBaseImage;
-    }catch(e){}
-    return '';
-  }
-  function saveLibrary(){
-    var f=document.getElementById('baseForm');
-    if(!f) return false;
-    var nameEl=f.querySelector('[name="name"]');
-    var name=(nameEl && nameEl.value || '').trim();
-    if(!name){ alert('Name is required.'); return false; }
-
-    var hidden=f.querySelector('[name="editId"]');
-    var id=(hidden && hidden.value || '').trim() || uid();
-    var item={
-      id:id,
-      name:name,
-      distillery:(f.querySelector('[name="distillery"]')?.value || '').trim(),
-      type:(f.querySelector('[name="type"]')?.value || '').trim(),
-      abv:dec(f.querySelector('[name="abv"]')?.value),
-      volume:dec(f.querySelector('[name="volume"]')?.value),
-      fullWeight:dec(f.querySelector('[name="fullWeight"]')?.value),
-      emptyWeight:calcEmpty(),
-      region:(f.querySelector('[name="region"]')?.value || '').trim(),
-      image:selectedImage(),
-      notes:(f.querySelector('[name="notes"]')?.value || '').trim()
-    };
-
-    var s=readState();
-    if(!Array.isArray(s.bases)) s.bases=[];
-    var idx=s.bases.findIndex(function(x){return x.id===id;});
-    if(idx >= 0) s.bases[idx]=Object.assign({}, s.bases[idx], item);
-    else s.bases.unshift(item);
-    writeState(s);
-
-    f.reset();
-    if(hidden) hidden.value='';
-    try{ window.pendingBaseImage=''; }catch(e){}
-    var prev=document.getElementById('baseImagePreview');
-    if(prev){ prev.classList.add('hidden'); prev.removeAttribute('src');}
-    updateHint();
-
-    if(typeof render === 'function'){ try{ render(); }catch(e){} }
-    if(typeof show === 'function'){ try{ show('library'); }catch(e){} }
-    alert('Library item saved.');
-    return false;
-  }
-  function cancelLibrary(){
-    var f=document.getElementById('baseForm');
-    if(f) f.reset();
-    var hidden=f && f.querySelector('[name="editId"]');
-    if(hidden) hidden.value='';
-    try{ window.pendingBaseImage=''; }catch(e){}
-    updateHint();
-    if(typeof show === 'function') show('library');
-    return false;
-  }
-  function init(){
-    var f=document.getElementById('baseForm');
-    if(!f) return;
-
-    f.setAttribute('autocomplete','off');
-    f.querySelectorAll('input, textarea').forEach(function(el){
-      el.setAttribute('autocomplete', el.name === 'name' ? 'new-password' : 'off');
-      el.setAttribute('autocorrect','off');
-      el.setAttribute('autocapitalize','none');
-      el.setAttribute('spellcheck','false');
-    });
-
-    ['abv','volume','fullWeight'].forEach(function(n){
-      var el=f.querySelector('[name="'+n+'"]');
-      if(el){
-        el.addEventListener('input', updateHint);
-        el.addEventListener('change', updateHint);
-      }
-    });
-
-    f.onsubmit=function(e){ e.preventDefault(); e.stopPropagation(); return saveLibrary(); };
-
-    var save=document.getElementById('baseSaveButton');
-    if(save){
-      save.type='button';
-      save.onclick=function(e){ e.preventDefault(); e.stopPropagation(); return saveLibrary(); };
-    }
-    var cancel=document.getElementById('baseCancelButton');
-    if(cancel){
-      cancel.type='button';
-      cancel.onclick=function(e){ e.preventDefault(); e.stopPropagation(); return cancelLibrary(); };
-    }
-    updateHint();
-  }
-  document.addEventListener('DOMContentLoaded', init);
-  setTimeout(init,300);
-  setTimeout(init,1000);
-})();
-</script>
-
-
-<script>
-/* v1.32 new bottle picker hardfix */
-(function(){
-  function key(){ return window.KEY || 'whiskylog_appstore_v19'; }
-  function readState(){
-    try{
-      return Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, JSON.parse(localStorage.getItem(key()) || '{}'));
-    }catch(e){
-      return {bases:[],bottles:[],tastings:[],comments:[],wishlist:[]};
-    }
-  }
-  function writeState(s){
-    localStorage.setItem(key(), JSON.stringify(s));
-    try{
-      if(window.state){
-        window.state.bases=s.bases||[];
-        window.state.bottles=s.bottles||[];
-        window.state.tastings=s.tastings||[];
-        window.state.comments=s.comments||[];
-        window.state.wishlist=s.wishlist||[];
-      }
-    }catch(e){}
-  }
-  function dec(v){
-    v=String(v==null?'':v).replace(',','.').replace(/[^\d.-]/g,'');
-    var n=Number(v);
-    return Number.isFinite(n)?n:0;
-  }
-  function uid(){
-    return 'id_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
-  }
-  function populateBaseSelect(){
-    var form=document.getElementById('bottleForm');
-    if(!form) return;
-    var sel=form.querySelector('[name="baseId"]');
-    if(!sel) return;
-    var current=sel.value;
-    var s=readState();
-    var bases=Array.isArray(s.bases)?s.bases:[];
-    sel.innerHTML='<option value="">Choose library item</option>' + bases.map(function(b){
-      var label=(b.name||'Unnamed') + (b.abv?(' · '+b.abv+'%'):'') + (b.volume?(' · '+b.volume+' ml'):'');
-      return '<option value="'+String(b.id).replace(/"/g,'&quot;')+'">'+label.replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];})+'</option>';
-    }).join('');
-    if(current && bases.some(function(b){return b.id===current;})) sel.value=current;
-  }
-  function saveBottle(e){
-    if(e){e.preventDefault(); e.stopPropagation();}
-    var form=document.getElementById('bottleForm');
-    if(!form) return false;
-    var baseId=form.querySelector('[name="baseId"]')?.value || '';
-    if(!baseId){ alert('Choose a library item first.'); return false; }
-    var s=readState();
-    var base=(s.bases||[]).find(function(b){return b.id===baseId;});
-    if(!base){ alert('Library item was not found. Go back and check that the library item is saved.'); populateBaseSelect(); return false; }
-    var id=uid();
-    var purchaseDate=form.querySelector('[name="purchaseDate"]')?.value || new Date().toISOString().slice(0,10);
-    var currentWeight=dec(form.querySelector('[name="currentWeight"]')?.value);
-    var bottle={
-      id:id,
-      baseId:baseId,
-      batchNo:(form.querySelector('[name="batchNo"]')?.value || '').trim(),
-      bottleNo:(form.querySelector('[name="bottleNo"]')?.value || '').trim(),
-      price:dec(form.querySelector('[name="price"]')?.value),
-      purchasePlace:(form.querySelector('[name="purchasePlace"]')?.value || '').trim(),
-      purchaseDate:purchaseDate,
-      openedDate:'',
-      currentWeight:currentWeight || dec(base.fullWeight),
-      comments:(form.querySelector('[name="comments"]')?.value || '').trim()
-    };
-    if(!Array.isArray(s.bottles)) s.bottles=[];
-    s.bottles.unshift(bottle);
-    writeState(s);
-    try{ form.reset(); }catch(err){}
-    populateBaseSelect();
-    if(typeof render==='function'){ try{ render(); }catch(err){} }
-    if(typeof show==='function'){ show('unopened'); }
-    alert('Bottle saved.');
-    return false;
-  }
-  function init(){
-    populateBaseSelect();
-    var form=document.getElementById('bottleForm');
-    if(form){
-      form.setAttribute('autocomplete','off');
-      form.onsubmit=function(e){ return saveBottle(e); };
-    }
-    var btn=document.getElementById('bottleSaveButton');
-    if(btn){
-      btn.type='button';
-      btn.onclick=function(e){ return saveBottle(e); };
-    }
-  }
-  document.addEventListener('DOMContentLoaded',init);
-  setTimeout(init,300);
-  setTimeout(init,1000);
-  window.wl32PopulateBaseSelect=populateBaseSelect;
-})();
-</script>
-
+<script src="/Whiskylog-app-test/app.js?v=133"></script>
 </body>
 </html>
