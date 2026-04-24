@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.22</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=122">
+  <title>WhiskyLog v1.24</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=124">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=122">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=124">
 </head>
 <body>
 <div class="app">
@@ -104,10 +104,10 @@
         <h3>Choose from starter catalog</h3>
         <p class="sub">Start typing, then choose a bottle. Fields below are filled automatically.</p>
         <input id="catalogSearchInput" type="text" placeholder="Search whisky, rum, cognac..." autocomplete="off">
-        <div id="catalogSuggestionsBox" class="catalog-suggestions"></div>
+        <div id="catalogSuggestionsBox" class="catalog-suggestions"><div class="sub">Start typing to see suggestions.</div></div>
       </div>
 
-      <form id="baseForm" class="card form">
+      <form id="baseForm" class="card form" action="javascript:void(0)">
         <input type="hidden" name="editId">
         <div class="grid two">
           <label>Name<input name="name" required list="catalogSuggestions" id="libraryNameInput" autocomplete="off"></label>
@@ -147,7 +147,7 @@
         <h2>Add bottle</h2>
         <p>New bottles are stored as unopened until the first tasting is registered.</p>
       </div>
-      <form id="bottleForm" class="card form">
+      <form id="bottleForm" class="card form" action="javascript:void(0)">
         <input type="hidden" name="editId">
         <label>Library item<select name="baseId" id="basePick"></select></label>
         <div class="grid three">
@@ -224,7 +224,7 @@
         <h2>Wishlist</h2>
         <p>Track up to 50 bottles. The top 5 can include images; the rest are listed by name.</p>
       </div>
-      <form id="wishlistForm" class="card form">
+      <form id="wishlistForm" class="card form" action="javascript:void(0)">
         <input type="hidden" name="editId">
         <div class="grid two">
           <label>Name<input name="name" required list="catalogSuggestions"></label>
@@ -254,7 +254,7 @@
         <h2>Settings</h2>
         <p>Personalize the app.</p>
       </div>
-      <form id="settingsForm" class="card form">
+      <form id="settingsForm" class="card form" action="javascript:void(0)">
         <div class="grid two">
           <label>Name<input name="ownerName"></label>
           <label>Currency
@@ -335,7 +335,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=122"></script>
+<script src="/Whiskylog-app-test/app.js?v=124"></script>
 
 <script>/* v1.19 navigation fallback */
 (function(){
@@ -353,6 +353,74 @@
     e.stopPropagation();
     showView(btn.getAttribute('data-go'));
   }, true);
+})();
+</script>
+
+
+<script>
+/* v1.24 catalog hardfix */
+(function(){
+  function norm(v){ return String(v||'').trim().toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' '); }
+  function esc(v){ return String(v||'').replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
+  function setVal(selector, value){
+    var el=document.querySelector(selector);
+    if(!el) return;
+    el.value = value == null ? '' : String(value);
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  function getCatalog(){
+    return window.WHISKYLOG_CATALOG || window.PRELOADED_CATALOG || [];
+  }
+  function applyItem(item){
+    if(!item) return;
+    setVal('#baseForm [name="name"]', item.name || '');
+    setVal('#baseForm [name="type"]', item.type || 'Whisky');
+    setVal('#baseForm [name="abv"]', item.abv || '');
+    setVal('#baseForm [name="volume"]', item.volume || '');
+    setVal('#baseForm [name="distillery"]', item.distillery || '');
+    setVal('#baseForm [name="region"]', item.region || '');
+    if(typeof updateBaseHints === 'function') updateBaseHints();
+  }
+  function render(query){
+    var box=document.getElementById('catalogSuggestionsBox');
+    if(!box) return;
+    var q=norm(query);
+    var cat=getCatalog();
+    var items=cat.filter(function(p){
+      return !q || norm([p.name,p.type,p.distillery,p.region].join(' ')).indexOf(q) !== -1;
+    }).slice(0,30);
+    if(!items.length){
+      box.innerHTML='<div class="sub">No catalog matches.</div>';
+      return;
+    }
+    box.innerHTML=items.map(function(p,i){
+      return '<button type="button" class="catalog-hard-row" data-catalog-name="'+esc(p.name)+'">'
+        + '<strong>'+esc(p.name)+'</strong>'
+        + '<small>'+esc(p.type)+' · '+esc(p.distillery)+' · '+esc(p.abv)+'% · '+esc(p.volume)+' ml · '+esc(p.region)+'</small>'
+        + '</button>';
+    }).join('');
+  }
+  function init(){
+    var input=document.getElementById('catalogSearchInput');
+    var box=document.getElementById('catalogSuggestionsBox');
+    if(!input || !box) return;
+    render('');
+    input.addEventListener('input', function(){ render(input.value); });
+    input.addEventListener('focus', function(){ render(input.value); });
+    box.addEventListener('click', function(e){
+      var row=e.target.closest('.catalog-hard-row');
+      if(!row) return;
+      e.preventDefault();
+      var name=row.getAttribute('data-catalog-name');
+      var item=getCatalog().find(function(p){ return p.name === name; });
+      applyItem(item);
+      input.value = name;
+      render(name);
+    });
+  }
+  document.addEventListener('DOMContentLoaded', init);
+  setTimeout(init, 500);
 })();
 </script>
 

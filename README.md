@@ -1,3 +1,21 @@
+# WhiskyLog v1.24 Catalog Hardfix
+
+Fix:
+- Catalog suggestions are rendered by a direct fallback script.
+- Suggestions appear as visible clickable rows under the catalog search field.
+- Selecting a row fills name, type, ABV, volume, distillery/producer and region.
+- Catalog is exposed globally as window.WHISKYLOG_CATALOG for reliable fallback behavior.
+- Added cache-busting v=124.
+
+# WhiskyLog v1.23 Save Fixed
+
+Fixes:
+- Prevents forms from submitting as URL query strings.
+- Adds robust submit handling for Wishlist and Settings.
+- Wishlist save now writes to localStorage and re-renders immediately.
+- Settings save keeps name/currency/language in localStorage.
+- Keeps v1.22 visible catalog and title fixes.
+
 # WhiskyLog v1.22 Catalog and Title Fixed
 
 Fixes:
