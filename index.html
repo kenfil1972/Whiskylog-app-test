@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.37</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=137">
+  <title>WhiskyLog v1.38</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=138">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=137">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=138">
 </head>
 <body>
 <div class="app">
@@ -34,14 +34,17 @@
       <div class="grid three">
         <button class="card action status-card" data-go="unopened" type="button">
           <div><span>📦</span><strong>Unopened bottles</strong><small>Stored bottles not yet tasted</small></div>
+          <div class="status-stats"><b id="homeUnopenedCount">0</b><small id="homeUnopenedValue">0.00 NOK</small></div>
           <div class="mini-strip" id="homeUnopenedImages"></div>
         </button>
         <button class="card action status-card" data-go="opened" type="button">
           <div><span>🥃</span><strong>Opened bottles</strong><small>Bottles open for tasting</small></div>
+          <div class="status-stats"><b id="homeOpenedCount">0</b><small id="homeOpenedValue">0.00 NOK</small></div>
           <div class="mini-strip" id="homeOpenedImages"></div>
         </button>
         <button class="card action status-card" data-go="empty" type="button">
           <div><span>🗃️</span><strong>Empty bottles</strong><small>Archive and final notes</small></div>
+          <div class="status-stats"><b id="homeEmptyCount">0</b><small id="homeEmptyValue">0.00 NOK</small></div>
           <div class="mini-strip" id="homeEmptyImages"></div>
         </button>
       </div>
@@ -221,6 +224,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=137"></script>
+<script src="/Whiskylog-app-test/app.js?v=138"></script>
 </body>
 </html>

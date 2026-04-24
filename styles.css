@@ -46,3 +46,40 @@ button{border:0;border-radius:18px;padding:14px 18px;font-weight:800}
   .item{grid-template-columns:auto 1fr}
   .side{grid-column:1/-1;text-align:left}
 }
+
+
+/* v1.38 status-card count and value */
+.status-card{
+  grid-template-columns:1fr auto auto;
+}
+.status-stats{
+  min-width:88px;
+  text-align:right;
+  align-self:center;
+}
+.status-stats b{
+  display:block;
+  color:#fff;
+  font-size:1.35rem;
+  line-height:1.1;
+}
+.status-stats small{
+  display:block;
+  color:var(--muted);
+  white-space:nowrap;
+  font-size:.82rem;
+}
+@media(max-width:760px){
+  .status-card{
+    grid-template-columns:1fr auto;
+  }
+  .status-stats{
+    grid-column:1;
+    grid-row:2;
+    text-align:left;
+  }
+  .mini-strip{
+    grid-column:2;
+    grid-row:1 / span 2;
+  }
+}

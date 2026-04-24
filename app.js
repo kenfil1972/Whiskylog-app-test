@@ -186,6 +186,7 @@ function deleteBase(id){
 
 function initBottleForm(){
   const f=document.getElementById('bottleForm');
+  if(f && f.price) f.price.placeholder='0.00 '+(settings.currency||'NOK');
   f.purchaseDate.value=new Date().toISOString().slice(0,10);
   f.baseId.addEventListener('change',()=>{
     const base=getBase(f.baseId.value);
@@ -278,11 +279,19 @@ function renderHome(){
   document.getElementById('mVolume').textContent=ml(totalVol);
   document.getElementById('mOpened').textContent=state.bottles.filter(b=>bottleStatus(b.id)==='opened').length;
   document.getElementById('mTastings').textContent=state.tastings.length;
-  renderStrip('unopened','homeUnopenedImages'); renderStrip('opened','homeOpenedImages'); renderStrip('empty','homeEmptyImages');
+  renderStatusStats('unopened','homeUnopenedCount','homeUnopenedValue'); renderStatusStats('opened','homeOpenedCount','homeOpenedValue'); renderStatusStats('empty','homeEmptyCount','homeEmptyValue'); renderStrip('unopened','homeUnopenedImages'); renderStrip('opened','homeOpenedImages'); renderStrip('empty','homeEmptyImages');
   const best=state.bottles.slice().sort((a,b)=>(a.price/Math.max(1,bottleVolume(a.id)))-(b.price/Math.max(1,bottleVolume(b.id))))[0];
   document.getElementById('bestValue').textContent=best?bottleName(best):'No bottles yet.';
   const lows=state.bottles.filter(b=>bottleStatus(b.id)==='opened'&&bottleVolume(b.id)<100);
   document.getElementById('lowStock').textContent=lows.length?lows.map(bottleName).join(', '):'No low-stock bottles.';
+}
+function renderStatusStats(status,countId,valueId){
+  const bottles=state.bottles.filter(b=>bottleStatus(b.id)===status);
+  const value=bottles.reduce((a,b)=>a+bottleRemainingValue(b.id),0);
+  const countEl=document.getElementById(countId);
+  const valueEl=document.getElementById(valueId);
+  if(countEl) countEl.textContent=String(bottles.length);
+  if(valueEl) valueEl.textContent=money(value);
 }
 function renderStrip(status,id){
   const el=document.getElementById(id);
@@ -410,7 +419,7 @@ function editBottle(id){
   f.baseId.value=b.baseId||'';
   f.batchNo.value=b.batchNo||'';
   f.bottleNo.value=b.bottleNo||'';
-  f.price.value=b.price||'';
+  f.price.value=dec(b.price)?fmt(dec(b.price),2)+' '+(settings.currency||'NOK'):'';
   f.purchasePlace.value=b.purchasePlace||'';
   f.purchaseDate.value=b.purchaseDate||new Date().toISOString().slice(0,10);
   f.currentWeight.value=b.currentWeight||'';

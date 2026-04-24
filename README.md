@@ -1,3 +1,11 @@
+# WhiskyLog v1.38 Bottle Count / Value + Price Formatting
+
+Fixes:
+- Home status cards now show bottle count and value between text and images.
+- Unopened / Opened / Empty cards each show count and remaining value.
+- Edit bottle price field now displays two decimals and currency.
+- Price parsing still accepts both comma and point and ignores currency text.
+
 # WhiskyLog v1.37 Edit/Delete + Tasting Scores
 
 Fixes:
