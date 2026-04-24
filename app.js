@@ -363,23 +363,23 @@ function newBottlePurchased(oldBottleId){
   if(!old){alert('Bottle not found.');return;}
   const base=getBase(old.baseId);
   if(!base){alert('Library item not found.');return;}
-  const today=new Date().toISOString().slice(0,10);
-  const newBottle={
-    id:uid(),
-    baseId:old.baseId,
-    batchNo:'',
-    bottleNo:'',
-    price:0,
-    purchasePlace:old.purchasePlace||'',
-    purchaseDate:today,
-    openedDate:'',
-    currentWeight:dec(base.fullWeight),
-    comments:'Created from empty bottle: '+bottleName(old)
-  };
-  state.bottles.unshift(newBottle);
-  save();
-  render();
-  openBottleDetail(newBottle.id,'unopened');
+
+  const f=document.getElementById('bottleForm');
+  if(!f){alert('Add bottle form not found.');return;}
+
+  renderPickers();
+
+  f.reset();
+  f.baseId.value=old.baseId;
+  f.batchNo.value='';
+  f.bottleNo.value='';
+  f.price.value='';
+  f.purchasePlace.value=old.purchasePlace||'';
+  f.purchaseDate.value=new Date().toISOString().slice(0,10);
+  f.currentWeight.value=base.fullWeight||'';
+  f.comments.value='New purchase based on empty bottle: '+bottleName(old);
+
+  show('new-bottle');
 }
 
 function renderWishlist(){

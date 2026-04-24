@@ -1,3 +1,12 @@
+# WhiskyLog v1.36 Stock Labels + Editable Repurchase
+
+Fixes:
+- Dashboard label Total cost changed to Value in stock.
+- Dashboard label Total volume changed to Stock volume.
+- New bottle purchased from an empty bottle now opens Add bottle form.
+- Same library item is preselected.
+- User can edit batch, bottle no., price, purchase place, date, current weight and comments before saving.
+
 # WhiskyLog v1.35 Tasting Volume + Home Return Fixed
 
 Fixes:
