@@ -58,11 +58,17 @@ function volumeFromWeight(bottle){
   return Math.round(dec(base.volume)*ratio);
 }
 function tastedVolume(id){return state.tastings.filter(t=>t.bottleId===id).reduce((a,t)=>a+dec(t.ml),0);}
+function bottleRemainingValue(id){
+  const b=getBottle(id); if(!b)return 0;
+  const base=getBase(b.baseId); if(!base || !dec(base.volume))return 0;
+  return dec(b.price) * (bottleVolume(id) / dec(base.volume));
+}
 function bottleVolume(id){
   const b=getBottle(id); if(!b)return 0;
   const base=getBase(b.baseId); if(!base)return 0;
-  if(dec(b.currentWeight)>0)return Math.max(0,volumeFromWeight(b));
-  return Math.max(0,dec(base.volume)-tastedVolume(id));
+  const baseVolume=dec(base.volume);
+  const byWeight=dec(b.currentWeight)>0 ? volumeFromWeight(b) : baseVolume;
+  return Math.max(0, Math.round(byWeight - tastedVolume(id)));
 }
 function lastTasted(id){
   const t=state.tastings.filter(x=>x.bottleId===id).sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
@@ -148,7 +154,7 @@ function initBaseForm(){
     item.emptyWeight=calculatedEmptyWeight(item);
     const idx=state.bases.findIndex(x=>x.id===id);
     if(idx>=0)state.bases[idx]=item; else state.bases.unshift(item);
-    save(); clearBaseForm(); render(); show('library');
+    save(); clearBaseForm(); render(); show('home');
   });
   document.getElementById('baseCancelButton').onclick=clearBaseForm;
 }
@@ -194,7 +200,7 @@ function initBottleForm(){
       price:dec(f.price.value),purchasePlace:f.purchasePlace.value.trim(),purchaseDate:f.purchaseDate.value||new Date().toISOString().slice(0,10),
       openedDate:'',currentWeight:dec(f.currentWeight.value)||dec(base.fullWeight),comments:f.comments.value.trim()
     });
-    save(); f.reset(); f.purchaseDate.value=new Date().toISOString().slice(0,10); render(); show('unopened');
+    save(); f.reset(); f.purchaseDate.value=new Date().toISOString().slice(0,10); render(); show('home');
   });
 }
 
@@ -251,7 +257,7 @@ function render(){
   renderAnalytics();
 }
 function renderHome(){
-  const totalCost=state.bottles.reduce((a,b)=>a+dec(b.price),0);
+  const totalCost=state.bottles.reduce((a,b)=>a+bottleRemainingValue(b.id),0);
   const totalVol=state.bottles.reduce((a,b)=>a+bottleVolume(b.id),0);
   document.getElementById('mCost').textContent=money(totalCost);
   document.getElementById('mVolume').textContent=ml(totalVol);
@@ -298,7 +304,7 @@ function bottleRow(b,status){
   const extra=status==='unopened'
     ? `Purchased ${b.purchaseDate||'—'} · ${base?.volume||'—'} ml · ${base?.abv||'—'}%`
     : status==='opened'
-      ? `Purchased ${b.purchaseDate||'—'} · Opened ${b.openedDate||'—'} · Last tasted ${lastTasted(b.id)||'—'} · ${ml(bottleVolume(b.id))} left`
+      ? `Purchased ${b.purchaseDate||'—'} · Opened ${b.openedDate||'—'} · Last tasted ${lastTasted(b.id)||'—'} · ${ml(bottleVolume(b.id))} left · ${money(bottleRemainingValue(b.id))} remaining`
       : `Purchased ${b.purchaseDate||'—'} · Opened ${b.openedDate||'—'} · Last tasted ${lastTasted(b.id)||'—'}`;
   return `<div class="item" onclick="openBottleDetail('${b.id}','${status}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${extra}</div><div class="sub">${esc(base?.type||'')}</div></div><div class="side"><span class="pill">${status}</span></div></div>`;
 }
@@ -306,7 +312,7 @@ function openBottleDetail(id,returnView='home'){
   currentBottleId=id; detailReturnView=returnView;
   const b=getBottle(id), base=getBase(b.baseId); if(!b||!base)return;
   document.getElementById('bottleDetail').innerHTML=`
-    <div class="card themed">${thumb(base)}<h2>${esc(bottleName(b))}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} left</p></div>
+    <div class="card themed">${thumb(base)}<h2>${esc(bottleName(b))}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} left · Remaining value ${money(bottleRemainingValue(id))}</p></div>
     <div class="grid two">
       ${bottleStatus(id)==='empty'
         ? `<button class="primary" type="button" onclick="newBottlePurchased('${id}')">New bottle purchased</button>`
@@ -334,13 +340,21 @@ function renderTastingPicker(){
 function addTastingForBottle(id){
   const b=getBottle(id); if(!b)return;
   if(bottleStatus(id)==='empty'){alert('This bottle is empty. Use New bottle purchased instead.');return;}
+  const base=getBase(b.baseId); if(!base)return;
   const date=prompt('Tasting date',new Date().toISOString().slice(0,10)); if(!date)return;
   const mlAmount=dec(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
   const score=dec(prompt('Score 1-10',''));
   const notes=prompt('Notes','')||'';
   if(!b.openedDate)b.openedDate=date;
   state.tastings.unshift({id:uid(),bottleId:id,date,ml:mlAmount,score,notes});
-  save(); render(); show('opened');
+
+  // Reduce weight as well, so remaining volume updates immediately and consistently.
+  const d=densityFromAbv(base.abv);
+  if(dec(b.currentWeight)>0){
+    const newWeight=Math.max(dec(base.emptyWeight)||calculatedEmptyWeight(base)||0, dec(b.currentWeight) - (mlAmount*d));
+    b.currentWeight=Math.round(newWeight);
+  }
+  save(); render(); show('home');
 }
 
 

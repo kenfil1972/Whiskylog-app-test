@@ -1,3 +1,14 @@
+# WhiskyLog v1.35 Tasting Volume + Home Return Fixed
+
+Fixes:
+- Save library item returns to Home.
+- Save bottle returns to Home.
+- Add tasting returns to Home.
+- Tasting now reduces remaining volume even when current weight exists.
+- Tasting also reduces current weight using ABV-based density.
+- Remaining value is calculated from remaining volume / original volume.
+- Dashboard Total cost now shows remaining stock value.
+
 # WhiskyLog v1.34 Empty Bottle Repurchase Fixed
 
 Fixes:
