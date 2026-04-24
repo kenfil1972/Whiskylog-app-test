@@ -1,3 +1,17 @@
+# WhiskyLog v1.14
+
+Bugfix:
+- Catalog selection now auto-fills all available library fields:
+  - name
+  - type
+  - ABV
+  - bottle volume
+  - region/country
+  - distillery when available
+  - image when available
+- Auto-fill runs on selection, blur and Enter.
+- Fill from catalog suggestion button still works.
+
 # WhiskyLog v1.13
 
 Fix:

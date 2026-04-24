@@ -316,38 +316,82 @@ function renderAnalytics(){
 }
 
 
+
+function setFieldValue(form, selector, value){
+  const el=form.querySelector(selector);
+  if(!el || value===undefined || value===null) return;
+  el.value=String(value);
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+  el.dispatchEvent(new Event('change',{bubbles:true}));
+}
+function normalizeText(value){
+  return String(value||'').trim().toLowerCase().replace(/[’']/g,"'").replace(/\s+/g,' ');
+}
+function findCatalogByName(name){
+  const q=normalizeText(name);
+  if(!q) return null;
+  return PRELOADED_CATALOG.find(p=>normalizeText(p.name)===q)
+      || PRELOADED_CATALOG.find(p=>normalizeText(p.name).startsWith(q))
+      || PRELOADED_CATALOG.find(p=>normalizeText(p.name).includes(q));
+}
+function fillLibraryFromCatalog(){
+  const f=document.getElementById('baseForm');
+  if(!f) return false;
+  const nameEl=f.querySelector('[name="name"]');
+  const item=findCatalogByName(nameEl ? nameEl.value : '');
+  if(!item){
+    alert('No matching catalog item found.');
+    return false;
+  }
+
+  setFieldValue(f,'[name="name"]',item.name||'');
+  setFieldValue(f,'[name="type"]',item.type||'Whisky');
+  setFieldValue(f,'[name="abv"]',item.abv ?? '');
+  setFieldValue(f,'[name="volume"]',item.volume ?? '');
+  setFieldValue(f,'[name="region"]',item.region||'');
+
+  if(item.distillery){
+    setFieldValue(f,'[name="distillery"]',item.distillery);
+  }
+  if(item.price){
+    const priceField=document.querySelector('#bottleForm [name="price"]');
+    if(priceField && !priceField.value) priceField.value=formatPrice(item.price);
+  }
+  if(item.image){
+    pendingBaseImage=item.image;
+    const p=document.getElementById('baseImagePreview');
+    if(p){p.src=item.image;p.classList.remove('hidden');}
+  }
+  updateBaseHints();
+  return true;
+}
+function attachCatalogAutoFill(){
+  const input=document.getElementById('libraryNameInput');
+  if(!input) return;
+  const tryFill=()=>{
+    const item=findCatalogByName(input.value);
+    if(item) fillLibraryFromCatalog();
+  };
+  input.addEventListener('change', tryFill);
+  input.addEventListener('blur', tryFill);
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      setTimeout(tryFill,0);
+    }
+  });
+}
+
 function populateCatalogSuggestions(){
   const dl=document.getElementById('catalogSuggestions');
   if(!dl)return;
   dl.innerHTML=PRELOADED_CATALOG.map(p=>`<option value="${esc(p.name)}"></option>`).join('');
 }
-function findCatalogByName(name){
-  const q=String(name||'').trim().toLowerCase();
-  return PRELOADED_CATALOG.find(p=>p.name.toLowerCase()===q) || PRELOADED_CATALOG.find(p=>p.name.toLowerCase().includes(q));
-}
 
-function fillLibraryFromCatalog(){
-  const f=document.getElementById('baseForm');
-  const nameInput=f.querySelector('[name="name"]');
-  const item=findCatalogByName(nameInput.value);
-  if(!item){alert('No matching catalog item found.');return;}
-  f.querySelector('[name="name"]').value=item.name||'';
-  if(f.querySelector('[name="type"]')) f.querySelector('[name="type"]').value=item.type||'Whisky';
-  if(f.querySelector('[name="abv"]')) f.querySelector('[name="abv"]').value=item.abv||'';
-  if(f.querySelector('[name="volume"]')) f.querySelector('[name="volume"]').value=item.volume||'';
-  if(f.querySelector('[name="region"]')) f.querySelector('[name="region"]').value=item.region||'';
-  updateBaseHints();
-}
+
+
 
 // auto-fill when selecting from suggestions
-function attachCatalogAutoFill(){
-  const input=document.getElementById('libraryNameInput');
-  if(!input) return;
-  input.addEventListener('change', ()=>{ 
-    const item=findCatalogByName(input.value);
-    if(item){ fillLibraryFromCatalog(); }
-  });
-}
+
 {
   const f=document.getElementById('baseForm');
   const item=findCatalogByName(f.querySelector('[name="name"]').value);
