@@ -66,6 +66,7 @@ function init(){
   updateBaseHints();
 
   populateCatalogSuggestions();
+  attachCatalogAutoFill();
   const sf=document.getElementById('settingsForm');
   if(sf){
     sf.ownerName.value=settings.ownerName||'';
@@ -324,7 +325,30 @@ function findCatalogByName(name){
   const q=String(name||'').trim().toLowerCase();
   return PRELOADED_CATALOG.find(p=>p.name.toLowerCase()===q) || PRELOADED_CATALOG.find(p=>p.name.toLowerCase().includes(q));
 }
+
 function fillLibraryFromCatalog(){
+  const f=document.getElementById('baseForm');
+  const nameInput=f.querySelector('[name="name"]');
+  const item=findCatalogByName(nameInput.value);
+  if(!item){alert('No matching catalog item found.');return;}
+  f.querySelector('[name="name"]').value=item.name||'';
+  if(f.querySelector('[name="type"]')) f.querySelector('[name="type"]').value=item.type||'Whisky';
+  if(f.querySelector('[name="abv"]')) f.querySelector('[name="abv"]').value=item.abv||'';
+  if(f.querySelector('[name="volume"]')) f.querySelector('[name="volume"]').value=item.volume||'';
+  if(f.querySelector('[name="region"]')) f.querySelector('[name="region"]').value=item.region||'';
+  updateBaseHints();
+}
+
+// auto-fill when selecting from suggestions
+function attachCatalogAutoFill(){
+  const input=document.getElementById('libraryNameInput');
+  if(!input) return;
+  input.addEventListener('change', ()=>{ 
+    const item=findCatalogByName(input.value);
+    if(item){ fillLibraryFromCatalog(); }
+  });
+}
+{
   const f=document.getElementById('baseForm');
   const item=findCatalogByName(f.querySelector('[name="name"]').value);
   if(!item){alert('No matching catalog item found.');return;}

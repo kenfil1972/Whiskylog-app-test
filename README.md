@@ -1,3 +1,9 @@
+# WhiskyLog v1.13
+
+Fix:
+- ABV and volume now correctly auto-filled when selecting from catalog
+- Auto-fill triggers when choosing from suggestions
+
 # WhiskyLog v1.12 Premium
 
 New in v1.12:
