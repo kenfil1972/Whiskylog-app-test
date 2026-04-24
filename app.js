@@ -45,7 +45,7 @@ function formatPrice(value){return parseDecimal(value).toLocaleString('en-US',{m
 
 function init(){
   document.getElementById('typeSelect').innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
-  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+  document.querySelectorAll('[data-go]').forEach(b=>{ b.onclick=(ev)=>{ ev.preventDefault(); show(b.dataset.go); }; });
   document.getElementById('backupButton').onclick=()=>show('backup');
   const cs=document.getElementById('currencySelect'); if(cs){cs.value=settings.currency||'NOK'; cs.onchange=()=>{settings.currency=cs.value;saveSettings();render();};}
   document.getElementById('baseForm').onsubmit=saveBase;
@@ -317,6 +317,7 @@ function renderAnalytics(){
 
 
 
+
 function setFieldValue(form, selector, value){
   const el=form.querySelector(selector);
   if(!el || value===undefined || value===null) return;
@@ -343,20 +344,12 @@ function fillLibraryFromCatalog(){
     alert('No matching catalog item found.');
     return false;
   }
-
   setFieldValue(f,'[name="name"]',item.name||'');
   setFieldValue(f,'[name="type"]',item.type||'Whisky');
   setFieldValue(f,'[name="abv"]',item.abv ?? '');
   setFieldValue(f,'[name="volume"]',item.volume ?? '');
   setFieldValue(f,'[name="region"]',item.region||'');
-
-  if(item.distillery){
-    setFieldValue(f,'[name="distillery"]',item.distillery);
-  }
-  if(item.price){
-    const priceField=document.querySelector('#bottleForm [name="price"]');
-    if(priceField && !priceField.value) priceField.value=formatPrice(item.price);
-  }
+  if(item.distillery){ setFieldValue(f,'[name="distillery"]',item.distillery); }
   if(item.image){
     pendingBaseImage=item.image;
     const p=document.getElementById('baseImagePreview');
@@ -374,11 +367,7 @@ function attachCatalogAutoFill(){
   };
   input.addEventListener('change', tryFill);
   input.addEventListener('blur', tryFill);
-  input.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){
-      setTimeout(tryFill,0);
-    }
-  });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ setTimeout(tryFill,0); } });
 }
 
 function populateCatalogSuggestions(){

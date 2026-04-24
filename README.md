@@ -1,3 +1,11 @@
+# WhiskyLog v1.16 Buttons Fixed
+
+Fixes:
+- Corrected JavaScript issue that could stop all buttons from responding.
+- Made data-go button navigation more robust.
+- Fixed category-card text layout so subtitles appear on the next line.
+- Keeps v1.15 PWA GitHub Pages path fix.
+
 # WhiskyLog v1.15 PWA Fixed
 
 Fixes for iPhone Home Screen app mode:
