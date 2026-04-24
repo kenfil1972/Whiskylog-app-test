@@ -1,5 +1,6 @@
 
 const KEY='whiskylog_appstore_v19';
+const PRELOADED_CATALOG=[{"name": "Woodford Reserve Double Oaked", "type": "Bourbon", "abv": 43.2, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Woodford Reserve Kentucky Straight Bourbon", "type": "Bourbon", "abv": 43.2, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Elijah Craig Small Batch", "type": "Bourbon", "abv": 47.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Wild Turkey 101", "type": "Bourbon", "abv": 50.5, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Buffalo Trace", "type": "Bourbon", "abv": 40.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Four Roses Small Batch", "type": "Bourbon", "abv": 45.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Maker's Mark", "type": "Bourbon", "abv": 45.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Bulleit Bourbon", "type": "Bourbon", "abv": 45.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Jack Daniel's Old No. 7", "type": "Whisky", "abv": 40.0, "volume": 700, "price": 0, "region": "Tennessee, USA", "image": ""}, {"name": "Jack Daniel's Bonded", "type": "Whisky", "abv": 50.0, "volume": 700, "price": 0, "region": "Tennessee, USA", "image": ""}, {"name": "Angel's Envy Bourbon", "type": "Bourbon", "abv": 43.3, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Knob Creek 9 Year", "type": "Bourbon", "abv": 50.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Eagle Rare 10 Year", "type": "Bourbon", "abv": 45.0, "volume": 700, "price": 0, "region": "Kentucky, USA", "image": ""}, {"name": "Glenfiddich 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Speyside, Scotland", "image": ""}, {"name": "Glenlivet 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Speyside, Scotland", "image": ""}, {"name": "Macallan Double Cask 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Speyside, Scotland", "image": ""}, {"name": "Highland Park 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Orkney, Scotland", "image": ""}, {"name": "Talisker 10 Year", "type": "Single Malt Scotch", "abv": 45.8, "volume": 700, "price": 0, "region": "Isle of Skye, Scotland", "image": ""}, {"name": "Lagavulin 16 Year", "type": "Single Malt Scotch", "abv": 43.0, "volume": 700, "price": 0, "region": "Islay, Scotland", "image": ""}, {"name": "Laphroaig 10 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Islay, Scotland", "image": ""}, {"name": "Ardbeg 10 Year", "type": "Single Malt Scotch", "abv": 46.0, "volume": 700, "price": 0, "region": "Islay, Scotland", "image": ""}, {"name": "Bunnahabhain 12 Year", "type": "Single Malt Scotch", "abv": 46.3, "volume": 700, "price": 0, "region": "Islay, Scotland", "image": ""}, {"name": "Aberlour 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Speyside, Scotland", "image": ""}, {"name": "Balvenie DoubleWood 12 Year", "type": "Single Malt Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Speyside, Scotland", "image": ""}, {"name": "Oban 14 Year", "type": "Single Malt Scotch", "abv": 43.0, "volume": 700, "price": 0, "region": "Highlands, Scotland", "image": ""}, {"name": "Johnnie Walker Black Label", "type": "Blended Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Scotland", "image": ""}, {"name": "Monkey Shoulder", "type": "Blended Scotch", "abv": 40.0, "volume": 700, "price": 0, "region": "Scotland", "image": ""}, {"name": "Jameson Irish Whiskey", "type": "Irish Whiskey", "abv": 40.0, "volume": 700, "price": 0, "region": "Ireland", "image": ""}, {"name": "Redbreast 12 Year", "type": "Irish Whiskey", "abv": 40.0, "volume": 700, "price": 0, "region": "Ireland", "image": ""}, {"name": "Nikka From The Barrel", "type": "Japanese Whisky", "abv": 51.4, "volume": 500, "price": 0, "region": "Japan", "image": ""}, {"name": "Hibiki Japanese Harmony", "type": "Japanese Whisky", "abv": 43.0, "volume": 700, "price": 0, "region": "Japan", "image": ""}, {"name": "Diplomático Reserva Exclusiva", "type": "Aged Rum", "abv": 40.0, "volume": 700, "price": 0, "region": "Venezuela", "image": ""}, {"name": "Don Papa Baroko", "type": "Aged Rum", "abv": 40.0, "volume": 700, "price": 0, "region": "Philippines", "image": ""}, {"name": "Plantation XO 20th Anniversary", "type": "Aged Rum", "abv": 40.0, "volume": 700, "price": 0, "region": "Barbados", "image": ""}, {"name": "Ron Zacapa 23", "type": "Aged Rum", "abv": 40.0, "volume": 700, "price": 0, "region": "Guatemala", "image": ""}, {"name": "Appleton Estate 12 Year Rare Casks", "type": "Aged Rum", "abv": 43.0, "volume": 700, "price": 0, "region": "Jamaica", "image": ""}, {"name": "Mount Gay XO", "type": "Aged Rum", "abv": 43.0, "volume": 700, "price": 0, "region": "Barbados", "image": ""}, {"name": "Hennessy VS", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Hennessy VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Rémy Martin VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Martell VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Bache-Gabrielsen VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Braastad VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Courvoisier VSOP", "type": "Cognac", "abv": 40.0, "volume": 700, "price": 0, "region": "Cognac, France", "image": ""}, {"name": "Calvados Boulard Grand Solage", "type": "Calvados", "abv": 40.0, "volume": 700, "price": 0, "region": "Normandy, France", "image": ""}, {"name": "Aalborg Taffel Akvavit", "type": "Aquavit", "abv": 45.0, "volume": 700, "price": 0, "region": "Denmark", "image": ""}, {"name": "Gammel Opland", "type": "Aquavit", "abv": 41.5, "volume": 700, "price": 0, "region": "Norway", "image": ""}, {"name": "Lysholm Linie Aquavit", "type": "Aquavit", "abv": 41.5, "volume": 700, "price": 0, "region": "Norway", "image": ""}, {"name": "Tanqueray London Dry Gin", "type": "Gin", "abv": 43.1, "volume": 700, "price": 0, "region": "England", "image": ""}, {"name": "Hendrick's Gin", "type": "Gin", "abv": 41.4, "volume": 700, "price": 0, "region": "Scotland", "image": ""}, {"name": "Bombay Sapphire", "type": "Gin", "abv": 40.0, "volume": 700, "price": 0, "region": "England", "image": ""}, {"name": "Patrón Silver", "type": "Tequila", "abv": 40.0, "volume": 700, "price": 0, "region": "Mexico", "image": ""}, {"name": "Don Julio Blanco", "type": "Tequila", "abv": 38.0, "volume": 700, "price": 0, "region": "Mexico", "image": ""}, {"name": "Del Maguey Vida Mezcal", "type": "Mezcal", "abv": 42.0, "volume": 700, "price": 0, "region": "Mexico", "image": ""}];
 const TYPES=['Whisky','Single Malt Scotch','Blended Scotch','Bourbon','Rye Whiskey','Irish Whiskey','Japanese Whisky','Rum','Dark Rum','Aged Rum','Agricole Rum','Cognac','Armagnac','Brandy','Calvados','Tequila','Mezcal','Gin','Vodka','Aquavit','Grappa','Pisco','Liqueur','Amaro','Other'];
 const DENSITY_TABLE=[
   {abv:0,dens:0.9982},{abv:5,dens:0.9892},{abv:10,dens:0.9807},{abv:15,dens:0.9723},{abv:20,dens:0.9640},
@@ -11,8 +12,9 @@ const state=load();
 let pendingBaseImage='';
 
 const SETTINGS_KEY='whiskylog_settings_v11';
-const settings=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{"currency":"NOK"}');
+const settings=Object.assign({currency:"NOK",ownerName:"Kenneth",language:"en",defaultTastingMl:20}, JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"));
 function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}
+function updateAppTitle(){const el=document.getElementById('appTitle'); if(el){el.textContent=(settings.ownerName?settings.ownerName+'\'s ':'')+'WhiskyLog';}}
 function formatMoney(value){
   return `${formatPrice(value)} ${settings.currency||'NOK'}`;
 }
@@ -62,6 +64,21 @@ function init(){
   const today=new Date().toISOString().slice(0,10);
   document.querySelector('#bottleForm [name="purchaseDate"]').value=today;
   updateBaseHints();
+
+  populateCatalogSuggestions();
+  const sf=document.getElementById('settingsForm');
+  if(sf){
+    sf.ownerName.value=settings.ownerName||'';
+    sf.currency.value=settings.currency||'NOK';
+    sf.language.value=settings.language||'en';
+    sf.defaultTastingMl.value=settings.defaultTastingMl||20;
+    sf.onsubmit=(e)=>{e.preventDefault();settings.ownerName=sf.ownerName.value.trim();settings.currency=sf.currency.value;settings.language=sf.language.value;settings.defaultTastingMl=Number(sf.defaultTastingMl.value||20);saveSettings();updateAppTitle();render();show('home');};
+  }
+  const wf=document.getElementById('wishlistForm'); if(wf){wf.onsubmit=saveWishlistItem;}
+  const wcb=document.getElementById('wishlistCancelButton'); if(wcb){wcb.onclick=resetWishlistForm;}
+  const ffc=document.getElementById('fillFromCatalogButton'); if(ffc){ffc.onclick=fillLibraryFromCatalog;}
+  updateAppTitle();
+
 }
 function show(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));
@@ -161,7 +178,7 @@ function saveBottle(e){
 function addTastingForBottle(id){
   const bottle=getBottle(id); if(!bottle)return;
   const date=prompt('Date',new Date().toISOString().slice(0,10)); if(date===null)return;
-  const mlAmount=parseDecimal(prompt('Amount ml','20')); if(!mlAmount)return;
+  const mlAmount=parseDecimal(prompt('Amount ml',String(settings.defaultTastingMl||20))); if(!mlAmount)return;
   const nose=parseDecimal(prompt('Nose 1-10','7'));
   const palate=parseDecimal(prompt('Palate 1-10','7'));
   const finish=parseDecimal(prompt('Finish 1-10','7'));
@@ -199,8 +216,8 @@ function deleteBase(id){if(!confirm('Delete this library item? Related bottles a
 function deleteBottle(id){if(!confirm('Delete this bottle? Related tastings and comments will also be deleted.'))return;state.bottles=state.bottles.filter(b=>b.id!==id);state.tastings=state.tastings.filter(t=>t.bottleId!==id);state.comments=state.comments.filter(c=>c.bottleId!==id);save();render();show('home');}
 function deleteTasting(id){if(!confirm('Delete this tasting?'))return;state.tastings=state.tastings.filter(t=>t.id!==id);save();render();if(currentBottleId)openBottleDetail(currentBottleId,detailReturnView);}
 function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='whiskylog-backup.json';a.click();}
-function importBackup(e){const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const data=JSON.parse(fr.result);state.bases=Array.isArray(data.bases)?data.bases:[];state.bottles=Array.isArray(data.bottles)?data.bottles:[];state.tastings=Array.isArray(data.tastings)?data.tastings:[];state.comments=Array.isArray(data.comments)?data.comments:[];save();render();alert('Backup imported.');}catch{alert('Could not read backup file.');}};fr.readAsText(file);}
-function resetAll(){if(!confirm('Reset all data?'))return;state.bases=[];state.bottles=[];state.tastings=[];state.comments=[];save();render();}
+function importBackup(e){const file=e.target.files[0];if(!file)return;const fr=new FileReader();fr.onload=()=>{try{const data=JSON.parse(fr.result);state.bases=Array.isArray(data.bases)?data.bases:[];state.bottles=Array.isArray(data.bottles)?data.bottles:[];state.tastings=Array.isArray(data.tastings)?data.tastings:[];state.comments=Array.isArray(data.comments)?data.comments:[];state.wishlist=Array.isArray(data.wishlist)?data.wishlist:[];save();render();alert('Backup imported.');}catch{alert('Could not read backup file.');}};fr.readAsText(file);}
+function resetAll(){if(!confirm('Reset all data?'))return;state.bases=[];state.bottles=[];state.tastings=[];state.comments=[];state.wishlist=[];save();render();}
 
 
 function dateToKey(d){return d.toISOString().slice(0,10);}
@@ -297,7 +314,73 @@ function renderAnalytics(){
   drawChart('stockChart', stockTimeline(), {cumulative:true});
 }
 
-function render(){renderPickers();renderHome();renderBaseList();renderAllBottleLists();renderAnalytics();}
+
+function populateCatalogSuggestions(){
+  const dl=document.getElementById('catalogSuggestions');
+  if(!dl)return;
+  dl.innerHTML=PRELOADED_CATALOG.map(p=>`<option value="${esc(p.name)}"></option>`).join('');
+}
+function findCatalogByName(name){
+  const q=String(name||'').trim().toLowerCase();
+  return PRELOADED_CATALOG.find(p=>p.name.toLowerCase()===q) || PRELOADED_CATALOG.find(p=>p.name.toLowerCase().includes(q));
+}
+function fillLibraryFromCatalog(){
+  const f=document.getElementById('baseForm');
+  const item=findCatalogByName(f.querySelector('[name="name"]').value);
+  if(!item){alert('No matching catalog item found.');return;}
+  f.querySelector('[name="name"]').value=item.name||'';
+  f.querySelector('[name="type"]').value=item.type||'Whisky';
+  f.querySelector('[name="abv"]').value=item.abv||'';
+  f.querySelector('[name="volume"]').value=item.volume||'';
+  f.querySelector('[name="region"]').value=item.region||'';
+  updateBaseHints();
+}
+function saveWishlistItem(e){
+  e.preventDefault();
+  const f=new FormData(e.target);
+  const id=f.get('editId')||uid();
+  if(!state.wishlist)state.wishlist=[];
+  if(!f.get('editId') && state.wishlist.length>=50){alert('Wishlist limit is 50 items.');return;}
+  const item={id,name:f.get('name'),image:f.get('image')||'',type:f.get('type')||'',targetPrice:parseDecimal(f.get('targetPrice')),priority:Number(f.get('priority')||state.wishlist.length+1),notes:f.get('notes')||''};
+  upsert(state.wishlist,item);
+  state.wishlist.sort((a,b)=>(Number(a.priority||99)-Number(b.priority||99)));
+  save();resetWishlistForm();renderWishlist();show('wishlist');
+}
+function resetWishlistForm(){
+  const f=document.getElementById('wishlistForm'); if(!f)return;
+  f.reset(); f.querySelector('[name="editId"]').value='';
+}
+function editWishlistItem(id){
+  const item=(state.wishlist||[]).find(x=>x.id===id); if(!item)return;
+  const f=document.getElementById('wishlistForm');
+  f.querySelector('[name="editId"]').value=item.id;
+  f.querySelector('[name="name"]').value=item.name||'';
+  f.querySelector('[name="image"]').value=item.image||'';
+  f.querySelector('[name="type"]').value=item.type||'';
+  f.querySelector('[name="targetPrice"]').value=item.targetPrice?formatPrice(item.targetPrice):'';
+  f.querySelector('[name="priority"]').value=item.priority||'';
+  f.querySelector('[name="notes"]').value=item.notes||'';
+  show('wishlist');
+}
+function deleteWishlistItem(id){
+  if(!confirm('Delete this wishlist item?'))return;
+  state.wishlist=(state.wishlist||[]).filter(x=>x.id!==id);
+  save();renderWishlist();
+}
+function renderWishlist(){
+  const el=document.getElementById('wishlistList'); if(!el)return;
+  const items=[...(state.wishlist||[])].sort((a,b)=>Number(a.priority||99)-Number(b.priority||99)).slice(0,50);
+  if(!items.length){el.innerHTML='<div class="sub">No wishlist items yet.</div>';return;}
+  const top=items.slice(0,5);
+  const rest=items.slice(5);
+  let html=top.map((w,i)=>`<div class="item">${w.image?`<img class="thumb" src="${w.image}" alt="">`:`<div class="thumb placeholder">⭐</div>`}<div><div class="title">${i+1}. ${esc(w.name)}</div><div class="meta">${esc(w.type||'')} ${w.targetPrice?` · ${formatMoney(w.targetPrice)}`:''}</div><div class="sub">${esc(w.notes||'')}</div></div><div class="side"><button class="smallbtn" onclick="editWishlistItem('${w.id}')">Edit</button><button class="smallbtn" onclick="deleteWishlistItem('${w.id}')">Delete</button></div></div>`).join('');
+  if(rest.length){
+    html+=`<div class="card"><h3>Other wishes</h3>`+rest.map((w,i)=>`<div class="simple-row"><span>${i+6}. ${esc(w.name)}</span><span><button class="smallbtn" onclick="editWishlistItem('${w.id}')">Edit</button></span></div>`).join('')+`</div>`;
+  }
+  el.innerHTML=html;
+}
+
+function render(){updateAppTitle();renderPickers();renderHome();renderBaseList();renderAllBottleLists();renderWishlist();renderAnalytics();}
 function renderPickers(){document.getElementById('basePick').innerHTML=state.bases.length?state.bases.map(b=>`<option value="${b.id}">${esc(b.name)} — ${esc(b.type)}</option>`).join(''):'<option value="">No library items</option>';}
 
 function renderHomeCategoryImages(){

@@ -1,3 +1,16 @@
+# WhiskyLog v1.12 Premium
+
+New in v1.12:
+- Home action order updated
+- Currency moved from Home to Settings
+- Settings page added: name, currency, language and default tasting amount
+- Personalized title: e.g. Kenneth's WhiskyLog
+- Wishlist restored: up to 50 entries; top 5 with image; rest by name
+- Starter bottle catalog and autocomplete support
+- Library can fill fields from catalog suggestion
+
+Note: The starter catalog is static and editable. A full official Vinmonopolet catalog with live prices/images requires API access and rights review before App Store distribution.
+
 # WhiskyLog v1.11 Premium
 
 Full verified package based on v1.10.

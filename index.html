@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.11</title>
+  <title>WhiskyLog v1.12</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="styles.css">
@@ -17,12 +17,13 @@
   <header class="topbar">
     <div>
       <div class="eyebrow">Premium Spirits Journal</div>
-      <h1>WhiskyLog</h1>
+      <h1 id="appTitle">WhiskyLog</h1>
     </div>
     <button id="backupButton" class="ghost">Backup</button>
   </header>
 
   <main>
+      <datalist id="catalogSuggestions"></datalist>
     <section class="view active" data-view="home">
       <div class="card hero">
         <div class="eyebrow">Dashboard</div>
@@ -37,27 +38,14 @@
       </div>
 
       <div class="grid two">
-        <button class="card action" data-go="library"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types for future purchases</small></button>
-        <button class="card action" data-go="new-bottle"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
         <button class="card action" data-go="opened"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for an opened or unopened bottle</small></button>
+        <button class="card action" data-go="new-bottle"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
+        <button class="card action" data-go="library"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types for future purchases</small></button>
+        <button class="card action" data-go="wishlist"><span>⭐</span><strong>Wishlist</strong><small>Track up to 50 future bottles</small></button>
+        <button class="card action" data-go="settings"><span>⚙️</span><strong>Settings</strong><small>Name, currency, language and preferences</small></button>
         <button class="card action" data-go="analytics"><span>📈</span><strong>Analytics</strong><small>Charts for value, tastings and stock volume</small></button>
       </div>
-
-      
-      <div class="card compact">
-        <div class="section-head">
-          <h3>Currency</h3>
-          <select id="currencySelect" class="currency-select">
-            <option value="NOK">NOK</option>
-            <option value="SEK">SEK</option>
-            <option value="DKK">DKK</option>
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid four">
+<div class="grid four">
         <div class="card stat"><div class="label">Total cost</div><div class="value" id="totalCost">0.00 NOK</div></div>
         <div class="card stat"><div class="label">Total volume</div><div class="value" id="totalVolume">0 ml</div></div>
         <div class="card stat"><div class="label">Opened</div><div class="value" id="openedCount">0</div></div>
@@ -84,7 +72,7 @@
       <form id="baseForm" class="card form">
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" required></label>
+          <label>Name<input name="name" required list="catalogSuggestions" id="libraryNameInput"></label>
           <label>Distillery / producer<input name="distillery"></label>
         </div>
         <div class="grid three">
@@ -104,6 +92,7 @@
         <img id="baseImagePreview" class="preview hidden" alt="">
         <label>Notes<textarea name="notes" rows="3"></textarea></label>
         <div class="grid two">
+          <button class="ghost" type="button" id="fillFromCatalogButton">Fill from catalog suggestion</button>
           <button class="primary" type="submit" id="baseSaveButton">Save library item</button>
           <button class="ghost hidden" type="button" id="baseCancelButton">Cancel</button>
         </div>
@@ -173,6 +162,70 @@
     <section class="view" data-view="bottle-detail">
       <button class="back" id="detailBackButton">← Home</button>
       <div id="bottleDetail"></div>
+    </section>
+
+
+
+    <section class="view" data-view="wishlist">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Wishlist</h2>
+        <p>Track up to 50 bottles. The top 5 can include images; the rest are listed by name.</p>
+      </div>
+      <form id="wishlistForm" class="card form">
+        <input type="hidden" name="editId">
+        <div class="grid two">
+          <label>Name<input name="name" required list="catalogSuggestions"></label>
+          <label>Image URL<input name="image"></label>
+        </div>
+        <div class="grid three">
+          <label>Type<input name="type"></label>
+          <label>Target price<input name="targetPrice" type="text" inputmode="decimal"></label>
+          <label>Priority<input name="priority" type="number" min="1" max="50"></label>
+        </div>
+        <label>Notes<textarea name="notes" rows="2"></textarea></label>
+        <div class="grid two">
+          <button class="primary" type="submit">Save wishlist item</button>
+          <button class="ghost" type="button" id="wishlistCancelButton">Cancel</button>
+        </div>
+      </form>
+      <div class="card">
+        <div class="section-head"><h3>Wishlist items</h3></div>
+        <div id="wishlistList" class="list"></div>
+      </div>
+    </section>
+
+
+    <section class="view" data-view="settings">
+      <button class="back" data-go="home">← Home</button>
+      <div class="card themed">
+        <h2>Settings</h2>
+        <p>Personalize the app.</p>
+      </div>
+      <form id="settingsForm" class="card form">
+        <div class="grid two">
+          <label>Name<input name="ownerName"></label>
+          <label>Currency
+            <select name="currency">
+              <option value="NOK">NOK</option>
+              <option value="SEK">SEK</option>
+              <option value="DKK">DKK</option>
+              <option value="EUR">EUR</option>
+              <option value="USD">USD</option>
+            </select>
+          </label>
+        </div>
+        <div class="grid two">
+          <label>Language
+            <select name="language">
+              <option value="en">English</option>
+              <option value="no">Norwegian</option>
+            </select>
+          </label>
+          <label>Default tasting amount ml<input name="defaultTastingMl" type="number"></label>
+        </div>
+        <button class="primary" type="submit">Save settings</button>
+      </form>
     </section>
 
 

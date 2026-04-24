@@ -88,3 +88,7 @@ canvas{
   border-radius:14px;
   padding:8px;
 }
+
+/* v1.12 settings + wishlist */
+.simple-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.simple-row:last-child{border-bottom:none}
