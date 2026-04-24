@@ -181,3 +181,7 @@ canvas{
   display:block !important;
   color:#fff !important;
 }
+
+/* v1.19 navigation robustness */
+[data-go]{cursor:pointer;touch-action:manipulation;}
+.view{min-height:20px;}

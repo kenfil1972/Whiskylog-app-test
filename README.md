@@ -1,3 +1,14 @@
+# WhiskyLog v1.19 Navigation Fixed
+
+Fix:
+- Added inline navigation fallback in index.html.
+- Added delegated click handling for all data-go buttons.
+- Wrapped app init in try/catch so one runtime error does not kill all navigation.
+- Kept v1.18 hard layout fix.
+
+Upload all files, then open:
+https://kenfil1972.github.io/Whiskylog-app-test/index.html
+
 # WhiskyLog v1.18 Hard Layout Fix
 
 Hard fix:
