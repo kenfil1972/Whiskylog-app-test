@@ -1,3 +1,11 @@
+# WhiskyLog v1.30 Library Save + Weight Fixed
+
+Fix:
+- Save library item now has a direct fallback save handler.
+- Calculated empty weight updates from ABV, bottle volume and full bottle weight.
+- Decimal comma and decimal point both work.
+- Saved library items are written to localStorage immediately.
+
 # WhiskyLog v1.29 Type Dropdown Fixed
 
 Fix:
