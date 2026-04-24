@@ -285,3 +285,10 @@ form[action="javascript:void(0)"] button[type="submit"]{touch-action:manipulatio
 
 /* v1.25 */
 .catalog-hard-row{display:block!important;width:100%!important;text-align:left!important;padding:12px 14px!important;margin:6px 0!important;border-radius:14px!important;border:1px solid rgba(255,255,255,.15)!important;background:rgba(0,0,0,.24)!important;color:#fff!important}.catalog-hard-row strong{display:block!important;color:#fff!important}.catalog-hard-row small{display:block!important;color:#d5b88f!important;margin-top:3px!important}
+
+/* v1.26 stable mode */
+#catalogPickerCard,
+.catalog-suggestions,
+.catalog-hard-row{
+  display:none !important;
+}

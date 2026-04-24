@@ -1,3 +1,12 @@
+# WhiskyLog v1.26 Stability Fixed
+
+Fixes:
+- Removed unstable starter catalog picker for now.
+- Settings Name now controls the header title, e.g. Jens's WhiskyLog.
+- Settings form no longer submits values into the URL.
+- Opened bottles subtitle changed to: Bottles open for tasting.
+- Kept prior button/navigation and save fixes.
+
 # WhiskyLog v1.25 Catalog + Title Hardfix
 
 Embedded fallback catalog and title hardfix.

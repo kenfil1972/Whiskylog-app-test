@@ -21,7 +21,7 @@ const DENSITY_TABLE=[
 const state=load();
 let pendingBaseImage='';
 
-const SETTINGS_KEY='whiskylog_settings_v22';
+const SETTINGS_KEY='whiskylog_settings_v26';
 const settings=Object.assign({currency:"NOK",ownerName:"Kenneth",language:"en",defaultTastingMl:20}, JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}"));
 (function absorbSettingsFromQuery(){
   const params=new URLSearchParams(window.location.search||'');
@@ -716,3 +716,7 @@ function attachVisibleCatalogPicker(){
   };
 }
 document.addEventListener('DOMContentLoaded',()=>setTimeout(attachVisibleCatalogPicker,200));
+
+
+/* v1.26 catalog removed for stability */
+function attachVisibleCatalogPicker(){ return; }
