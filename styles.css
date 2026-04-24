@@ -307,3 +307,14 @@ section.view[hidden]{
 #fillFromCatalogButton{
   display:none !important;
 }
+
+/* v1.28 definitive direct-child view separation */
+main > section.view{
+  display:none !important;
+}
+main > section.view.active{
+  display:block !important;
+}
+main > section.view[hidden]{
+  display:none !important;
+}

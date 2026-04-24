@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.27</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=127">
+  <title>WhiskyLog v1.28</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=128">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=127">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=128">
 </head>
 <body>
 <div class="app">
@@ -92,47 +92,52 @@
         <div class="card"><div class="section-head"><h3>Volume by type</h3></div><div id="typeVolumeList" class="list"></div></div>
       </div>
     </section>
-
     <section class="view" data-view="library">
       <button class="back" data-go="home">← Home</button>
       <div class="card themed">
         <h2>Add bottle to library</h2>
         <p>Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.</p>
       </div>
-</div>
 
       <form id="baseForm" class="card form" action="javascript:void(0)">
         <input type="hidden" name="editId">
         <div class="grid two">
-          <label>Name<input name="name" required list="catalogSuggestions" id="libraryNameInput" autocomplete="off"></label>
-          <label>Distillery / producer<input name="distillery"></label>
+          <label>Name<input name="name" required autocomplete="off"></label>
+          <label>Distillery / producer<input name="distillery" autocomplete="off"></label>
         </div>
         <div class="grid three">
-          <label>Type<select name="type" id="typeSelect"></select></label>
-          <label>ABV %<input name="abv" type="number" step="0.1"></label>
-          <label>Bottle volume ml<input name="volume" type="number"></label>
+          <label>Type
+            <select name="type"></select>
+          </label>
+          <label>ABV %<input name="abv" type="text" inputmode="decimal"></label>
+          <label>Bottle volume ml<input name="volume" type="text" inputmode="decimal"></label>
         </div>
-        <div class="grid three">
-          <label>Full bottle weight g<input name="fullWeight" type="number"></label>
-          <label>Calculated empty weight<div id="emptyHint" class="readonly">—</div></label>
-          <div class="hidden" id="densityHint">—</div>
+        <div class="grid two">
+          <label>Full bottle weight g<input name="fullWeight" type="text" inputmode="decimal"></label>
+          <label>Calculated empty weight<input id="emptyWeightHint" readonly value="—"></label>
         </div>
         <div class="grid two">
           <label>Region / country<input name="region"></label>
-          <label>Image<input id="baseImageInput" type="file" accept="image/*"></label>
+          <label>Image<input name="image" type="file" accept="image/*"></label>
         </div>
         <img id="baseImagePreview" class="preview hidden" alt="">
         <label>Notes<textarea name="notes" rows="3"></textarea></label>
         <div class="grid two">
-<button class="primary" type="submit" id="baseSaveButton">Save library item</button>
-          <button class="ghost hidden" type="button" id="baseCancelButton">Cancel</button>
+          <button class="primary" type="submit" id="baseSaveButton">Save library item</button>
+          <button class="ghost" type="button" id="baseCancelButton">Cancel</button>
         </div>
       </form>
+
       <div class="card">
-        <div class="section-head"><h3>Library items</h3><input id="baseSearch" class="search"></div>
+        <div class="section-head">
+          <h3>Library items</h3>
+          <input id="baseSearch" placeholder="Search library">
+        </div>
         <div id="baseList" class="list"></div>
       </div>
     </section>
+
+
 
     <section class="view" data-view="new-bottle">
       <button class="back" data-go="home">← Home</button>
@@ -328,7 +333,7 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=127"></script>
+<script src="/Whiskylog-app-test/app.js?v=128"></script>
 
 
 
@@ -510,6 +515,33 @@
     showOnly('home');
   });
 
+  setTimeout(function(){ showOnly('home'); }, 300);
+})();
+</script>
+
+
+<script>
+/* v1.28 page separation hardfix */
+(function(){
+  function showOnly(name){
+    name = name || 'home';
+    document.querySelectorAll('main > section.view').forEach(function(v){
+      var active = v.getAttribute('data-view') === name;
+      v.classList.toggle('active', active);
+      v.hidden = !active;
+      v.style.display = active ? 'block' : 'none';
+    });
+    try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+  }
+  window.show = showOnly;
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-go]');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showOnly(btn.getAttribute('data-go'));
+  }, true);
+  document.addEventListener('DOMContentLoaded', function(){ showOnly('home'); });
   setTimeout(function(){ showOnly('home'); }, 300);
 })();
 </script>

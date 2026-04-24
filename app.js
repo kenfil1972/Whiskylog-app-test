@@ -139,7 +139,7 @@ function init(){
 
 }
 function show(name){
-  document.querySelectorAll('section.view').forEach(v=>{
+  document.querySelectorAll('main > section.view').forEach(v=>{
     const active=v.dataset.view===name;
     v.classList.toggle('active',active);
     v.hidden=!active;
@@ -725,3 +725,6 @@ document.addEventListener('DOMContentLoaded',()=>setTimeout(attachVisibleCatalog
 
 /* v1.26 catalog removed for stability */
 function attachVisibleCatalogPicker(){ return; }
+
+/* v1.28 */
+function fillLibraryFromCatalog(){return false;}

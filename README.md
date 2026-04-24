@@ -1,3 +1,12 @@
+# WhiskyLog v1.28 View Structure Fixed
+
+Fix:
+- Rebuilt the Library section with clean HTML structure.
+- Ensures New bottle and other pages are separate sibling sections.
+- Page hiding now targets only direct child sections under main.
+- Removes leftover catalog controls from Library.
+- Keeps stable settings/title and navigation fixes.
+
 # WhiskyLog v1.27 Page Separation Fixed
 
 Fixes:
