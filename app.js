@@ -1,3 +1,4 @@
+window.WHISKYLOG_VERSION='1.45';
 
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
