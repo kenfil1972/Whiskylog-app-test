@@ -57,15 +57,19 @@
       </div>
 
       <div class="grid four">
-        <div class="card metric"><small>Value in stock</small><strong id="mCost">0.00 NOK</strong></div>
-        <div class="card metric"><small>Stock volume</small><strong id="mVolume">0 ml</strong></div>
-        <div class="card metric"><small>Opened</small><strong id="mOpened">0</strong></div>
-        <div class="card metric"><small>Tastings</small><strong id="mTastings">0</strong></div>
+        
+        
+        
+        
       </div>
 
-      <div class="grid two">
-        <div class="card"><h3>Best value</h3><div id="bestValue" class="sub">No bottles yet.</div></div>
-        <div class="card"><h3>Low stock</h3><div id="lowStock" class="sub">No low-stock bottles.</div></div>
+      <div class="grid two home-actions">
+<button class="card action" data-go="inventory"><strong>My stock</strong><small>Unopened, opened, empty</small></button>
+<button class="card action" data-go="logging"><strong>Logging</strong><small>Add bottle, tasting, correction</small></button>
+<button class="card action" data-go="analytics"><strong>Overview</strong><small>Ranking and statistics</small></button>
+<button class="card action" data-go="wishlist"><strong>Wishlist</strong><small>Future bottles</small></button>
+</div></div>
+        <div class="card"></div>
       </div>
     </section>
     <section class="view" data-view="inventory" hidden>
