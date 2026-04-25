@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.42</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=142">
+  <title>WhiskyLog v1.43</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=143">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=142">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=143">
 </head>
 <body>
 <div class="app">
@@ -49,13 +49,11 @@
         </button>
       </div>
 
-      <div class="grid two">
-        <button class="card action" data-go="add-tasting" type="button"><span>📝</span><strong>Add bottle tasting</strong><small>Register a tasting for unopened or opened bottles</small></button>
-        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add new bottle to collection</strong><small>Add a bottle from your library</small></button>
-        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Create reusable bottle types</small></button>
-        <button class="card action" data-go="wishlist" type="button"><span>⭐</span><strong>Wishlist</strong><small>Track up to 50 future bottles</small></button>
-        <button class="card action" data-go="settings" type="button"><span>⚙️</span><strong>Settings</strong><small>Name, currency and preferences</small></button>
-        <button class="card action" data-go="analytics" type="button"><span>📈</span><strong>Analytics</strong><small>Simple stock and tasting summary</small></button>
+      <div class="grid two home-actions">
+        <button class="card action" data-go="inventory" type="button"><span>🥃</span><strong>My stock</strong><small>Unopened, opened and empty bottles</small></button>
+        <button class="card action" data-go="logging" type="button"><span>✍️</span><strong>Logging</strong><small>Add bottles, tastings and stock corrections</small></button>
+        <button class="card action" data-go="analytics" type="button"><span>📊</span><strong>Overview / statistics</strong><small>Ranking, scores, value and history</small></button>
+        <button class="card action" data-go="wishlist" type="button"><span>⭐</span><strong>Wishlist</strong><small>Future bottles and purchase ideas</small></button>
       </div>
 
       <div class="grid four">
@@ -70,6 +68,51 @@
         <div class="card"><h3>Low stock</h3><div id="lowStock" class="sub">No low-stock bottles.</div></div>
       </div>
     </section>
+    <section class="view" data-view="inventory" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed">
+        <h2>My stock</h2>
+        <p>All bottles grouped by status.</p>
+      </div>
+      <div class="grid three">
+        <button class="card action" data-go="unopened" type="button"><span>📦</span><strong>Unopened bottles</strong><small id="invUnopened">0 bottles · 0.00 NOK</small></button>
+        <button class="card action" data-go="opened" type="button"><span>🥃</span><strong>Opened bottles</strong><small id="invOpened">0 bottles · 0.00 NOK</small></button>
+        <button class="card action" data-go="empty" type="button"><span>🗃️</span><strong>Empty bottles</strong><small id="invEmpty">0 bottles · 0.00 NOK</small></button>
+      </div>
+    </section>
+
+    <section class="view" data-view="logging" hidden>
+      <button class="back" data-go="home" type="button">← Home</button>
+      <div class="card themed">
+        <h2>Logging</h2>
+        <p>Choose what you want to register.</p>
+      </div>
+      <div class="grid two">
+        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Edit core bottle data only here</small></button>
+        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add bottle to stock</strong><small>Only price, date and comments</small></button>
+        <button class="card action" data-go="add-tasting" type="button"><span>📝</span><strong>Register tasting</strong><small>Scores and tasting notes</small></button>
+        <button class="card action" data-go="correct-stock" type="button"><span>⚖️</span><strong>Correct stock</strong><small>Adjust weight or remaining volume without tasting</small></button>
+      </div>
+    </section>
+
+    <section class="view" data-view="correct-stock" hidden>
+      <button class="back" data-go="logging" type="button">← Logging</button>
+      <div class="card themed">
+        <h2>Correct stock</h2>
+        <p>Adjust bottle level without registering a tasting.</p>
+      </div>
+      <form id="correctionForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
+        <label>Bottle<select name="bottleId" required><option value="">Choose bottle</option></select></label>
+        <div class="grid two">
+          <label>New current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label>Or remaining volume ml<input name="remainingVolume" type="text" inputmode="decimal" autocomplete="off"></label>
+        </div>
+        <label>Comment<textarea name="comment" rows="3"></textarea></label>
+        <button class="primary" type="submit">Save correction</button>
+      </form>
+    </section>
+
+
 
     <section class="view" data-view="library" hidden>
       <button class="back" data-go="home" type="button">← Home</button>
@@ -125,17 +168,14 @@
       <div class="card themed"><h2>Add bottle</h2><p>New bottles are stored as unopened until the first tasting is registered.</p></div>
       <form id="bottleForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
         <label>Library item<select name="baseId" required><option value="">Choose library item</option></select></label>
-        <div class="grid two">
-          <label>Batch no.<input name="batchNo" autocomplete="off"></label>
-          <label>Bottle no.<input name="bottleNo" autocomplete="off"></label>
-        </div>
+        <div class="grid two hidden"><label>Batch no.<input name="batchNo" autocomplete="off"></label><label>Bottle no.<input name="bottleNo" autocomplete="off"></label></div>
         <div class="grid two">
           <label>Price<input name="price" type="text" inputmode="decimal" autocomplete="off"></label>
-          <label>Purchase place<input name="purchasePlace" autocomplete="off"></label>
+          <label class="hidden">Purchase place<input name="purchasePlace" autocomplete="off"></label>
         </div>
         <div class="grid two">
           <label>Purchase date<input name="purchaseDate" type="date"></label>
-          <label>Current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label class="hidden">Current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
         </div>
         <label>Comments<textarea name="comments" rows="3"></textarea></label>
         <button class="primary" type="submit">Save bottle</button>
@@ -209,7 +249,7 @@
 
     <section class="view" data-view="analytics" hidden>
       <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Analytics</h2><p>Simple summary for value, tastings and stock volume.</p></div>
+      <div class="card themed"><h2>Overview / statistics</h2><p>Ranking, scores, value and history.</p></div>
       <div id="analyticsContent" class="grid two"></div>
     </section>
 
@@ -224,6 +264,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=142"></script>
+<script src="/Whiskylog-app-test/app.js?v=143"></script>
 </body>
 </html>

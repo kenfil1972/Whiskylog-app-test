@@ -1,3 +1,18 @@
+# WhiskyLog v1.43 Structure + Logging
+
+Changes:
+- Home simplified to four main choices:
+  - My stock
+  - Logging
+  - Overview / statistics
+  - Wishlist
+- Added My stock page.
+- Added Logging hub.
+- Added Correct stock page for weight/remaining-volume adjustments without tasting.
+- Overview/statistics now ranks bottles by average tasting score.
+- Add bottle to stock is visually simplified; core data remains in Library.
+- No Vinmonopolet catalog/autofill.
+
 # WhiskyLog v1.42 Stable Volume + Premium Icon
 
 Fixes:

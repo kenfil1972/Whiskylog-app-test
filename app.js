@@ -775,3 +775,83 @@ function renderAnalytics(){
 }
 
 window.addEventListener('DOMContentLoaded',init);
+
+
+/* v1.43 structure + logging additions */
+function renderInventorySummary(){
+  [['unopened','invUnopened'],['opened','invOpened'],['empty','invEmpty']].forEach(([status,id])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const bottles=state.bottles.filter(b=>bottleStatus(b.id)===status);
+    const value=bottles.reduce((a,b)=>a+bottleRemainingValue(b.id),0);
+    el.textContent=`${bottles.length} bottles · ${money(value)}`;
+  });
+}
+function renderCorrectionPicker(){
+  const sel=document.querySelector('#correctionForm [name="bottleId"]');
+  if(!sel)return;
+  const current=sel.value;
+  sel.innerHTML='<option value="">Choose bottle</option>'+state.bottles
+    .filter(b=>bottleStatus(b.id)!=='empty')
+    .map(b=>`<option value="${b.id}">${esc(bottleName(b))} · ${ml(bottleVolume(b.id))} left</option>`)
+    .join('');
+  if(current)sel.value=current;
+}
+function initCorrectionForm(){
+  const f=document.getElementById('correctionForm');
+  if(!f || f.dataset.bound==='1')return;
+  f.dataset.bound='1';
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const b=getBottle(f.bottleId.value);
+    if(!b){alert('Choose bottle');return;}
+    const base=getBase(b.baseId);
+    let newWeight=dec(f.currentWeight.value);
+    const rem=dec(f.remainingVolume.value);
+    if(!newWeight && rem && base){
+      const empty=dec(base.emptyWeight)||calculatedEmptyWeight(base);
+      const full=dec(base.fullWeight);
+      const vol=dec(base.volume);
+      newWeight=Math.round(empty+(rem/vol)*(full-empty));
+    }
+    if(!newWeight){alert('Enter weight or remaining volume');return;}
+    b.currentWeight=newWeight;
+    if(!Array.isArray(state.comments))state.comments=[];
+    state.comments.unshift({id:uid(),bottleId:b.id,type:'correction',date:new Date().toLocaleString('sv-SE'),text:f.comment.value.trim()||'Stock corrected'});
+    save();
+    f.reset();
+    render();
+    show('logging');
+  });
+}
+function renderOverviewRanking(){
+  const host=document.getElementById('analyticsContent');
+  if(!host)return;
+  const ranked=state.bases.map(base=>{
+    const bottleIds=state.bottles.filter(b=>b.baseId===base.id).map(b=>b.id);
+    const ts=state.tastings.filter(t=>bottleIds.includes(t.bottleId));
+    const avg=ts.length?Math.round((ts.reduce((a,t)=>a+dec(t.score),0)/ts.length)*10)/10:0;
+    const value=state.bottles.filter(b=>b.baseId===base.id).reduce((a,b)=>a+bottleRemainingValue(b.id),0);
+    const last=ts.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]?.date||'';
+    return {base,avg,count:ts.length,value,last};
+  }).sort((a,b)=>b.avg-a.avg||b.count-a.count);
+  const tasted=state.tastings.reduce((a,t)=>a+dec(t.ml),0);
+  host.innerHTML=`
+    <div class="card metric"><small>Best rated</small><strong>${ranked[0]?.avg?esc(ranked[0].base.name):'—'}</strong></div>
+    <div class="card metric"><small>Tasted volume</small><strong>${ml(tasted)}</strong></div>
+    <div class="card" style="grid-column:1/-1"><h3>Bottle ranking</h3><div class="list">${ranked.map(r=>`<div class="item">${thumb(r.base)}<div><div class="title">${esc(r.base.name)}</div><div class="meta">Average ${r.avg||'—'} · ${r.count} tastings · ${money(r.value)}</div><div class="sub">${esc(r.base.notes||'')} ${r.last?'· Last tasted '+r.last:''}</div></div><div class="side"><button class="ghost small" onclick="editBase('${r.base.id}')">Edit</button></div></div>`).join('')||'<div class="sub">No library items yet.</div>'}</div></div>
+  `;
+}
+const oldRender_v143=render;
+render=function(){
+  oldRender_v143();
+  renderInventorySummary();
+  renderCorrectionPicker();
+  renderOverviewRanking();
+};
+const oldInit_v143=init;
+init=function(){
+  oldInit_v143();
+  initCorrectionForm();
+  render();
+};
