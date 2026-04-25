@@ -1,0 +1,140 @@
+
+:root{
+  --bg:#090604;--panel:#21150f;--panel2:#3a2b1d;--line:rgba(255,255,255,.12);
+  --text:#fff;--muted:#d9bb93;--gold:#f0c15c;--gold2:#d49b45;--input:#070503;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at top,#1b1f22 0,#090604 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+.app{max-width:1120px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 18px 90px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px}
+.eyebrow{text-transform:uppercase;color:var(--gold2);letter-spacing:.13em;font-weight:800;font-size:.75rem}
+h1{margin:.25rem 0 0;font-size:clamp(2rem,5vw,3rem)}
+h2{margin:.15rem 0 .45rem;font-size:clamp(1.7rem,4vw,2.5rem)}
+h3{margin:.1rem 0 .75rem;font-size:1.35rem}
+p{color:var(--muted);line-height:1.45;margin:.2rem 0}
+.view{display:none!important}.view.active{display:block!important}.view[hidden]{display:none!important}
+.card{background:linear-gradient(135deg,rgba(65,46,30,.92),rgba(31,19,13,.92));border:1px solid var(--line);border-radius:26px;padding:22px;margin:14px 0;box-shadow:0 10px 35px rgba(0,0,0,.18)}
+.hero,.themed{background:linear-gradient(135deg,rgba(88,68,45,.92),rgba(47,30,20,.92))}
+.grid{display:grid;gap:14px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.action{width:100%;text-align:left;color:var(--text);cursor:pointer}
+.action span{font-size:1.55rem;display:block;margin-bottom:8px}.action strong{display:block;font-size:1.15rem}.action small,.sub,.meta{display:block;color:var(--muted);line-height:1.35}
+.status-card{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.mini-strip{display:grid;grid-template-columns:repeat(2,30px);gap:5px}
+.mini-strip img,.mini-strip div{width:30px;height:30px;border-radius:8px;object-fit:cover;background:#120b07;border:1px solid rgba(240,193,92,.3);display:flex;align-items:center;justify-content:center}
+.metric small{display:block;color:var(--muted)}.metric strong{font-size:1.55rem}
+.form label{display:block;color:var(--muted);font-size:1.05rem;font-weight:650}
+input,select,textarea{width:100%;margin-top:8px;background:var(--input);color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px 16px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#3776d6;box-shadow:0 0 0 3px rgba(55,118,214,.35)}
+textarea{resize:vertical}
+button{border:0;border-radius:18px;padding:14px 18px;font-weight:800}
+.primary{background:linear-gradient(180deg,#f6d06d,#d99b3d);color:#170d06}
+.ghost,.back{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line)}
+.small{padding:10px 14px}
+.back{margin:0 0 12px}
+.list{display:grid;gap:10px}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:18px;padding:12px;cursor:pointer}
+.thumb{width:52px;height:52px;border-radius:13px;object-fit:cover;background:#100a07;display:flex;align-items:center;justify-content:center;border:1px solid rgba(240,193,92,.25)}
+.title{font-weight:850}
+.side{text-align:right}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:.85rem}
+.preview{max-width:120px;border-radius:14px;margin-top:10px}.hidden{display:none!important}
+.section-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.section-head input{max-width:280px}
+@media(max-width:760px){
+  .app{padding-left:12px;padding-right:12px}
+  .two,.three,.four{grid-template-columns:1fr}
+  .card{border-radius:24px;padding:18px}
+  .item{grid-template-columns:auto 1fr}
+  .side{grid-column:1/-1;text-align:left}
+}
+
+
+/* v1.38 status-card count and value */
+.status-card{
+  grid-template-columns:1fr auto auto;
+}
+.status-stats{
+  min-width:88px;
+  text-align:right;
+  align-self:center;
+}
+.status-stats b{
+  display:block;
+  color:#fff;
+  font-size:1.35rem;
+  line-height:1.1;
+}
+.status-stats small{
+  display:block;
+  color:var(--muted);
+  white-space:nowrap;
+  font-size:.82rem;
+}
+@media(max-width:760px){
+  .status-card{
+    grid-template-columns:1fr auto;
+  }
+  .status-stats{
+    grid-column:1;
+    grid-row:2;
+    text-align:left;
+  }
+  .mini-strip{
+    grid-column:2;
+    grid-row:1 / span 2;
+  }
+}
+
+
+/* v1.41 custom tasting input modal */
+.input-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.input-modal{
+  width:min(420px,100%);
+  background:#f5f2f7;
+  color:#111;
+  border-radius:22px;
+  padding:22px;
+  box-shadow:0 20px 70px rgba(0,0,0,.45);
+}
+.input-modal h3{
+  color:#111;
+  margin:0 0 14px;
+  font-size:1.25rem;
+}
+.input-modal input,
+.input-modal textarea{
+  width:100%;
+  background:#fff;
+  color:#111;
+  border:1px solid #ccc;
+  border-radius:10px;
+  padding:12px;
+  margin:0;
+  font-size:1.05rem;
+}
+.input-modal textarea{
+  min-height:110px;
+}
+.input-modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  margin-top:16px;
+}
+.input-modal-actions button{
+  background:transparent;
+  color:#007aff;
+  font-weight:700;
+  padding:10px 12px;
+}
+
+/* v1.43 structure */
+.home-actions{margin-top:18px}
