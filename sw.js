@@ -1,10 +1,4 @@
-// WhiskyLog v1.47 - clear old caches and unregister service worker
-self.addEventListener('install', event => self.skipWaiting());
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
-      .then(() => self.registration.unregister())
-  );
-});
-self.addEventListener('fetch', event => {});
+// WhiskyLog v1.48 - no caching during development
+self.addEventListener('install', e=>self.skipWaiting());
+self.addEventListener('activate', e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>self.registration.unregister())));
+self.addEventListener('fetch', e=>{});

@@ -1,9 +1,16 @@
-# WhiskyLog v1.47 Stock Images + Settings Under Overview
+# WhiskyLog v1.48 Rebuilt Stable
 
-Changes:
-- Settings removed from the top-right header button.
-- Settings added under Overview / statistics.
-- My stock cards now have larger, more visible bottle image areas.
-- Missing images show whisky-glass fallback.
-- Cache-busted with v=147.
+Built from a clean structure to avoid the black-screen/layout errors in v1.47.
 
+Included:
+- Clean Home with four buttons only.
+- My stock with exactly three status cards.
+- Logging order:
+  1. Register tasting
+  2. Correct stock
+  3. Add bottle to stock
+  4. Bottle library
+- Images restored in My stock and bottle lists.
+- Settings moved under Overview / statistics.
+- No Vinmonopolet/autofill.
+- Cache-busted with v=148.

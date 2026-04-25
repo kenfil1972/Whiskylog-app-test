@@ -8,280 +8,145 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.47</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=147">
+  <title>WhiskyLog v1.48</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=148">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=147">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=148">
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div>
-      <div class="eyebrow">Premium Spirits Journal</div>
+      <div class="eyebrow" data-i18n="journal">Premium spirits journal</div>
       <h1 id="appTitle">WhiskyLog</h1>
     </div>
-    <button class="ghost small" id="backupButton" type="button">Backup</button>
   </header>
 
   <main>
-    <section class="view active" data-view="home">
+    <section id="home" class="view active">
       <div class="card hero">
-        <div class="eyebrow">Dashboard</div>
-        <h2>WhiskyLog</h2>
-        <p>Choose what you want to do.</p>
-      </div>
-
-      <div class="grid two home-actions clean-home">
-        <button class="card action" data-go="inventory" type="button">
-          <span>🥃</span>
-          <strong>My stock</strong>
-          <small>Unopened, opened and empty bottles</small>
-        </button>
-        <button class="card action" data-go="logging" type="button">
-          <span>✍️</span>
-          <strong>Logging</strong>
-          <small>Add bottles, tastings and stock corrections</small>
-        </button>
-        <button class="card action" data-go="analytics" type="button">
-          <span>📊</span>
-          <strong>Overview / statistics</strong>
-          <small>Ranking, scores, value and history</small>
-        </button>
-        <button class="card action" data-go="wishlist" type="button">
-          <span>⭐</span>
-          <strong>Wishlist</strong>
-          <small>Future bottles</small>
-        </button>
-      </div>
-    </section>
-    <section class="view" data-view="inventory" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed">
-        <h2>My stock</h2>
-        <p>All bottles grouped by status.</p>
-      </div>
-      <div class="grid three stock-status-grid">
-        <button class="card action stock-image-card" data-go="unopened" type="button">
-          <div class="stock-card-left">
-            <span>📦</span>
-            <strong>Unopened bottles</strong>
-            <small id="invUnopened">0 bottles · 0.00 NOK</small>
-          </div>
-          <div class="mini-strip visible-strip" id="invUnopenedImages"></div>
-        </button>
-        <button class="card action stock-image-card" data-go="opened" type="button">
-          <div class="stock-card-left">
-            <span>🥃</span>
-            <strong>Opened bottles</strong>
-            <small id="invOpened">0 bottles · 0.00 NOK</small>
-          </div>
-          <div class="mini-strip visible-strip" id="invOpenedImages"></div>
-        </button>
-        <button class="card action stock-image-card" data-go="empty" type="button">
-          <div class="stock-card-left">
-            <span>🗃️</span>
-            <strong>Empty bottles</strong>
-            <small id="invEmpty">0 bottles · 0.00 NOK</small>
-          </div>
-          <div class="mini-strip visible-strip" id="invEmptyImages"></div>
-        </button>
-      </div></button>
-        <button class="card action" data-go="opened" type="button"><span>🥃</span><strong>Opened bottles</strong><small id="invOpened">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invOpenedImages"></div></button>
-        <button class="card action" data-go="empty" type="button"><span>🗃️</span><strong>Empty bottles</strong><small id="invEmpty">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invEmptyImages"></div></button>
-      </div>
-    </section>
-
-    <section class="view" data-view="logging" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed">
-        <h2>Logging</h2>
-        <p>Choose what you want to register.</p>
+        <h2 data-i18n="homeTitle">WhiskyLog</h2>
+        <p data-i18n="homeSub">Choose what you want to do.</p>
       </div>
       <div class="grid two">
-        
-        <button class="card action" data-go="add-tasting" type="button"><span>📝</span><strong>Register tasting</strong><small>Scores and tasting notes</small></button>
-        <button class="card action" data-go="correct-stock" type="button"><span>⚖️</span><strong>Correct stock</strong><small>Adjust weight or remaining volume without tasting</small></button>
-        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add bottle to stock</strong><small>Only price, date and comments</small></button>
-        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Edit core bottle data only here</small></button>
-
+        <button class="card action" data-view="stock"><span>🥃</span><strong data-i18n="myStock">My stock</strong><small data-i18n="myStockSub">Unopened, opened and empty bottles</small></button>
+        <button class="card action" data-view="logging"><span>✍️</span><strong data-i18n="logging">Logging</strong><small data-i18n="loggingSub">Bottle, tasting and stock registration</small></button>
+        <button class="card action" data-view="overview"><span>📊</span><strong data-i18n="overview">Overview / statistics</strong><small data-i18n="overviewSub">Ranking, scores and settings</small></button>
+        <button class="card action" data-view="wishlist"><span>⭐</span><strong data-i18n="wishlist">Wishlist</strong><small data-i18n="wishlistSub">Future bottles</small></button>
       </div>
     </section>
 
-    <section class="view" data-view="correct-stock" hidden>
-      <button class="back" data-go="logging" type="button">← Logging</button>
-      <div class="card themed">
-        <h2>Correct stock</h2>
-        <p>Adjust bottle level without registering a tasting.</p>
+    <section id="stock" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="myStock">My stock</h2><p data-i18n="stockSub">All bottles grouped by status.</p></div>
+      <div class="grid three">
+        <button class="card action stock-card" data-view="unopened"><div><span>📦</span><strong data-i18n="unopened">Unopened bottles</strong><small id="sumUnopened">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgUnopened"></div></button>
+        <button class="card action stock-card" data-view="opened"><div><span>🥃</span><strong data-i18n="opened">Opened bottles</strong><small id="sumOpened">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgOpened"></div></button>
+        <button class="card action stock-card" data-view="empty"><div><span>🗃️</span><strong data-i18n="empty">Empty bottles</strong><small id="sumEmpty">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgEmpty"></div></button>
       </div>
-      <form id="correctionForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <label>Bottle<select name="bottleId" required><option value="">Choose bottle</option></select></label>
-        <div class="grid two">
-          <label>New current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
-          <label>Or remaining volume ml<input name="remainingVolume" type="text" inputmode="decimal" autocomplete="off"></label>
-        </div>
-        <label>Comment<textarea name="comment" rows="3"></textarea></label>
-        <button class="primary" type="submit">Save correction</button>
-      </form>
     </section>
 
-
-
-    <section class="view" data-view="library" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed">
-        <h2>Add bottle to library</h2>
-        <p>Create reusable bottle types here. Once a type is in the library, you can add several bottles with different batch and bottle numbers.</p>
+    <section id="logging" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="logging">Logging</h2><p data-i18n="chooseRegister">Choose what you want to register.</p></div>
+      <div class="grid two">
+        <button class="card action" data-view="tasting"><span>📝</span><strong data-i18n="registerTasting">Register tasting</strong><small data-i18n="tastingSub">Scores and tasting notes</small></button>
+        <button class="card action" data-view="correction"><span>⚖️</span><strong data-i18n="correctStock">Correct stock</strong><small data-i18n="correctionSub">Adjust weight or volume without tasting</small></button>
+        <button class="card action" data-view="addBottle"><span>➕</span><strong data-i18n="addBottleStock">Add bottle to stock</strong><small data-i18n="addBottleStockSub">Only price, date and comments</small></button>
+        <button class="card action" data-view="library"><span>📚</span><strong data-i18n="library">Bottle library</strong><small data-i18n="librarySub">Core bottle data</small></button>
       </div>
-      <form id="baseForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <input type="hidden" name="editId">
-        <div class="grid two">
-          <label>Name<input name="name" required autocomplete="new-password" autocorrect="off" spellcheck="false"></label>
-          <label>Distillery / producer<input name="distillery" autocomplete="off" autocorrect="off" spellcheck="false"></label>
-        </div>
+    </section>
+
+    <section id="unopened" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="unopened">Unopened bottles</h2></div><div class="card"><div id="unopenedList" class="list"></div></div></section>
+    <section id="opened" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="opened">Opened bottles</h2></div><div class="card"><div id="openedList" class="list"></div></div></section>
+    <section id="empty" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="empty">Empty bottles</h2></div><div class="card"><div id="emptyList" class="list"></div></div></section>
+
+    <section id="library" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p></div>
+      <form id="libraryForm" class="card form" autocomplete="off">
+        <input type="hidden" name="id">
+        <label><span data-i18n="name">Name</span><input name="name" required autocomplete="off"></label>
+        <label><span data-i18n="distillery">Distillery / producer</span><input name="distillery" autocomplete="off"></label>
         <div class="grid three">
-          <label>Type
-            <select name="type" required>
-              <option value="">Choose type</option>
-              <option>Whisky</option><option>Single Malt Scotch</option><option>Blended Scotch</option>
-              <option>Bourbon</option><option>Rye Whiskey</option><option>Tennessee Whiskey</option>
-              <option>Irish Whiskey</option><option>Japanese Whisky</option><option>Canadian Whisky</option>
-              <option>Rum</option><option>Dark Rum</option><option>Aged Rum</option><option>Agricole Rum</option>
-              <option>Cognac</option><option>Armagnac</option><option>Brandy</option><option>Calvados</option>
-              <option>Aquavit</option><option>Gin</option><option>Vodka</option><option>Tequila</option><option>Mezcal</option>
-              <option>Liqueur</option><option>Amaro</option><option>Other</option>
-            </select>
-          </label>
-          <label>ABV %<input name="abv" type="text" inputmode="decimal" autocomplete="off"></label>
-          <label>Bottle volume ml<input name="volume" type="text" inputmode="decimal" autocomplete="off"></label>
+          <label><span data-i18n="type">Type</span><select name="type" required><option value="">Choose type</option><option>Whisky</option><option>Bourbon</option><option>Rye Whiskey</option><option>Single Malt Scotch</option><option>Blended Scotch</option><option>Irish Whiskey</option><option>Japanese Whisky</option><option>Rum</option><option>Cognac</option><option>Brandy</option><option>Other</option></select></label>
+          <label><span data-i18n="abv">ABV %</span><input name="abv" inputmode="decimal"></label>
+          <label><span data-i18n="volume">Bottle volume ml</span><input name="volume" inputmode="decimal"></label>
         </div>
-        <div class="grid two">
-          <label>Full bottle weight g<input name="fullWeight" type="text" inputmode="decimal" autocomplete="off"></label>
-          <label>Calculated empty weight<input id="emptyWeightHint" readonly value="—"></label>
-        </div>
-        <div class="grid two">
-          <label>Region / country<input name="region" autocomplete="off"></label>
-          <label>Image<input name="image" type="file" accept="image/*"></label>
-        </div>
-        <img id="baseImagePreview" class="preview hidden" alt="">
-        <label>Notes<textarea name="notes" rows="3" autocomplete="off"></textarea></label>
-        <div class="grid two">
-          <button class="primary" type="submit">Save library item</button>
-          <button class="ghost" type="button" id="baseCancelButton">Cancel</button>
-        </div>
+        <label><span data-i18n="fullWeight">Full bottle weight g</span><input name="fullWeight" inputmode="decimal"></label>
+        <label><span data-i18n="region">Region / country</span><input name="region"></label>
+        <label><span data-i18n="image">Image</span><input name="image" type="file" accept="image/*"></label>
+        <img id="imagePreview" class="preview hidden" alt="">
+        <label><span data-i18n="libraryComment">Library comment</span><textarea name="notes" rows="3"></textarea></label>
+        <button class="primary" type="submit" data-i18n="saveLibrary">Save library item</button>
       </form>
-      <div class="card">
-        <div class="section-head"><h3>Library items</h3><input id="baseSearch" placeholder="Search library" autocomplete="off"></div>
-        <div id="baseList" class="list"></div>
-      </div>
+      <div class="card"><h3 data-i18n="libraryItems">Library items</h3><div id="libraryList" class="list"></div></div>
     </section>
 
-    <section class="view" data-view="new-bottle" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Add bottle</h2><p>New bottles are stored as unopened until the first tasting is registered.</p></div>
-      <form id="bottleForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <label>Library item<select name="baseId" required><option value="">Choose library item</option></select></label>
-        <div class="grid two hidden"><label>Batch no.<input name="batchNo" autocomplete="off"></label><label>Bottle no.<input name="bottleNo" autocomplete="off"></label></div>
-        <div class="grid two">
-          <label>Price<input name="price" type="text" inputmode="decimal" autocomplete="off"></label>
-          <label class="hidden">Purchase place<input name="purchasePlace" autocomplete="off"></label>
-        </div>
-        <div class="grid two">
-          <label>Purchase date<input name="purchaseDate" type="date"></label>
-          <label class="hidden">Current weight g<input name="currentWeight" type="text" inputmode="decimal" autocomplete="off"></label>
-        </div>
-        <label>Comments<textarea name="comments" rows="3"></textarea></label>
-        <button class="primary" type="submit">Save bottle</button>
+    <section id="addBottle" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="addBottleStock">Add bottle to stock</h2><p data-i18n="stockBottleRule">Choose from library, then enter price, date and comment.</p></div>
+      <form id="bottleForm" class="card form" autocomplete="off">
+        <input type="hidden" name="id">
+        <label><span data-i18n="libraryItem">Library item</span><select name="baseId" required></select></label>
+        <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
+        <label><span data-i18n="purchaseDate">Purchase date</span><input name="purchaseDate" type="date"></label>
+        <label><span data-i18n="comment">Comment</span><textarea name="comments" rows="3"></textarea></label>
+        <button class="primary" type="submit" data-i18n="saveBottle">Save bottle</button>
       </form>
     </section>
 
-    <section class="view" data-view="add-tasting" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Add bottle tasting</h2><p>Select an unopened or opened bottle. Tasting an unopened bottle automatically moves it to Opened bottles.</p></div>
-      <div class="card"><div id="tastingBottleList" class="list"></div></div>
+    <section id="tasting" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="registerTasting">Register tasting</h2></div>
+      <div class="card"><div id="tastingList" class="list"></div></div>
     </section>
 
-    <section class="view" data-view="unopened" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Unopened bottles</h2><p>Purchase date, ABV and volume.</p></div>
-      <div id="unopenedList" class="list"></div>
-    </section>
-
-    <section class="view" data-view="opened" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Opened bottles</h2><p>Purchase date, opened date, last tasted and remaining volume.</p></div>
-      <div id="openedList" class="list"></div>
-    </section>
-
-    <section class="view" data-view="empty" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Empty bottles</h2><p>Archive and final notes.</p></div>
-      <div id="emptyList" class="list"></div>
-    </section>
-
-    <section class="view" data-view="bottle-detail" hidden>
-      <button class="back" id="detailBack" type="button">← Back</button>
-      <div id="bottleDetail"></div>
-    </section>
-
-    <section class="view" data-view="wishlist" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Wishlist</h2><p>Track up to 50 future bottles.</p></div>
-      <form id="wishlistForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <input type="hidden" name="editId">
-        <div class="grid two">
-          <label>Name<input name="name" required autocomplete="off"></label>
-          <label>Type<input name="type" autocomplete="off"></label>
-        </div>
-        <div class="grid two">
-          <label>Target price<input name="targetPrice" type="text" inputmode="decimal"></label>
-          <label>Priority<input name="priority" type="number" min="1" max="50"></label>
-        </div>
-        <label>Image URL / note<input name="image" autocomplete="off"></label>
-        <label>Notes<textarea name="notes" rows="3"></textarea></label>
-        <div class="grid two"><button class="primary" type="submit">Save wishlist item</button><button class="ghost" type="button" id="wishlistCancelButton">Cancel</button></div>
-      </form>
-      <div class="card"><div id="wishlistList" class="list"></div></div>
-    </section>
-
-    <section class="view" data-view="settings" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Settings</h2><p>Personalize the app.</p></div>
-      <form id="settingsForm" class="card form" action="javascript:void(0)" autocomplete="off" novalidate>
-        <div class="grid two">
-          <label>Name<input name="ownerName" autocomplete="off"></label>
-          <label>Currency<select name="currency"><option>NOK</option><option>SEK</option><option>DKK</option><option>EUR</option><option>USD</option></select></label>
-        </div>
-        <div class="grid two">
-          <label>Language<select name="language"><option value="en">English</option><option value="no">Norwegian</option></select></label>
-          <label>Default tasting amount ml<input name="defaultTastingMl" type="number" min="1"></label>
-        </div>
-        <button class="primary" type="submit">Save settings</button>
+    <section id="correction" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="correctStock">Correct stock</h2><p data-i18n="correctionSub">Adjust weight or volume without tasting</p></div>
+      <form id="correctionForm" class="card form">
+        <label><span data-i18n="bottle">Bottle</span><select name="bottleId" required></select></label>
+        <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
+        <label><span data-i18n="orVolume">Or remaining volume ml</span><input name="remaining" inputmode="decimal"></label>
+        <label><span data-i18n="comment">Comment</span><textarea name="comment" rows="3"></textarea></label>
+        <button class="primary" data-i18n="saveCorrection">Save correction</button>
       </form>
     </section>
 
-    <section class="view" data-view="analytics" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Overview / statistics</h2><p>Ranking, scores, value and history.</p></div>
-      
-      <button class="card action" data-go="settings" type="button">
-        <span>⚙️</span>
-        <strong>Settings</strong>
-        <small>Name, currency, language and preferences</small>
-      </button>
-<div id="analyticsContent" class="grid two"></div>
+    <section id="detail" class="view">
+      <button class="back" data-view="stock">← <span data-i18n="back">Back</span></button>
+      <div id="detailContent"></div>
     </section>
 
-    <section class="view" data-view="backup" hidden>
-      <button class="back" data-go="home" type="button">← Home</button>
-      <div class="card themed"><h2>Backup</h2><p>Export or import local data.</p></div>
-      <div class="card form">
-        <button class="primary" id="exportData" type="button">Export backup</button>
-        <label>Import JSON<textarea id="importText" rows="6"></textarea></label>
-        <button class="ghost" id="importData" type="button">Import backup</button>
-      </div>
+    <section id="overview" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="overview">Overview / statistics</h2></div>
+      <button class="card action" data-view="settings"><span>⚙️</span><strong data-i18n="settings">Settings</strong><small data-i18n="settingsSub">Name, currency, language and backup</small></button>
+      <div class="card"><h3 data-i18n="ranking">Bottle ranking</h3><div id="rankingList" class="list"></div></div>
+    </section>
+
+    <section id="wishlist" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="wishlist">Wishlist</h2></div>
+      <form id="wishForm" class="card form"><input type="hidden" name="id"><label><span data-i18n="name">Name</span><input name="name"></label><label><span data-i18n="comment">Comment</span><textarea name="notes"></textarea></label><button class="primary" data-i18n="saveWishlist">Save wishlist item</button></form>
+      <div class="card"><div id="wishList" class="list"></div></div>
+    </section>
+
+    <section id="settings" class="view">
+      <button class="back" data-view="overview">← <span data-i18n="overview">Overview / statistics</span></button>
+      <div class="card hero"><h2 data-i18n="settings">Settings</h2></div>
+      <form id="settingsForm" class="card form">
+        <label><span data-i18n="name">Name</span><input name="ownerName"></label>
+        <label><span data-i18n="currency">Currency</span><select name="currency"><option>NOK</option><option>SEK</option><option>DKK</option><option>EUR</option><option>USD</option></select></label>
+        <label><span data-i18n="language">Language</span><select name="language"><option value="en">English</option><option value="no">Norsk</option></select></label>
+        <label><span data-i18n="defaultMl">Default tasting ml</span><input name="defaultMl" type="number"></label>
+        <button class="primary" data-i18n="saveSettings">Save settings</button>
+      </form>
+      <div class="card form"><button class="primary" id="exportBtn" data-i18n="export">Export backup</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" data-i18n="import">Import backup</button></div>
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=147"></script>
+<script src="/Whiskylog-app-test/app.js?v=148"></script>
 </body>
 </html>
