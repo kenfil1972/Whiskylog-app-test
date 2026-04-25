@@ -888,3 +888,38 @@ render=function(){
   oldRender_v146();
   renderInventoryImages_v146();
 };
+
+
+/* v1.47 stronger stock image rendering */
+function renderInventoryImages_v147(){
+  const map=[
+    ['unopened','invUnopenedImages'],
+    ['opened','invOpenedImages'],
+    ['empty','invEmptyImages']
+  ];
+  map.forEach(([status,id])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const bottles=state.bottles.filter(b=>bottleStatus(b.id)===status).slice(0,4);
+    const html=[];
+    for(let i=0;i<4;i++){
+      const b=bottles[i];
+      if(b){
+        const base=getBase(b.baseId);
+        if(base && base.image){
+          html.push(`<img src="${base.image}" alt="${esc(base.name||'Bottle')}">`);
+        }else{
+          html.push(`<div class="mini-fallback">🥃</div>`);
+        }
+      }else{
+        html.push(`<div class="mini-fallback">🥃</div>`);
+      }
+    }
+    el.innerHTML=html.join('');
+  });
+}
+const oldRender_v147=render;
+render=function(){
+  oldRender_v147();
+  renderInventoryImages_v147();
+};

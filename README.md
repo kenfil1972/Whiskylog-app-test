@@ -1,12 +1,9 @@
-# WhiskyLog v1.46 Logging Order + Stock Images
+# WhiskyLog v1.47 Stock Images + Settings Under Overview
 
 Changes:
-- Logging page order changed to:
-  1. Register tasting
-  2. Correct stock
-  3. Add bottle to stock
-  4. Add bottle to library
-- My stock status cards now show 4 mini images again.
-- Missing images use whisky-glass fallback.
-- Cache-busted with v=146.
+- Settings removed from the top-right header button.
+- Settings added under Overview / statistics.
+- My stock cards now have larger, more visible bottle image areas.
+- Missing images show whisky-glass fallback.
+- Cache-busted with v=147.
 

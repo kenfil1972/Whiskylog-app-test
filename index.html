@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.46</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=146">
+  <title>WhiskyLog v1.47</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=147">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=146">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=147">
 </head>
 <body>
 <div class="app">
@@ -60,8 +60,32 @@
         <h2>My stock</h2>
         <p>All bottles grouped by status.</p>
       </div>
-      <div class="grid three">
-        <button class="card action" data-go="unopened" type="button"><span>📦</span><strong>Unopened bottles</strong><small id="invUnopened">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invUnopenedImages"></div></button>
+      <div class="grid three stock-status-grid">
+        <button class="card action stock-image-card" data-go="unopened" type="button">
+          <div class="stock-card-left">
+            <span>📦</span>
+            <strong>Unopened bottles</strong>
+            <small id="invUnopened">0 bottles · 0.00 NOK</small>
+          </div>
+          <div class="mini-strip visible-strip" id="invUnopenedImages"></div>
+        </button>
+        <button class="card action stock-image-card" data-go="opened" type="button">
+          <div class="stock-card-left">
+            <span>🥃</span>
+            <strong>Opened bottles</strong>
+            <small id="invOpened">0 bottles · 0.00 NOK</small>
+          </div>
+          <div class="mini-strip visible-strip" id="invOpenedImages"></div>
+        </button>
+        <button class="card action stock-image-card" data-go="empty" type="button">
+          <div class="stock-card-left">
+            <span>🗃️</span>
+            <strong>Empty bottles</strong>
+            <small id="invEmpty">0 bottles · 0.00 NOK</small>
+          </div>
+          <div class="mini-strip visible-strip" id="invEmptyImages"></div>
+        </button>
+      </div></button>
         <button class="card action" data-go="opened" type="button"><span>🥃</span><strong>Opened bottles</strong><small id="invOpened">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invOpenedImages"></div></button>
         <button class="card action" data-go="empty" type="button"><span>🗃️</span><strong>Empty bottles</strong><small id="invEmpty">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invEmptyImages"></div></button>
       </div>
@@ -238,7 +262,13 @@
     <section class="view" data-view="analytics" hidden>
       <button class="back" data-go="home" type="button">← Home</button>
       <div class="card themed"><h2>Overview / statistics</h2><p>Ranking, scores, value and history.</p></div>
-      <div id="analyticsContent" class="grid two"></div>
+      
+      <button class="card action" data-go="settings" type="button">
+        <span>⚙️</span>
+        <strong>Settings</strong>
+        <small>Name, currency, language and preferences</small>
+      </button>
+<div id="analyticsContent" class="grid two"></div>
     </section>
 
     <section class="view" data-view="backup" hidden>
@@ -252,6 +282,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=146"></script>
+<script src="/Whiskylog-app-test/app.js?v=147"></script>
 </body>
 </html>

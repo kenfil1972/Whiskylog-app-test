@@ -166,3 +166,61 @@ button{border:0;border-radius:18px;padding:14px 18px;font-weight:800}
     justify-content:start;
   }
 }
+
+
+/* v1.47 visible bottle images on My stock */
+.stock-image-card{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:18px;
+  min-height:170px;
+}
+.stock-card-left span{
+  font-size:1.65rem;
+  display:block;
+  margin-bottom:8px;
+}
+.stock-card-left strong{
+  display:block;
+}
+.stock-card-left small{
+  display:block;
+  margin-top:6px;
+}
+.visible-strip{
+  display:grid !important;
+  grid-template-columns:repeat(2,58px);
+  gap:9px;
+  justify-content:end;
+  align-content:center;
+  min-width:126px;
+}
+.visible-strip img,
+.visible-strip .mini-fallback{
+  width:58px !important;
+  height:58px !important;
+  border-radius:14px;
+  object-fit:cover;
+  background:#100a07;
+  border:1px solid rgba(240,193,92,.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.5rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+@media(max-width:760px){
+  .stock-image-card{
+    grid-template-columns:1fr auto;
+  }
+  .visible-strip{
+    grid-template-columns:repeat(2,50px);
+    min-width:108px;
+  }
+  .visible-strip img,
+  .visible-strip .mini-fallback{
+    width:50px !important;
+    height:50px !important;
+  }
+}
