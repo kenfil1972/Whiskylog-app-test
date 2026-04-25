@@ -1,22 +1,12 @@
-# WhiskyLog v1.45 Clean Home Forced
+# WhiskyLog v1.46 Logging Order + Stock Images
 
-This version is intentionally made with a new version number to avoid cache confusion.
-
-Home screen contains only:
-- My stock
-- Logging
-- Overview / statistics
-- Wishlist
-
-Removed from Home:
-- Unopened / Opened / Empty status cards
-- Value / volume metric cards
-- Best value
-- Low stock
-
-Also includes:
-- v1.43 structure/logging pages
-- Correct stock page
-- New cache-busted app.js/styles.css/manifest links using v=145
-- Service worker disabled for stability
+Changes:
+- Logging page order changed to:
+  1. Register tasting
+  2. Correct stock
+  3. Add bottle to stock
+  4. Add bottle to library
+- My stock status cards now show 4 mini images again.
+- Missing images use whisky-glass fallback.
+- Cache-busted with v=146.
 

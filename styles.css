@@ -138,3 +138,31 @@ button{border:0;border-radius:18px;padding:14px 18px;font-weight:800}
 
 /* v1.43 structure */
 .home-actions{margin-top:18px}
+
+
+/* v1.46 stock card mini bottle images */
+.mini-strip{
+  display:grid;
+  grid-template-columns:repeat(2,42px);
+  gap:7px;
+  justify-content:end;
+  margin-top:12px;
+}
+.mini-strip img,
+.mini-strip .mini-fallback{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  object-fit:cover;
+  background:#100a07;
+  border:1px solid rgba(240,193,92,.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.2rem;
+}
+@media(max-width:760px){
+  .mini-strip{
+    justify-content:start;
+  }
+}

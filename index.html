@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.45</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=145">
+  <title>WhiskyLog v1.46</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=146">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=145">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=146">
 </head>
 <body>
 <div class="app">
@@ -61,9 +61,9 @@
         <p>All bottles grouped by status.</p>
       </div>
       <div class="grid three">
-        <button class="card action" data-go="unopened" type="button"><span>📦</span><strong>Unopened bottles</strong><small id="invUnopened">0 bottles · 0.00 NOK</small></button>
-        <button class="card action" data-go="opened" type="button"><span>🥃</span><strong>Opened bottles</strong><small id="invOpened">0 bottles · 0.00 NOK</small></button>
-        <button class="card action" data-go="empty" type="button"><span>🗃️</span><strong>Empty bottles</strong><small id="invEmpty">0 bottles · 0.00 NOK</small></button>
+        <button class="card action" data-go="unopened" type="button"><span>📦</span><strong>Unopened bottles</strong><small id="invUnopened">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invUnopenedImages"></div></button>
+        <button class="card action" data-go="opened" type="button"><span>🥃</span><strong>Opened bottles</strong><small id="invOpened">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invOpenedImages"></div></button>
+        <button class="card action" data-go="empty" type="button"><span>🗃️</span><strong>Empty bottles</strong><small id="invEmpty">0 bottles · 0.00 NOK</small><div class="mini-strip" id="invEmptyImages"></div></button>
       </div>
     </section>
 
@@ -74,10 +74,12 @@
         <p>Choose what you want to register.</p>
       </div>
       <div class="grid two">
-        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Edit core bottle data only here</small></button>
-        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add bottle to stock</strong><small>Only price, date and comments</small></button>
+        
         <button class="card action" data-go="add-tasting" type="button"><span>📝</span><strong>Register tasting</strong><small>Scores and tasting notes</small></button>
         <button class="card action" data-go="correct-stock" type="button"><span>⚖️</span><strong>Correct stock</strong><small>Adjust weight or remaining volume without tasting</small></button>
+        <button class="card action" data-go="new-bottle" type="button"><span>➕</span><strong>Add bottle to stock</strong><small>Only price, date and comments</small></button>
+        <button class="card action" data-go="library" type="button"><span>📚</span><strong>Add bottle to library</strong><small>Edit core bottle data only here</small></button>
+
       </div>
     </section>
 
@@ -250,6 +252,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=145"></script>
+<script src="/Whiskylog-app-test/app.js?v=146"></script>
 </body>
 </html>

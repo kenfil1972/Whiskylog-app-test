@@ -856,3 +856,35 @@ init=function(){
   initCorrectionForm();
   render();
 };
+
+
+function renderInventoryImages_v146(){
+  const map=[
+    ['unopened','invUnopenedImages'],
+    ['opened','invOpenedImages'],
+    ['empty','invEmptyImages']
+  ];
+  map.forEach(([status,id])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const bottles=state.bottles.filter(b=>bottleStatus(b.id)===status).slice(0,4);
+    const html=[];
+    for(let i=0;i<4;i++){
+      const b=bottles[i];
+      if(b){
+        const base=getBase(b.baseId);
+        html.push(base && base.image ? `<img src="${base.image}" alt="">` : `<div class="mini-fallback">🥃</div>`);
+      }else{
+        html.push(`<div class="mini-fallback">🥃</div>`);
+      }
+    }
+    el.innerHTML=html.join('');
+  });
+}
+
+/* v1.46 final render hook */
+const oldRender_v146=render;
+render=function(){
+  oldRender_v146();
+  renderInventoryImages_v146();
+};
