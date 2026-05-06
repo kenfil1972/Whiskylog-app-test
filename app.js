@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.51';
+window.WHISKYLOG_VERSION='1.52';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -132,4 +132,102 @@ const oldEditBottle_v151=editBottle;
 editBottle=function(id){
   oldEditBottle_v151(id);
   setTimeout(syncBaseSearchFromSelect,0);
+};
+
+
+/* v1.52 robust library save/edit flow */
+let libraryReturnMode_v152='logging';
+
+function clearLibraryForm_v152(){
+  const f=document.getElementById('libraryForm');
+  if(!f)return;
+  f.reset();
+  f.id.value='';
+  currentImage='';
+  f.classList.remove('editing');
+  const p=document.getElementById('imagePreview');
+  if(p){p.classList.add('hidden');p.removeAttribute('src');}
+}
+
+function libraryItemFromForm_v152(){
+  const f=document.getElementById('libraryForm');
+  const id=f.id.value||uid();
+  const old=getBase(id);
+  return {
+    id,
+    name:String(f.name.value||'').trim(),
+    distillery:String(f.distillery.value||'').trim(),
+    type:String(f.type.value||'').trim(),
+    abv:dec(f.abv.value),
+    volume:dec(f.volume.value),
+    fullWeight:dec(f.fullWeight.value),
+    region:String(f.region.value||'').trim(),
+    image:currentImage || (old&&old.image||''),
+    notes:String(f.notes.value||'').trim()
+  };
+}
+
+function saveLibraryItem_v152(mode='logging'){
+  const f=document.getElementById('libraryForm');
+  if(!f)return false;
+  const item=libraryItemFromForm_v152();
+  if(!item.name){alert('Name is required.');return false;}
+  if(!item.type){alert('Type is required.');return false;}
+  const idx=state.bases.findIndex(x=>x.id===item.id);
+  if(idx>=0)state.bases[idx]=item; else state.bases.unshift(item);
+  save();
+  render();
+  if(typeof setupSearchablePickers==='function')setupSearchablePickers();
+  const baseInput=document.getElementById('baseSearchInput');
+  const bottleForm=document.getElementById('bottleForm');
+  if(baseInput&&bottleForm&&typeof optionLabelForBase==='function'){
+    bottleForm.baseId.value=item.id;
+    baseInput.value=optionLabelForBase(item);
+  }
+  clearLibraryForm_v152();
+  show(mode==='new'?'library':mode==='stock'?'addBottle':'logging');
+  return true;
+}
+
+function initLibraryForm_v152(){
+  const f=document.getElementById('libraryForm');
+  if(!f||f.dataset.v152Bound==='1')return;
+  f.dataset.v152Bound='1';
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    saveLibraryItem_v152(libraryReturnMode_v152||'logging');
+    libraryReturnMode_v152='logging';
+  },true);
+  const saveNew=document.getElementById('librarySaveNewButton');
+  if(saveNew)saveNew.onclick=e=>{e.preventDefault();libraryReturnMode_v152='new';saveLibraryItem_v152('new');};
+  const clear=document.getElementById('libraryClearButton');
+  if(clear)clear.onclick=e=>{e.preventDefault();clearLibraryForm_v152();};
+}
+
+editBase=function(id){
+  const b=getBase(id);
+  if(!b)return;
+  const f=document.getElementById('libraryForm');
+  show('library');
+  f.id.value=b.id;
+  f.name.value=b.name||'';
+  f.distillery.value=b.distillery||'';
+  f.type.value=b.type||'';
+  f.abv.value=b.abv||'';
+  f.volume.value=b.volume||'';
+  f.fullWeight.value=b.fullWeight||'';
+  f.region.value=b.region||'';
+  f.notes.value=b.notes||'';
+  currentImage=b.image||'';
+  f.classList.add('editing');
+  const p=document.getElementById('imagePreview');
+  if(p&&b.image){p.src=b.image;p.classList.remove('hidden');}
+};
+
+const oldRender_v152=render;
+render=function(){
+  oldRender_v152();
+  initLibraryForm_v152();
+  if(typeof setupSearchablePickers==='function')setupSearchablePickers();
 };

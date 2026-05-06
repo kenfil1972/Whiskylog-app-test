@@ -1,11 +1,11 @@
-# WhiskyLog v1.51 Empty Library + Searchable Choices + Shortcuts
+# WhiskyLog v1.52 Library Save/Edit Fixed
 
-Changes:
-- Library starts empty. No example bottles are included.
-- Removed any sample-library seeding code.
-- Add bottle to stock now has a searchable bottle input.
-- Correct stock now has a searchable bottle input.
-- Typing part of the bottle name can select the nearest matching bottle.
-- Added shortcut buttons between relevant menus.
-- Cache-busted with v=151.
-
+Fixes:
+- More robust add/edit flow in Bottle library.
+- Existing library bottles can be edited and saved reliably.
+- Added Save & add next for entering multiple bottles.
+- Added Clear form button.
+- Saved library items appear immediately in Add bottle to stock searchable picker.
+- After saving a library item, Add bottle to stock picker is prefilled with the saved item.
+- Library starts empty. No examples included.
+- Cache-busted with v=152.

@@ -50,3 +50,9 @@ input[type="date"]{
 .shortcut-bar button{width:100%}
 input[list]{padding-right:14px}
 @media(max-width:760px){.shortcut-bar{grid-template-columns:1fr}}
+
+/* v1.52 library save/edit fixes */
+.library-buttons{margin-top:14px}
+#libraryClearButton{width:100%;margin-top:10px}
+.library-status{margin-top:10px;color:var(--muted);font-weight:700}
+#libraryForm.editing{border-color:rgba(240,193,92,.55);box-shadow:0 0 0 3px rgba(240,193,92,.12)}

@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.51</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=151">
+  <title>WhiskyLog v1.52</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=152">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=151">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=152">
 </head>
 <body>
 <div class="app">
@@ -68,7 +68,7 @@
 
     <section id="library" class="view">
       <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
-      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p></div>
+      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p><p class="sub">Use Save & add next when entering several bottles. Saved bottles appear immediately when adding to stock.</p></div>
       <form id="libraryForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
         <label><span data-i18n="name">Name</span><input name="name" required autocomplete="off"></label>
@@ -83,7 +83,11 @@
         <label><span data-i18n="image">Image</span><input name="image" type="file" accept="image/*"></label>
         <img id="imagePreview" class="preview hidden" alt="">
         <label><span data-i18n="libraryComment">Library comment</span><textarea name="notes" rows="3"></textarea></label>
-        <button class="primary" type="submit" data-i18n="saveLibrary">Save library item</button>
+        <div class="grid two library-buttons">
+          <button class="primary" id="librarySaveButton" type="submit" data-i18n="saveLibrary">Save library item</button>
+          <button class="ghost" id="librarySaveNewButton" type="button">Save & add next</button>
+        </div>
+        <button class="ghost" id="libraryClearButton" type="button">Clear form</button>
       </form>
       <div class="card"><h3 data-i18n="libraryItems">Library items</h3><div id="libraryList" class="list"></div></div>
     </section>
@@ -165,6 +169,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=151"></script>
+<script src="/Whiskylog-app-test/app.js?v=152"></script>
 </body>
 </html>
