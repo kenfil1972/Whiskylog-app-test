@@ -1,14 +1,339 @@
 
-window.WHISKYLOG_VERSION='1.48';
+window.WHISKYLOG_VERSION='1.50';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
 let state=read(KEY,{bases:[],bottles:[],tastings:[],comments:[],wishlist:[]});
 let settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},read(SETTINGS_KEY,{}));
+const SAMPLE_LIBRARY_TOP25 = [
+  {
+    "id": "sample_jinro_chamisul_fresh",
+    "name": "Jinro Chamisul Fresh Soju",
+    "distillery": "HiteJinro",
+    "type": "Soju",
+    "abv": 16.5,
+    "volume": 360,
+    "fullWeight": 610,
+    "region": "South Korea",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_mcdowells_no1_whisky",
+    "name": "McDowell's No.1 Whisky",
+    "distillery": "United Spirits / Diageo India",
+    "type": "Whisky",
+    "abv": 42.8,
+    "volume": 750,
+    "fullWeight": 1250,
+    "region": "India",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_royal_stag",
+    "name": "Royal Stag Deluxe Whisky",
+    "distillery": "Pernod Ricard India",
+    "type": "Whisky",
+    "abv": 42.8,
+    "volume": 750,
+    "fullWeight": 1250,
+    "region": "India",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_officers_choice",
+    "name": "Officer's Choice Whisky",
+    "distillery": "Allied Blenders & Distillers",
+    "type": "Whisky",
+    "abv": 42.8,
+    "volume": 750,
+    "fullWeight": 1250,
+    "region": "India",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_imperial_blue",
+    "name": "Imperial Blue Superior Grain Whisky",
+    "distillery": "Pernod Ricard India",
+    "type": "Whisky",
+    "abv": 42.8,
+    "volume": 750,
+    "fullWeight": 1250,
+    "region": "India",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_smirnoff_no21",
+    "name": "Smirnoff No. 21 Vodka",
+    "distillery": "Diageo",
+    "type": "Vodka",
+    "abv": 37.5,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "Global / originally Russia",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_tanduay_dark_rum",
+    "name": "Tanduay Dark Rum",
+    "distillery": "Tanduay Distillers",
+    "type": "Rum",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "Philippines",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_bacardi_carta_blanca",
+    "name": "Bacardí Carta Blanca",
+    "distillery": "Bacardi Limited",
+    "type": "Rum",
+    "abv": 37.5,
+    "volume": 700,
+    "fullWeight": 1160,
+    "region": "Puerto Rico / Bermuda",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_johnnie_walker_red",
+    "name": "Johnnie Walker Red Label",
+    "distillery": "Diageo",
+    "type": "Blended Scotch",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1240,
+    "region": "Scotland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_jack_daniels_old_no7",
+    "name": "Jack Daniel's Old No. 7",
+    "distillery": "Jack Daniel Distillery / Brown-Forman",
+    "type": "Tennessee Whiskey",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1260,
+    "region": "Tennessee, USA",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_absolut_vodka",
+    "name": "Absolut Vodka",
+    "distillery": "The Absolut Company / Pernod Ricard",
+    "type": "Vodka",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "Sweden",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_captain_morgan_spiced",
+    "name": "Captain Morgan Original Spiced Gold",
+    "distillery": "Diageo",
+    "type": "Spiced Rum",
+    "abv": 35,
+    "volume": 700,
+    "fullWeight": 1160,
+    "region": "Jamaica / Caribbean style",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_jameson_irish",
+    "name": "Jameson Irish Whiskey",
+    "distillery": "Midleton Distillery / Irish Distillers",
+    "type": "Irish Whiskey",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1220,
+    "region": "Ireland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_jagermeister",
+    "name": "Jägermeister",
+    "distillery": "Mast-Jägermeister SE",
+    "type": "Liqueur",
+    "abv": 35,
+    "volume": 700,
+    "fullWeight": 1250,
+    "region": "Germany",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_jim_beam_white",
+    "name": "Jim Beam Kentucky Straight Bourbon",
+    "distillery": "James B. Beam Distilling Co.",
+    "type": "Bourbon",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1240,
+    "region": "Kentucky, USA",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_hennessy_vs",
+    "name": "Hennessy V.S",
+    "distillery": "Maison Hennessy / LVMH",
+    "type": "Cognac",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1300,
+    "region": "Cognac, France",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_ballantines_finest",
+    "name": "Ballantine's Finest",
+    "distillery": "Chivas Brothers / Pernod Ricard",
+    "type": "Blended Scotch",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1210,
+    "region": "Scotland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_chivas_regal_12",
+    "name": "Chivas Regal 12 Year Old",
+    "distillery": "Chivas Brothers / Pernod Ricard",
+    "type": "Blended Scotch",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1280,
+    "region": "Scotland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_havana_club_3",
+    "name": "Havana Club Añejo 3 Años",
+    "distillery": "Havana Club International / Pernod Ricard",
+    "type": "Rum",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "Cuba",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_baileys_original",
+    "name": "Baileys Original Irish Cream",
+    "distillery": "Diageo",
+    "type": "Liqueur",
+    "abv": 17,
+    "volume": 700,
+    "fullWeight": 1320,
+    "region": "Ireland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_jose_cuervo_especial",
+    "name": "Jose Cuervo Especial Reposado",
+    "distillery": "Tequila Cuervo La Rojeña",
+    "type": "Tequila",
+    "abv": 38,
+    "volume": 700,
+    "fullWeight": 1250,
+    "region": "Jalisco, Mexico",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_bombay_sapphire",
+    "name": "Bombay Sapphire London Dry Gin",
+    "distillery": "Bombay Spirits / Bacardi",
+    "type": "Gin",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "England",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_tanqueray_london_dry",
+    "name": "Tanqueray London Dry Gin",
+    "distillery": "Diageo",
+    "type": "Gin",
+    "abv": 43.1,
+    "volume": 700,
+    "fullWeight": 1180,
+    "region": "England / Scotland",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_malibu_original",
+    "name": "Malibu Original",
+    "distillery": "Pernod Ricard",
+    "type": "Rum Liqueur",
+    "abv": 21,
+    "volume": 700,
+    "fullWeight": 1160,
+    "region": "Caribbean style",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  },
+  {
+    "id": "sample_grey_goose",
+    "name": "Grey Goose Vodka",
+    "distillery": "Bacardi Limited",
+    "type": "Vodka",
+    "abv": 40,
+    "volume": 700,
+    "fullWeight": 1250,
+    "region": "France",
+    "image": "",
+    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
+  }
+];
+
+function seedSampleLibraryTop25(){
+  if(state.sampleLibraryTop25v150===true)return;
+  if(!Array.isArray(state.bases))state.bases=[];
+  let added=0;
+  SAMPLE_LIBRARY_TOP25.forEach(item=>{
+    const exists=state.bases.some(b=>b.id===item.id || (String(b.name||'').toLowerCase()===String(item.name||'').toLowerCase()));
+    if(!exists){
+      state.bases.push(Object.assign({}, item));
+      added++;
+    }
+  });
+  state.sampleLibraryTop25v150=true;
+  if(added>0)save();
+}
+
 let currentImage='', detailReturn='stock';
-const T={no:{journal:'Premium brennevinsjournal',homeTitle:'WhiskyLog',homeSub:'Velg hva du vil gjøre.',myStock:'Min beholdning',myStockSub:'Uåpnede, åpnede og tomme flasker',logging:'Loggføring',loggingSub:'Flaske, smaking og beholdning',overview:'Oversikt / statistikk',overviewSub:'Rangering, score og innstillinger',wishlist:'Ønskeliste',wishlistSub:'Fremtidige flasker',home:'Hjem',stockSub:'Alle flasker gruppert etter status.',unopened:'Uåpnede flasker',opened:'Åpnede flasker',empty:'Tomme flasker',chooseRegister:'Velg hva du vil registrere.',registerTasting:'Registrer smaking',tastingSub:'Score og smaksnotater',correctStock:'Korriger beholdning',correctionSub:'Juster vekt eller volum uten smaking',addBottleStock:'Legg flaske til beholdning',addBottleStockSub:'Kun pris, dato og kommentarer',library:'Flaskebibliotek',librarySub:'Grunndata',libraryRule:'Grunndata kan kun redigeres her.',name:'Navn',distillery:'Destilleri / produsent',type:'Type',abv:'Alkohol %',volume:'Flaskevolum ml',fullWeight:'Vekt full flaske g',region:'Region / land',image:'Bilde',libraryComment:'Bibliotekkommentar',saveLibrary:'Lagre i bibliotek',libraryItems:'Bibliotek',stockBottleRule:'Velg fra biblioteket, legg inn pris, dato og kommentar.',libraryItem:'Bibliotekelement',price:'Pris',purchaseDate:'Kjøpsdato',comment:'Kommentar',saveBottle:'Lagre flaske',bottle:'Flaske',newWeight:'Ny nåværende vekt g',orVolume:'Eller restvolum ml',saveCorrection:'Lagre korrigering',settings:'Innstillinger',settingsSub:'Navn, valuta, språk og backup',ranking:'Flaskerangering',currency:'Valuta',language:'Språk',defaultMl:'Standard smaksvolum ml',saveSettings:'Lagre innstillinger',export:'Eksporter backup',import:'Importer backup',back:'Tilbake',saveWishlist:'Lagre ønskeliste'}};
-function tr(k){return settings.language==='no'?(T.no[k]||k):k}
-function applyLang(){document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=tr(e.dataset.i18n));document.documentElement.lang=settings.language==='no'?'no':'en'}
+const T={
+en:{
+journal:'Premium spirits journal',homeTitle:'Your spirits journal',homeSub:'Personal logging for bottles, tastings, stock and future purchases.',myStock:'My stock',myStockSub:'Unopened, opened and empty bottles',logging:'Logging',loggingSub:'Bottle, tasting and stock registration',overview:'Overview / statistics',overviewSub:'Ranking, scores and settings',wishlist:'Wishlist',wishlistSub:'Future bottles',home:'Home',stockSub:'All bottles grouped by status.',unopened:'Unopened bottles',opened:'Opened bottles',empty:'Empty bottles',chooseRegister:'Choose what you want to register.',registerTasting:'Register tasting',tastingSub:'Scores and tasting notes',correctStock:'Correct stock',correctionSub:'Adjust weight or volume without tasting',addBottleStock:'Add bottle to stock',addBottleStockSub:'Only price, date and comments',library:'Bottle library',librarySub:'Core bottle data',libraryRule:'Core data can only be edited here.',name:'Name',distillery:'Distillery / producer',type:'Type',abv:'ABV %',volume:'Bottle volume ml',fullWeight:'Full bottle weight g',region:'Region / country',image:'Image',libraryComment:'Library comment',saveLibrary:'Save library item',libraryItems:'Library items',stockBottleRule:'Choose from library, then enter price, date and comment.',libraryItem:'Library item',price:'Price',purchaseDate:'Purchase date',comment:'Comment',saveBottle:'Save bottle',bottle:'Bottle',newWeight:'New current weight g',orVolume:'Or remaining volume ml',saveCorrection:'Save correction',settings:'Settings',settingsSub:'Name, currency, language and backup',ranking:'Bottle ranking',currency:'Currency',language:'Language',defaultMl:'Default tasting ml',saveSettings:'Save settings',export:'Export backup',import:'Import backup',back:'Back',saveWishlist:'Save wishlist item'},
+no:{journal:'Premium brennevinsjournal',homeTitle:'Din personlige brennevinslogg',homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',myStock:'Min beholdning',myStockSub:'Uåpnede, åpnede og tomme flasker',logging:'Loggføring',loggingSub:'Flaske, smaking og beholdning',overview:'Oversikt / statistikk',overviewSub:'Rangering, score og innstillinger',wishlist:'Ønskeliste',wishlistSub:'Fremtidige flasker',home:'Hjem',stockSub:'Alle flasker gruppert etter status.',unopened:'Uåpnede flasker',opened:'Åpnede flasker',empty:'Tomme flasker',chooseRegister:'Velg hva du vil registrere.',registerTasting:'Registrer smaking',tastingSub:'Score og smaksnotater',correctStock:'Korriger beholdning',correctionSub:'Juster vekt eller volum uten smaking',addBottleStock:'Legg flaske til beholdning',addBottleStockSub:'Kun pris, dato og kommentarer',library:'Flaskebibliotek',librarySub:'Grunndata',libraryRule:'Grunndata kan kun redigeres her.',name:'Navn',distillery:'Destilleri / produsent',type:'Type',abv:'Alkohol %',volume:'Flaskevolum ml',fullWeight:'Vekt full flaske g',region:'Region / land',image:'Bilde',libraryComment:'Bibliotekkommentar',saveLibrary:'Lagre i bibliotek',libraryItems:'Bibliotek',stockBottleRule:'Velg fra biblioteket, legg inn pris, dato og kommentar.',libraryItem:'Bibliotekelement',price:'Pris',purchaseDate:'Kjøpsdato',comment:'Kommentar',saveBottle:'Lagre flaske',bottle:'Flaske',newWeight:'Ny nåværende vekt g',orVolume:'Eller restvolum ml',saveCorrection:'Lagre korrigering',settings:'Innstillinger',settingsSub:'Navn, valuta, språk og backup',ranking:'Flaskerangering',currency:'Valuta',language:'Språk',defaultMl:'Standard smaksvolum ml',saveSettings:'Lagre innstillinger',export:'Eksporter backup',import:'Importer backup',back:'Tilbake',saveWishlist:'Lagre ønskeliste'}
+};
+function tr(k){const lang=settings.language==='no'?'no':'en';return (T[lang]&&T[lang][k])||T.en[k]||k}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=tr(e.dataset.i18n));
+  document.documentElement.lang=settings.language==='no'?'no':'en';
+}
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(f))}catch{return f}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function saveSettings(){localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings))}
@@ -35,7 +360,7 @@ function addLog(bottleId,type,text){if(!Array.isArray(state.comments))state.comm
 function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));window.scrollTo(0,0);applyLang();render()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-view]'); if(!b)return; e.preventDefault(); show(b.dataset.view)},true);
 
-function init(){document.getElementById('appTitle').textContent=`${settings.ownerName}'s WhiskyLog`;bindForms();render();show('home')}
+function init(){seedSampleLibraryTop25();document.getElementById('appTitle').textContent=`${settings.ownerName}'s WhiskyLog`;bindForms();render();show('home')}
 function bindForms(){
   document.getElementById('libraryForm').addEventListener('submit',saveLibraryItem);
   document.getElementById('libraryForm').image.addEventListener('change',async e=>{const f=e.target.files[0];if(f){currentImage=await resize(f);imagePreview.src=currentImage;imagePreview.classList.remove('hidden')}});
@@ -54,12 +379,12 @@ function saveBottleItem(e){e.preventDefault();const f=e.target;const base=getBas
 function editBottle(id){const b=getBottle(id);if(!b)return;const f=bottleForm;f.id.value=id;renderPickers();f.baseId.value=b.baseId;f.price.value=b.price?money(b.price):'';f.purchaseDate.value=b.purchaseDate||'';f.comments.value=b.comments||'';show('addBottle')}
 function deleteBottle(id){const b=getBottle(id);if(!b)return;if(confirm('Delete bottle permanently?\n\nThis cannot be undone.')){state.bottles=state.bottles.filter(x=>x.id!==id);state.tastings=state.tastings.filter(t=>t.bottleId!==id);state.comments=state.comments.filter(c=>c.bottleId!==id);save();render();show('stock')}}
 function saveCorrection(e){e.preventDefault();const f=e.target;const b=getBottle(f.bottleId.value), base=b&&getBase(b.baseId);if(!b||!base)return alert('Choose bottle');let w=dec(f.weight.value);const rem=dec(f.remaining.value);if(!w&&rem){const empty=emptyWeight(base), full=dec(base.fullWeight), vol=dec(base.volume);w=Math.round(empty+(rem/vol)*(full-empty))}if(!w)return alert('Enter weight or remaining volume');b.currentWeight=w;addLog(b.id,'correction',f.comment.value.trim()||'Stock corrected');f.reset();save();render();show('logging')}
-async function addTasting(id){const b=getBottle(id), base=b&&getBase(b.baseId);if(!b||!base)return;if(status(id)==='empty')return alert('Empty bottle');const date=await modal('Tasting date',{type:'date',value:new Date().toISOString().slice(0,10)});if(!date)return;const amount=dec(await modal('Amount ml',{type:'number',inputmode:'decimal',value:String(settings.defaultTastingMl)}));if(!amount)return;const scores=[];for(const label of ['Appearance','Nose / smell','Taste neat','Taste with water','Finish']){const s=await modal(label+' score 1-10',{type:'number',inputmode:'decimal'});if(s===null)return;scores.push(Math.max(1,Math.min(10,dec(s)||0)))}const notes=await modal('Notes',{multiline:true})||'';const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10;if(!b.openedDate)b.openedDate=date;state.tastings.unshift({id:uid(),bottleId:id,date,ml:amount,appearance:scores[0],nose:scores[1],tasteNeat:scores[2],tasteWater:scores[3],finish:scores[4],score:avg,notes});if(dec(b.currentWeight)>0)b.currentWeight=Math.max(emptyWeight(base),Math.round(dec(b.currentWeight)-amount*density(base.abv)));addLog(id,'tasting',notes||'Tasting registered');save();render();show('logging')}
+async function addTasting(id){const b=getBottle(id), base=b&&getBase(b.baseId);if(!b||!base)return;if(status(id)==='empty')return alert('Empty bottle');const date=await modal('Tasting date',{type:'date',inputmode:'none',value:new Date().toISOString().slice(0,10)});if(!date)return;const amount=dec(await modal('Amount ml',{type:'number',inputmode:'decimal',value:String(settings.defaultTastingMl)}));if(!amount)return;const scores=[];for(const label of ['Appearance','Nose / smell','Taste neat','Taste with water','Finish']){const s=await modal(label+' score 1-10',{type:'number',inputmode:'decimal'});if(s===null)return;scores.push(Math.max(1,Math.min(10,dec(s)||0)))}const notes=await modal('Notes',{multiline:true})||'';const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10;if(!b.openedDate)b.openedDate=date;state.tastings.unshift({id:uid(),bottleId:id,date,ml:amount,appearance:scores[0],nose:scores[1],tasteNeat:scores[2],tasteWater:scores[3],finish:scores[4],score:avg,notes});if(dec(b.currentWeight)>0)b.currentWeight=Math.max(emptyWeight(base),Math.round(dec(b.currentWeight)-amount*density(base.abv)));addLog(id,'tasting',notes||'Tasting registered');save();render();show('logging')}
 function markEmpty(id){const b=getBottle(id),base=b&&getBase(b.baseId);if(!b||!base)return;if(confirm('Confirm empty bottle?')){b.currentWeight=emptyWeight(base);addLog(id,'correction','Marked empty');save();render();show('stock')}}
 function repurchase(id){const old=getBottle(id);if(!old)return;renderPickers();bottleForm.reset();bottleForm.id.value='';bottleForm.baseId.value=old.baseId;bottleForm.purchaseDate.value=new Date().toISOString().slice(0,10);show('addBottle')}
 function saveWish(e){e.preventDefault();const f=e.target;state.wishlist.push({id:uid(),name:f.name.value,notes:f.notes.value});f.reset();save();render()}
 
-function modal(label,opts={}){return new Promise(resolve=>{const bg=document.createElement('div');bg.className='input-modal-backdrop';bg.innerHTML=`<div class="input-modal"><h3>${esc(label)}</h3>${opts.multiline?`<textarea id="mi">${esc(opts.value||'')}</textarea>`:`<input id="mi" type="${opts.type||'text'}" inputmode="${opts.inputmode||'text'}" value="${esc(opts.value||'')}">`}<div class="input-modal-actions"><button id="mc">Cancel</button><button id="mo">OK</button></div></div>`;document.body.appendChild(bg);const i=bg.querySelector('#mi');bg.querySelector('#mc').onclick=()=>{bg.remove();resolve(null)};bg.querySelector('#mo').onclick=()=>{const v=i.value;bg.remove();resolve(v)};setTimeout(()=>i.focus(),50)})}
+function modal(label,opts={}){return new Promise(resolve=>{const bg=document.createElement('div');bg.className='input-modal-backdrop';bg.innerHTML=`<div class="input-modal"><h3>${esc(label)}</h3>${opts.multiline?`<textarea id="mi">${esc(opts.value||'')}</textarea>`:`<input id="mi" type="${opts.type||'text'}" inputmode="${opts.inputmode||'text'}" autocomplete="off" value="${esc(opts.value||'')}">`}<div class="input-modal-actions"><button id="mc">Cancel</button><button id="mo">OK</button></div></div>`;document.body.appendChild(bg);const i=bg.querySelector('#mi');bg.querySelector('#mc').onclick=()=>{bg.remove();resolve(null)};bg.querySelector('#mo').onclick=()=>{const v=i.value;bg.remove();resolve(v)};setTimeout(()=>i.focus(),50)})}
 
 function render(){applyLang();renderPickers();renderStock();renderLists();renderLibrary();renderTastingPicker();renderCorrectionPicker();renderOverview();renderWish()}
 function renderPickers(){const opts='<option value="">Choose bottle</option>'+state.bases.map(b=>`<option value="${b.id}">${esc(b.name)} · ${b.abv||'—'}% · ${b.volume||'—'} ml</option>`).join('');bottleForm.baseId.innerHTML=opts}

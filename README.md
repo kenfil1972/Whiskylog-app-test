@@ -1,16 +1,21 @@
-# WhiskyLog v1.48 Rebuilt Stable
+# WhiskyLog v1.50 Sample Library Top 25
 
-Built from a clean structure to avoid the black-screen/layout errors in v1.47.
+Changes:
+- Added 25 example library bottles from major global million-case / best-selling spirits brands.
+- Examples are inserted into the library on first launch only.
+- Existing user bottles/data are not overwritten.
+- Each example includes:
+  - name
+  - distillery / producer
+  - type
+  - ABV
+  - bottle volume
+  - region / country
+  - full bottle weight estimate
+  - note that weight is best-guess unless verified
+- No live catalog, no Vinmonopolet/autofill, no external data dependency.
+- Cache-busted with v=150.
 
-Included:
-- Clean Home with four buttons only.
-- My stock with exactly three status cards.
-- Logging order:
-  1. Register tasting
-  2. Correct stock
-  3. Add bottle to stock
-  4. Bottle library
-- Images restored in My stock and bottle lists.
-- Settings moved under Overview / statistics.
-- No Vinmonopolet/autofill.
-- Cache-busted with v=148.
+Note:
+The included list is intended as sample data for user onboarding, not as a legal claim of an exact audited global top-25 ranking.
+

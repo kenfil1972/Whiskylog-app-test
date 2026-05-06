@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.48</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=148">
+  <title>WhiskyLog v1.50</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=150">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=148">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=150">
 </head>
 <body>
 <div class="app">
@@ -25,8 +25,8 @@
   <main>
     <section id="home" class="view active">
       <div class="card hero">
-        <h2 data-i18n="homeTitle">WhiskyLog</h2>
-        <p data-i18n="homeSub">Choose what you want to do.</p>
+        <h2 data-i18n="homeTitle">Your spirits journal</h2>
+        <p data-i18n="homeSub">Personal logging for bottles, tastings, stock and future purchases.</p>
       </div>
       <div class="grid two">
         <button class="card action" data-view="stock"><span>🥃</span><strong data-i18n="myStock">My stock</strong><small data-i18n="myStockSub">Unopened, opened and empty bottles</small></button>
@@ -63,7 +63,7 @@
 
     <section id="library" class="view">
       <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
-      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p></div>
+      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p><p class="sub">Includes 25 sample bottles from major global spirits brands.</p></div>
       <form id="libraryForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
         <label><span data-i18n="name">Name</span><input name="name" required autocomplete="off"></label>
@@ -90,7 +90,7 @@
         <input type="hidden" name="id">
         <label><span data-i18n="libraryItem">Library item</span><select name="baseId" required></select></label>
         <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
-        <label><span data-i18n="purchaseDate">Purchase date</span><input name="purchaseDate" type="date"></label>
+        <label><span data-i18n="purchaseDate">Purchase date</span><input name="purchaseDate" type="date" inputmode="none"></label>
         <label><span data-i18n="comment">Comment</span><textarea name="comments" rows="3"></textarea></label>
         <button class="primary" type="submit" data-i18n="saveBottle">Save bottle</button>
       </form>
@@ -147,6 +147,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=148"></script>
+<script src="/Whiskylog-app-test/app.js?v=150"></script>
 </body>
 </html>
