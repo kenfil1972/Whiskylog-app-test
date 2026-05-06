@@ -1,328 +1,10 @@
 
-window.WHISKYLOG_VERSION='1.50';
+window.WHISKYLOG_VERSION='1.51';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
 let state=read(KEY,{bases:[],bottles:[],tastings:[],comments:[],wishlist:[]});
 let settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},read(SETTINGS_KEY,{}));
-const SAMPLE_LIBRARY_TOP25 = [
-  {
-    "id": "sample_jinro_chamisul_fresh",
-    "name": "Jinro Chamisul Fresh Soju",
-    "distillery": "HiteJinro",
-    "type": "Soju",
-    "abv": 16.5,
-    "volume": 360,
-    "fullWeight": 610,
-    "region": "South Korea",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_mcdowells_no1_whisky",
-    "name": "McDowell's No.1 Whisky",
-    "distillery": "United Spirits / Diageo India",
-    "type": "Whisky",
-    "abv": 42.8,
-    "volume": 750,
-    "fullWeight": 1250,
-    "region": "India",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_royal_stag",
-    "name": "Royal Stag Deluxe Whisky",
-    "distillery": "Pernod Ricard India",
-    "type": "Whisky",
-    "abv": 42.8,
-    "volume": 750,
-    "fullWeight": 1250,
-    "region": "India",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_officers_choice",
-    "name": "Officer's Choice Whisky",
-    "distillery": "Allied Blenders & Distillers",
-    "type": "Whisky",
-    "abv": 42.8,
-    "volume": 750,
-    "fullWeight": 1250,
-    "region": "India",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_imperial_blue",
-    "name": "Imperial Blue Superior Grain Whisky",
-    "distillery": "Pernod Ricard India",
-    "type": "Whisky",
-    "abv": 42.8,
-    "volume": 750,
-    "fullWeight": 1250,
-    "region": "India",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_smirnoff_no21",
-    "name": "Smirnoff No. 21 Vodka",
-    "distillery": "Diageo",
-    "type": "Vodka",
-    "abv": 37.5,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "Global / originally Russia",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_tanduay_dark_rum",
-    "name": "Tanduay Dark Rum",
-    "distillery": "Tanduay Distillers",
-    "type": "Rum",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "Philippines",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_bacardi_carta_blanca",
-    "name": "Bacardí Carta Blanca",
-    "distillery": "Bacardi Limited",
-    "type": "Rum",
-    "abv": 37.5,
-    "volume": 700,
-    "fullWeight": 1160,
-    "region": "Puerto Rico / Bermuda",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_johnnie_walker_red",
-    "name": "Johnnie Walker Red Label",
-    "distillery": "Diageo",
-    "type": "Blended Scotch",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1240,
-    "region": "Scotland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_jack_daniels_old_no7",
-    "name": "Jack Daniel's Old No. 7",
-    "distillery": "Jack Daniel Distillery / Brown-Forman",
-    "type": "Tennessee Whiskey",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1260,
-    "region": "Tennessee, USA",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_absolut_vodka",
-    "name": "Absolut Vodka",
-    "distillery": "The Absolut Company / Pernod Ricard",
-    "type": "Vodka",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "Sweden",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_captain_morgan_spiced",
-    "name": "Captain Morgan Original Spiced Gold",
-    "distillery": "Diageo",
-    "type": "Spiced Rum",
-    "abv": 35,
-    "volume": 700,
-    "fullWeight": 1160,
-    "region": "Jamaica / Caribbean style",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_jameson_irish",
-    "name": "Jameson Irish Whiskey",
-    "distillery": "Midleton Distillery / Irish Distillers",
-    "type": "Irish Whiskey",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1220,
-    "region": "Ireland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_jagermeister",
-    "name": "Jägermeister",
-    "distillery": "Mast-Jägermeister SE",
-    "type": "Liqueur",
-    "abv": 35,
-    "volume": 700,
-    "fullWeight": 1250,
-    "region": "Germany",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_jim_beam_white",
-    "name": "Jim Beam Kentucky Straight Bourbon",
-    "distillery": "James B. Beam Distilling Co.",
-    "type": "Bourbon",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1240,
-    "region": "Kentucky, USA",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_hennessy_vs",
-    "name": "Hennessy V.S",
-    "distillery": "Maison Hennessy / LVMH",
-    "type": "Cognac",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1300,
-    "region": "Cognac, France",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_ballantines_finest",
-    "name": "Ballantine's Finest",
-    "distillery": "Chivas Brothers / Pernod Ricard",
-    "type": "Blended Scotch",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1210,
-    "region": "Scotland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_chivas_regal_12",
-    "name": "Chivas Regal 12 Year Old",
-    "distillery": "Chivas Brothers / Pernod Ricard",
-    "type": "Blended Scotch",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1280,
-    "region": "Scotland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_havana_club_3",
-    "name": "Havana Club Añejo 3 Años",
-    "distillery": "Havana Club International / Pernod Ricard",
-    "type": "Rum",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "Cuba",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_baileys_original",
-    "name": "Baileys Original Irish Cream",
-    "distillery": "Diageo",
-    "type": "Liqueur",
-    "abv": 17,
-    "volume": 700,
-    "fullWeight": 1320,
-    "region": "Ireland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_jose_cuervo_especial",
-    "name": "Jose Cuervo Especial Reposado",
-    "distillery": "Tequila Cuervo La Rojeña",
-    "type": "Tequila",
-    "abv": 38,
-    "volume": 700,
-    "fullWeight": 1250,
-    "region": "Jalisco, Mexico",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_bombay_sapphire",
-    "name": "Bombay Sapphire London Dry Gin",
-    "distillery": "Bombay Spirits / Bacardi",
-    "type": "Gin",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "England",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_tanqueray_london_dry",
-    "name": "Tanqueray London Dry Gin",
-    "distillery": "Diageo",
-    "type": "Gin",
-    "abv": 43.1,
-    "volume": 700,
-    "fullWeight": 1180,
-    "region": "England / Scotland",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_malibu_original",
-    "name": "Malibu Original",
-    "distillery": "Pernod Ricard",
-    "type": "Rum Liqueur",
-    "abv": 21,
-    "volume": 700,
-    "fullWeight": 1160,
-    "region": "Caribbean style",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  },
-  {
-    "id": "sample_grey_goose",
-    "name": "Grey Goose Vodka",
-    "distillery": "Bacardi Limited",
-    "type": "Vodka",
-    "abv": 40,
-    "volume": 700,
-    "fullWeight": 1250,
-    "region": "France",
-    "image": "",
-    "notes": "Example bottle from a major global million-case / best-selling spirits brand. Full bottle weight is a practical best-guess for logging unless verified by the user."
-  }
-];
-
-function seedSampleLibraryTop25(){
-  if(state.sampleLibraryTop25v150===true)return;
-  if(!Array.isArray(state.bases))state.bases=[];
-  let added=0;
-  SAMPLE_LIBRARY_TOP25.forEach(item=>{
-    const exists=state.bases.some(b=>b.id===item.id || (String(b.name||'').toLowerCase()===String(item.name||'').toLowerCase()));
-    if(!exists){
-      state.bases.push(Object.assign({}, item));
-      added++;
-    }
-  });
-  state.sampleLibraryTop25v150=true;
-  if(added>0)save();
-}
-
 let currentImage='', detailReturn='stock';
 const T={
 en:{
@@ -360,7 +42,7 @@ function addLog(bottleId,type,text){if(!Array.isArray(state.comments))state.comm
 function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));window.scrollTo(0,0);applyLang();render()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-view]'); if(!b)return; e.preventDefault(); show(b.dataset.view)},true);
 
-function init(){seedSampleLibraryTop25();document.getElementById('appTitle').textContent=`${settings.ownerName}'s WhiskyLog`;bindForms();render();show('home')}
+function init(){document.getElementById('appTitle').textContent=`${settings.ownerName}'s WhiskyLog`;bindForms();render();show('home')}
 function bindForms(){
   document.getElementById('libraryForm').addEventListener('submit',saveLibraryItem);
   document.getElementById('libraryForm').image.addEventListener('change',async e=>{const f=e.target.files[0];if(f){currentImage=await resize(f);imagePreview.src=currentImage;imagePreview.classList.remove('hidden')}});
@@ -375,10 +57,10 @@ async function resize(file){return new Promise((resolve,reject)=>{const fr=new F
 
 function saveLibraryItem(e){e.preventDefault();const f=e.target;const id=f.id.value||uid();const old=getBase(id);const item={id,name:f.name.value.trim(),distillery:f.distillery.value.trim(),type:f.type.value,abv:dec(f.abv.value),volume:dec(f.volume.value),fullWeight:dec(f.fullWeight.value),region:f.region.value.trim(),image:currentImage||old?.image||'',notes:f.notes.value.trim()};if(!item.name)return alert('Name required');const i=state.bases.findIndex(x=>x.id===id);if(i>=0)state.bases[i]=item;else state.bases.unshift(item);currentImage='';f.reset();imagePreview.classList.add('hidden');save();render();show('logging')}
 function editBase(id){const b=getBase(id);if(!b)return;const f=libraryForm;f.id.value=b.id;f.name.value=b.name||'';f.distillery.value=b.distillery||'';f.type.value=b.type||'';f.abv.value=b.abv||'';f.volume.value=b.volume||'';f.fullWeight.value=b.fullWeight||'';f.region.value=b.region||'';f.notes.value=b.notes||'';currentImage=b.image||'';if(b.image){imagePreview.src=b.image;imagePreview.classList.remove('hidden')}show('library')}
-function saveBottleItem(e){e.preventDefault();const f=e.target;const base=getBase(f.baseId.value);if(!base)return alert('Choose library item');const id=f.id.value||uid();let b=getBottle(id);if(!b){b={id,baseId:base.id,price:0,purchaseDate:'',comments:'',openedDate:'',currentWeight:dec(base.fullWeight)};state.bottles.unshift(b)}b.baseId=base.id;b.price=dec(f.price.value);b.purchaseDate=f.purchaseDate.value||new Date().toISOString().slice(0,10);b.comments=f.comments.value.trim();addLog(b.id,'purchase',b.comments);f.reset();f.purchaseDate.value=new Date().toISOString().slice(0,10);save();render();show('logging')}
+function saveBottleItem(e){e.preventDefault();const f=e.target;let base=getBase(f.baseId.value);if(!base){const input=document.getElementById('baseSearchInput');if(input){const val=input.value.toLowerCase();const match=state.bases.find(b=>optionLabelForBase(b).toLowerCase()===val)||state.bases.find(b=>String(b.name||'').toLowerCase().includes(val));if(match){f.baseId.value=match.id;base=match;}}}if(!base)return alert('Choose library item');const id=f.id.value||uid();let b=getBottle(id);if(!b){b={id,baseId:base.id,price:0,purchaseDate:'',comments:'',openedDate:'',currentWeight:dec(base.fullWeight)};state.bottles.unshift(b)}b.baseId=base.id;b.price=dec(f.price.value);b.purchaseDate=f.purchaseDate.value||new Date().toISOString().slice(0,10);b.comments=f.comments.value.trim();addLog(b.id,'purchase',b.comments);f.reset();const baseSearch=document.getElementById('baseSearchInput');if(baseSearch)baseSearch.value='';f.purchaseDate.value=new Date().toISOString().slice(0,10);save();render();show('logging')}
 function editBottle(id){const b=getBottle(id);if(!b)return;const f=bottleForm;f.id.value=id;renderPickers();f.baseId.value=b.baseId;f.price.value=b.price?money(b.price):'';f.purchaseDate.value=b.purchaseDate||'';f.comments.value=b.comments||'';show('addBottle')}
 function deleteBottle(id){const b=getBottle(id);if(!b)return;if(confirm('Delete bottle permanently?\n\nThis cannot be undone.')){state.bottles=state.bottles.filter(x=>x.id!==id);state.tastings=state.tastings.filter(t=>t.bottleId!==id);state.comments=state.comments.filter(c=>c.bottleId!==id);save();render();show('stock')}}
-function saveCorrection(e){e.preventDefault();const f=e.target;const b=getBottle(f.bottleId.value), base=b&&getBase(b.baseId);if(!b||!base)return alert('Choose bottle');let w=dec(f.weight.value);const rem=dec(f.remaining.value);if(!w&&rem){const empty=emptyWeight(base), full=dec(base.fullWeight), vol=dec(base.volume);w=Math.round(empty+(rem/vol)*(full-empty))}if(!w)return alert('Enter weight or remaining volume');b.currentWeight=w;addLog(b.id,'correction',f.comment.value.trim()||'Stock corrected');f.reset();save();render();show('logging')}
+function saveCorrection(e){e.preventDefault();const f=e.target;let b=getBottle(f.bottleId.value);if(!b){const input=document.getElementById('correctionBottleSearchInput');if(input){const val=input.value.toLowerCase();const bottles=state.bottles.filter(x=>status(x.id)!=='empty');const match=bottles.find(x=>optionLabelForBottle(x).toLowerCase()===val)||bottles.find(x=>bottleName(x).toLowerCase().includes(val));if(match){f.bottleId.value=match.id;b=match;}}}const base=b&&getBase(b.baseId);if(!b||!base)return alert('Choose bottle');let w=dec(f.weight.value);const rem=dec(f.remaining.value);if(!w&&rem){const empty=emptyWeight(base), full=dec(base.fullWeight), vol=dec(base.volume);w=Math.round(empty+(rem/vol)*(full-empty))}if(!w)return alert('Enter weight or remaining volume');b.currentWeight=w;addLog(b.id,'correction',f.comment.value.trim()||'Stock corrected');f.reset();const corrSearch=document.getElementById('correctionBottleSearchInput');if(corrSearch)corrSearch.value='';save();render();show('logging')}
 async function addTasting(id){const b=getBottle(id), base=b&&getBase(b.baseId);if(!b||!base)return;if(status(id)==='empty')return alert('Empty bottle');const date=await modal('Tasting date',{type:'date',inputmode:'none',value:new Date().toISOString().slice(0,10)});if(!date)return;const amount=dec(await modal('Amount ml',{type:'number',inputmode:'decimal',value:String(settings.defaultTastingMl)}));if(!amount)return;const scores=[];for(const label of ['Appearance','Nose / smell','Taste neat','Taste with water','Finish']){const s=await modal(label+' score 1-10',{type:'number',inputmode:'decimal'});if(s===null)return;scores.push(Math.max(1,Math.min(10,dec(s)||0)))}const notes=await modal('Notes',{multiline:true})||'';const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10;if(!b.openedDate)b.openedDate=date;state.tastings.unshift({id:uid(),bottleId:id,date,ml:amount,appearance:scores[0],nose:scores[1],tasteNeat:scores[2],tasteWater:scores[3],finish:scores[4],score:avg,notes});if(dec(b.currentWeight)>0)b.currentWeight=Math.max(emptyWeight(base),Math.round(dec(b.currentWeight)-amount*density(base.abv)));addLog(id,'tasting',notes||'Tasting registered');save();render();show('logging')}
 function markEmpty(id){const b=getBottle(id),base=b&&getBase(b.baseId);if(!b||!base)return;if(confirm('Confirm empty bottle?')){b.currentWeight=emptyWeight(base);addLog(id,'correction','Marked empty');save();render();show('stock')}}
 function repurchase(id){const old=getBottle(id);if(!old)return;renderPickers();bottleForm.reset();bottleForm.id.value='';bottleForm.baseId.value=old.baseId;bottleForm.purchaseDate.value=new Date().toISOString().slice(0,10);show('addBottle')}
@@ -398,3 +80,56 @@ function openDetail(id,rv='stock'){detailReturn=rv;const b=getBottle(id),base=b&
 function renderOverview(){const ranked=state.bases.map(base=>{const ids=state.bottles.filter(b=>b.baseId===base.id).map(b=>b.id);const ts=state.tastings.filter(t=>ids.includes(t.bottleId));const avg=ts.length?Math.round(ts.reduce((a,t)=>a+dec(t.score),0)/ts.length*10)/10:0;return{base,avg,count:ts.length}}).sort((a,b)=>b.avg-a.avg);rankingList.innerHTML=ranked.map(r=>`<div class="item">${thumb(r.base)}<div><div class="title">${esc(r.base.name)}</div><div class="meta">Average ${r.avg||'—'} · ${r.count} tastings</div><div class="sub">${esc(r.base.notes||'')}</div></div></div>`).join('')||'<div class="sub">No data.</div>'}
 function renderWish(){wishList.innerHTML=state.wishlist.map(w=>`<div class="item"><div>⭐</div><div><div class="title">${esc(w.name)}</div><div class="sub">${esc(w.notes||'')}</div></div></div>`).join('')||'<div class="sub">No wishlist items.</div>'}
 window.addEventListener('DOMContentLoaded',init);
+
+
+/* v1.51 searchable library/bottle pickers + shortcut refresh */
+function optionLabelForBase(base){
+  return `${base.name||'Unnamed'}${base.abv?' · '+base.abv+'%':''}${base.volume?' · '+base.volume+' ml':''}`;
+}
+function optionLabelForBottle(bottle){
+  return `${bottleName(bottle)} · ${ml(bottleVolume(bottle.id))}`;
+}
+function syncBaseSearchFromSelect(){
+  const f=document.getElementById('bottleForm');
+  const input=document.getElementById('baseSearchInput');
+  if(!f||!input)return;
+  const base=getBase(f.baseId.value);
+  input.value=base?optionLabelForBase(base):'';
+}
+function setupSearchablePickers(){
+  const baseInput=document.getElementById('baseSearchInput');
+  const baseList=document.getElementById('baseOptionsList');
+  const bottleForm=document.getElementById('bottleForm');
+  if(baseInput&&baseList&&bottleForm){
+    baseList.innerHTML=state.bases.map(b=>`<option value="${esc(optionLabelForBase(b))}"></option>`).join('');
+    baseInput.oninput=baseInput.onchange=()=>{
+      const val=baseInput.value.toLowerCase();
+      const match=state.bases.find(b=>optionLabelForBase(b).toLowerCase()===val)||
+                  state.bases.find(b=>String(b.name||'').toLowerCase().includes(val));
+      bottleForm.baseId.value=match?match.id:'';
+    };
+  }
+  const corrInput=document.getElementById('correctionBottleSearchInput');
+  const corrList=document.getElementById('correctionBottleOptionsList');
+  const corrForm=document.getElementById('correctionForm');
+  if(corrInput&&corrList&&corrForm){
+    const bottles=state.bottles.filter(b=>status(b.id)!=='empty');
+    corrList.innerHTML=bottles.map(b=>`<option value="${esc(optionLabelForBottle(b))}"></option>`).join('');
+    corrInput.oninput=corrInput.onchange=()=>{
+      const val=corrInput.value.toLowerCase();
+      const match=bottles.find(b=>optionLabelForBottle(b).toLowerCase()===val)||
+                  bottles.find(b=>bottleName(b).toLowerCase().includes(val));
+      corrForm.bottleId.value=match?match.id:'';
+    };
+  }
+}
+const oldRender_v151=render;
+render=function(){
+  oldRender_v151();
+  setupSearchablePickers();
+};
+const oldEditBottle_v151=editBottle;
+editBottle=function(id){
+  oldEditBottle_v151(id);
+  setTimeout(syncBaseSearchFromSelect,0);
+};

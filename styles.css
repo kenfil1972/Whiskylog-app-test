@@ -40,3 +40,13 @@ input[type="date"]{
     min-height:132px;
   }
 }
+
+/* v1.51 searchable pickers and shortcuts */
+.shortcut-bar{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.shortcut-bar button{width:100%}
+input[list]{padding-right:14px}
+@media(max-width:760px){.shortcut-bar{grid-template-columns:1fr}}

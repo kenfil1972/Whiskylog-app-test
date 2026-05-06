@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.50</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=150">
+  <title>WhiskyLog v1.51</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=151">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=150">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=151">
 </head>
 <body>
 <div class="app">
@@ -44,6 +44,11 @@
         <button class="card action stock-card" data-view="opened"><div><span>🥃</span><strong data-i18n="opened">Opened bottles</strong><small id="sumOpened">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgOpened"></div></button>
         <button class="card action stock-card" data-view="empty"><div><span>🗃️</span><strong data-i18n="empty">Empty bottles</strong><small id="sumEmpty">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgEmpty"></div></button>
       </div>
+      <div class="card shortcut-bar">
+        <button class="ghost" data-view="addBottle" type="button">Add bottle to stock</button>
+        <button class="ghost" data-view="tasting" type="button">Register tasting</button>
+        <button class="ghost" data-view="correction" type="button">Correct stock</button>
+      </div>
     </section>
 
     <section id="logging" class="view">
@@ -63,7 +68,7 @@
 
     <section id="library" class="view">
       <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
-      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p><p class="sub">Includes 25 sample bottles from major global spirits brands.</p></div>
+      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p></div>
       <form id="libraryForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
         <label><span data-i18n="name">Name</span><input name="name" required autocomplete="off"></label>
@@ -88,7 +93,11 @@
       <div class="card hero"><h2 data-i18n="addBottleStock">Add bottle to stock</h2><p data-i18n="stockBottleRule">Choose from library, then enter price, date and comment.</p></div>
       <form id="bottleForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
-        <label><span data-i18n="libraryItem">Library item</span><select name="baseId" required></select></label>
+        <label><span data-i18n="libraryItem">Library item</span>
+          <input id="baseSearchInput" list="baseOptionsList" autocomplete="off" placeholder="Start typing bottle name">
+          <datalist id="baseOptionsList"></datalist>
+          <select name="baseId" required class="hidden"></select>
+        </label>
         <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
         <label><span data-i18n="purchaseDate">Purchase date</span><input name="purchaseDate" type="date" inputmode="none"></label>
         <label><span data-i18n="comment">Comment</span><textarea name="comments" rows="3"></textarea></label>
@@ -106,12 +115,21 @@
       <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
       <div class="card hero"><h2 data-i18n="correctStock">Correct stock</h2><p data-i18n="correctionSub">Adjust weight or volume without tasting</p></div>
       <form id="correctionForm" class="card form">
-        <label><span data-i18n="bottle">Bottle</span><select name="bottleId" required></select></label>
+        <label><span data-i18n="bottle">Bottle</span>
+          <input id="correctionBottleSearchInput" list="correctionBottleOptionsList" autocomplete="off" placeholder="Start typing bottle name">
+          <datalist id="correctionBottleOptionsList"></datalist>
+          <select name="bottleId" required class="hidden"></select>
+        </label>
         <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
         <label><span data-i18n="orVolume">Or remaining volume ml</span><input name="remaining" inputmode="decimal"></label>
         <label><span data-i18n="comment">Comment</span><textarea name="comment" rows="3"></textarea></label>
         <button class="primary" data-i18n="saveCorrection">Save correction</button>
       </form>
+      <div class="card shortcut-bar">
+        <button class="ghost" data-view="stock" type="button">Go to My stock</button>
+        <button class="ghost" data-view="tasting" type="button">Register tasting</button>
+        <button class="ghost" data-view="addBottle" type="button">Add bottle to stock</button>
+      </div>
     </section>
 
     <section id="detail" class="view">
@@ -147,6 +165,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=150"></script>
+<script src="/Whiskylog-app-test/app.js?v=151"></script>
 </body>
 </html>

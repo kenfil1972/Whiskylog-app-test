@@ -1,21 +1,11 @@
-# WhiskyLog v1.50 Sample Library Top 25
+# WhiskyLog v1.51 Empty Library + Searchable Choices + Shortcuts
 
 Changes:
-- Added 25 example library bottles from major global million-case / best-selling spirits brands.
-- Examples are inserted into the library on first launch only.
-- Existing user bottles/data are not overwritten.
-- Each example includes:
-  - name
-  - distillery / producer
-  - type
-  - ABV
-  - bottle volume
-  - region / country
-  - full bottle weight estimate
-  - note that weight is best-guess unless verified
-- No live catalog, no Vinmonopolet/autofill, no external data dependency.
-- Cache-busted with v=150.
-
-Note:
-The included list is intended as sample data for user onboarding, not as a legal claim of an exact audited global top-25 ranking.
+- Library starts empty. No example bottles are included.
+- Removed any sample-library seeding code.
+- Add bottle to stock now has a searchable bottle input.
+- Correct stock now has a searchable bottle input.
+- Typing part of the bottle name can select the nearest matching bottle.
+- Added shortcut buttons between relevant menus.
+- Cache-busted with v=151.
 
