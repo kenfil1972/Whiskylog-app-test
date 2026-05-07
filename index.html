@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.54</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=154">
+  <title>WhiskyLog v1.55</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=155">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=154">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=155">
 </head>
 <body>
 <div class="app">
@@ -45,7 +45,7 @@
         <button class="card action stock-card" data-view="empty"><div><span>🗃️</span><strong data-i18n="empty">Empty bottles</strong><small id="sumEmpty">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgEmpty"></div></button>
       </div>
       <div class="card shortcut-bar">
-        <button class="ghost" data-view="addBottle" type="button">Add bottle to stock</button>
+        <button class="ghost" data-view="addBottle" type="button">Purchased bottle</button>
         <button class="ghost" data-view="tasting" type="button">Register tasting</button>
         <button class="ghost" data-view="correction" type="button">Correct stock</button>
       </div>
@@ -57,7 +57,7 @@
       <div class="grid two">
         <button class="card action" data-view="tasting"><span>📝</span><strong data-i18n="registerTasting">Register tasting</strong><small data-i18n="tastingSub">Scores and tasting notes</small></button>
         <button class="card action" data-view="correction"><span>⚖️</span><strong data-i18n="correctStock">Correct stock</strong><small data-i18n="correctionSub">Adjust weight or volume without tasting</small></button>
-        <button class="card action" data-view="addBottle"><span>➕</span><strong data-i18n="addBottleStock">Add bottle to stock</strong><small data-i18n="addBottleStockSub">Only price, date and comments</small></button>
+        <button class="card action" data-view="addBottle"><span>➕</span><strong data-i18n="addBottleStock">Purchased bottle</strong><small data-i18n="addBottleStockSub">Register a purchased bottle</small></button>
         <button class="card action" data-view="library"><span>📚</span><strong data-i18n="library">Bottle library</strong><small data-i18n="librarySub">Core bottle data</small></button>
       </div>
     </section>
@@ -94,13 +94,13 @@
 
     <section id="addBottle" class="view">
       <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
-      <div class="card hero"><h2 data-i18n="addBottleStock">Add bottle to stock</h2><p data-i18n="stockBottleRule">Type the bottle name, tap the correct result, then enter price, date and comment.</p></div>
+      <div class="card hero"><h2 data-i18n="addBottleStock">Purchased bottle</h2><p data-i18n="stockBottleRule">Type the bottle name, tap the correct result, then enter price, date and comment.</p></div>
       <form id="bottleForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
         <label><span data-i18n="libraryItem">Library item</span>
-          <input id="baseSearchInput" list="baseOptionsList" autocomplete="off" placeholder="Type to search, then tap a result">
+          <input id="baseSearchInput" autocomplete="off" placeholder="Type bottle name and tap a result">
           <datalist id="baseOptionsList"></datalist>
-          <div id="baseSuggestionList" class="choice-list hidden"></div>
+          <div id="baseSuggestionList" class="choice-list hidden"></div><div id="selectedBaseStatus" class="selected-status">No bottle selected</div>
           <select name="baseId" required class="hidden"></select>
         </label>
         <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
@@ -134,7 +134,7 @@
       <div class="card shortcut-bar">
         <button class="ghost" data-view="stock" type="button">Go to My stock</button>
         <button class="ghost" data-view="tasting" type="button">Register tasting</button>
-        <button class="ghost" data-view="addBottle" type="button">Add bottle to stock</button>
+        <button class="ghost" data-view="addBottle" type="button">Purchased bottle</button>
       </div>
     </section>
 
@@ -171,6 +171,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=154"></script>
+<script src="/Whiskylog-app-test/app.js?v=155"></script>
 </body>
 </html>

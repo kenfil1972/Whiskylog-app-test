@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.54';
+window.WHISKYLOG_VERSION='1.55';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -8,8 +8,8 @@ let settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',def
 let currentImage='', detailReturn='stock';
 const T={
 en:{
-journal:'Premium spirits journal',homeTitle:'Your spirits journal',homeSub:'Personal logging for bottles, tastings, stock and future purchases.',myStock:'My stock',myStockSub:'Unopened, opened and empty bottles',logging:'Logging',loggingSub:'Bottle, tasting and stock registration',overview:'Overview / statistics',overviewSub:'Ranking, scores and settings',wishlist:'Wishlist',wishlistSub:'Future bottles',home:'Home',stockSub:'All bottles grouped by status.',unopened:'Unopened bottles',opened:'Opened bottles',empty:'Empty bottles',chooseRegister:'Choose what you want to register.',registerTasting:'Register tasting',tastingSub:'Scores and tasting notes',correctStock:'Correct stock',correctionSub:'Adjust weight or volume without tasting',addBottleStock:'Add bottle to stock',addBottleStockSub:'Only price, date and comments',library:'Bottle library',librarySub:'Core bottle data',libraryRule:'Core data can only be edited here.',name:'Name',distillery:'Distillery / producer',type:'Type',abv:'ABV %',volume:'Bottle volume ml',fullWeight:'Full bottle weight g',region:'Region / country',image:'Image',libraryComment:'Library comment',saveLibrary:'Save library item',libraryItems:'Library items',stockBottleRule:'Choose from library, then enter price, date and comment.',libraryItem:'Library item',price:'Price',purchaseDate:'Purchase date',comment:'Comment',saveBottle:'Save bottle',bottle:'Bottle',newWeight:'New current weight g',orVolume:'Or remaining volume ml',saveCorrection:'Save correction',settings:'Settings',settingsSub:'Name, currency, language and backup',ranking:'Bottle ranking',currency:'Currency',language:'Language',defaultMl:'Default tasting ml',saveSettings:'Save settings',export:'Export backup',import:'Import backup',back:'Back',saveWishlist:'Save wishlist item'},
-no:{journal:'Premium brennevinsjournal',homeTitle:'Din personlige brennevinslogg',homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',myStock:'Min beholdning',myStockSub:'Uåpnede, åpnede og tomme flasker',logging:'Loggføring',loggingSub:'Flaske, smaking og beholdning',overview:'Oversikt / statistikk',overviewSub:'Rangering, score og innstillinger',wishlist:'Ønskeliste',wishlistSub:'Fremtidige flasker',home:'Hjem',stockSub:'Alle flasker gruppert etter status.',unopened:'Uåpnede flasker',opened:'Åpnede flasker',empty:'Tomme flasker',chooseRegister:'Velg hva du vil registrere.',registerTasting:'Registrer smaking',tastingSub:'Score og smaksnotater',correctStock:'Korriger beholdning',correctionSub:'Juster vekt eller volum uten smaking',addBottleStock:'Legg flaske til beholdning',addBottleStockSub:'Kun pris, dato og kommentarer',library:'Flaskebibliotek',librarySub:'Grunndata',libraryRule:'Grunndata kan kun redigeres her.',name:'Navn',distillery:'Destilleri / produsent',type:'Type',abv:'Alkohol %',volume:'Flaskevolum ml',fullWeight:'Vekt full flaske g',region:'Region / land',image:'Bilde',libraryComment:'Bibliotekkommentar',saveLibrary:'Lagre i bibliotek',libraryItems:'Bibliotek',stockBottleRule:'Velg fra biblioteket, legg inn pris, dato og kommentar.',libraryItem:'Bibliotekelement',price:'Pris',purchaseDate:'Kjøpsdato',comment:'Kommentar',saveBottle:'Lagre flaske',bottle:'Flaske',newWeight:'Ny nåværende vekt g',orVolume:'Eller restvolum ml',saveCorrection:'Lagre korrigering',settings:'Innstillinger',settingsSub:'Navn, valuta, språk og backup',ranking:'Flaskerangering',currency:'Valuta',language:'Språk',defaultMl:'Standard smaksvolum ml',saveSettings:'Lagre innstillinger',export:'Eksporter backup',import:'Importer backup',back:'Tilbake',saveWishlist:'Lagre ønskeliste'}
+journal:'Premium spirits journal',homeTitle:'Your spirits journal',homeSub:'Personal logging for bottles, tastings, stock and future purchases.',myStock:'My stock',myStockSub:'Unopened, opened and empty bottles',logging:'Logging',loggingSub:'Bottle, tasting and stock registration',overview:'Overview / statistics',overviewSub:'Ranking, scores and settings',wishlist:'Wishlist',wishlistSub:'Future bottles',home:'Home',stockSub:'All bottles grouped by status.',unopened:'Unopened bottles',opened:'Opened bottles',empty:'Empty bottles',chooseRegister:'Choose what you want to register.',registerTasting:'Register tasting',tastingSub:'Scores and tasting notes',correctStock:'Correct stock',correctionSub:'Adjust weight or volume without tasting',addBottleStock:'Purchased bottle',addBottleStockSub:'Register a purchased bottle',library:'Bottle library',librarySub:'Core bottle data',libraryRule:'Core data can only be edited here.',name:'Name',distillery:'Distillery / producer',type:'Type',abv:'ABV %',volume:'Bottle volume ml',fullWeight:'Full bottle weight g',region:'Region / country',image:'Image',libraryComment:'Library comment',saveLibrary:'Save library item',libraryItems:'Library items',stockBottleRule:'Choose from library, then enter price, date and comment.',libraryItem:'Library item',price:'Price',purchaseDate:'Purchase date',comment:'Comment',saveBottle:'Save bottle',bottle:'Bottle',newWeight:'New current weight g',orVolume:'Or remaining volume ml',saveCorrection:'Save correction',settings:'Settings',settingsSub:'Name, currency, language and backup',ranking:'Bottle ranking',currency:'Currency',language:'Language',defaultMl:'Default tasting ml',saveSettings:'Save settings',export:'Export backup',import:'Import backup',back:'Back',saveWishlist:'Save wishlist item'},
+no:{journal:'Premium brennevinsjournal',homeTitle:'Din personlige brennevinslogg',homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',myStock:'Min beholdning',myStockSub:'Uåpnede, åpnede og tomme flasker',logging:'Loggføring',loggingSub:'Flaske, smaking og beholdning',overview:'Oversikt / statistikk',overviewSub:'Rangering, score og innstillinger',wishlist:'Ønskeliste',wishlistSub:'Fremtidige flasker',home:'Hjem',stockSub:'Alle flasker gruppert etter status.',unopened:'Uåpnede flasker',opened:'Åpnede flasker',empty:'Tomme flasker',chooseRegister:'Velg hva du vil registrere.',registerTasting:'Registrer smaking',tastingSub:'Score og smaksnotater',correctStock:'Korriger beholdning',correctionSub:'Juster vekt eller volum uten smaking',addBottleStock:'Kjøpt flaske',addBottleStockSub:'Registrer kjøpt flaske',library:'Flaskebibliotek',librarySub:'Grunndata',libraryRule:'Grunndata kan kun redigeres her.',name:'Navn',distillery:'Destilleri / produsent',type:'Type',abv:'Alkohol %',volume:'Flaskevolum ml',fullWeight:'Vekt full flaske g',region:'Region / land',image:'Bilde',libraryComment:'Bibliotekkommentar',saveLibrary:'Lagre i bibliotek',libraryItems:'Bibliotek',stockBottleRule:'Velg fra biblioteket, legg inn pris, dato og kommentar.',libraryItem:'Bibliotekelement',price:'Pris',purchaseDate:'Kjøpsdato',comment:'Kommentar',saveBottle:'Lagre flaske',bottle:'Flaske',newWeight:'Ny nåværende vekt g',orVolume:'Eller restvolum ml',saveCorrection:'Lagre korrigering',settings:'Innstillinger',settingsSub:'Navn, valuta, språk og backup',ranking:'Flaskerangering',currency:'Valuta',language:'Språk',defaultMl:'Standard smaksvolum ml',saveSettings:'Lagre innstillinger',export:'Eksporter backup',import:'Importer backup',back:'Tilbake',saveWishlist:'Lagre ønskeliste'}
 };
 function tr(k){const lang=settings.language==='no'?'no':'en';return (T[lang]&&T[lang][k])||T.en[k]||k}
 function applyLang(){
@@ -374,5 +374,169 @@ editBottle=function(id){
 const oldRender_v154=render;
 render=function(){
   oldRender_v154();
-  initAddBottleForm_v154();
+  // disabled by v1.55
+  // initAddBottleForm_v154();
+};
+
+
+/* v1.55 purchased bottle final fix */
+let selectedBaseId_v155='';
+
+function setSelectedBase_v155(base){
+  const f=document.getElementById('bottleForm');
+  const input=document.getElementById('baseSearchInput');
+  const status=document.getElementById('selectedBaseStatus');
+  if(!base||!f)return;
+  selectedBaseId_v155=base.id;
+  f.baseId.value=base.id;
+  if(input)input.value=optionLabelForBase(base);
+  if(status){
+    status.textContent='Selected: '+optionLabelForBase(base);
+    status.classList.add('ok');
+  }
+  if(typeof hideChoiceList_v153==='function')hideChoiceList_v153(document.getElementById('baseSuggestionList'));
+}
+
+function clearSelectedBase_v155(){
+  const f=document.getElementById('bottleForm');
+  const input=document.getElementById('baseSearchInput');
+  const status=document.getElementById('selectedBaseStatus');
+  selectedBaseId_v155='';
+  if(f)f.baseId.value='';
+  if(input)input.value='';
+  if(status){
+    status.textContent='No bottle selected';
+    status.classList.remove('ok');
+  }
+}
+
+function renderBaseChoices_v155(filter=''){
+  const list=document.getElementById('baseSuggestionList');
+  const input=document.getElementById('baseSearchInput');
+  if(!list||!input)return;
+  const q=String(filter||input.value||'').toLowerCase().trim();
+  const items=state.bases
+    .filter(b=>!q || String(`${b.name} ${b.type} ${b.distillery} ${b.region}`).toLowerCase().includes(q))
+    .slice(0,20);
+
+  if(!items.length){
+    list.innerHTML='<div class="choice-empty">No matching bottles in library. Add the bottle to the library first.</div>';
+    list.classList.remove('hidden');
+    return;
+  }
+
+  list.innerHTML=items.map(b=>`
+    <button type="button" class="choice-option" data-base-id="${b.id}">
+      <strong>${esc(b.name||'Unnamed')}</strong>
+      <small>${esc(b.type||'Unknown type')} · ${b.abv||'—'}% · ${b.volume||'—'} ml ${b.distillery?'· '+esc(b.distillery):''}</small>
+    </button>
+  `).join('');
+
+  list.querySelectorAll('[data-base-id]').forEach(btn=>{
+    btn.onclick=()=>{
+      const base=getBase(btn.dataset.baseId);
+      if(base)setSelectedBase_v155(base);
+    };
+  });
+  list.classList.remove('hidden');
+}
+
+function getSelectedBaseForPurchase_v155(){
+  const f=document.getElementById('bottleForm');
+  const input=document.getElementById('baseSearchInput');
+  let base=getBase(selectedBaseId_v155) || getBase(f&&f.baseId&&f.baseId.value);
+  if(base)return base;
+
+  const raw=String(input&&input.value||'').trim();
+  if(!raw)return null;
+  const q=raw.toLowerCase();
+
+  base=state.bases.find(b=>optionLabelForBase(b).toLowerCase()===q) ||
+       state.bases.find(b=>String(b.name||'').toLowerCase()===q) ||
+       state.bases.find(b=>String(b.name||'').toLowerCase().includes(q) || q.includes(String(b.name||'').toLowerCase()));
+  if(base)setSelectedBase_v155(base);
+  return base||null;
+}
+
+function savePurchasedBottle_v155(e){
+  if(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+  const f=document.getElementById('bottleForm');
+  if(!f)return false;
+  const base=getSelectedBaseForPurchase_v155();
+  if(!base){
+    alert('Choose a bottle from the list first. If it is not listed, add it to the library first.');
+    return false;
+  }
+
+  const id=(f.id&&f.id.value)||uid();
+  let b=getBottle(id);
+  const isNew=!b;
+  if(!b){
+    b={
+      id,
+      baseId:base.id,
+      price:0,
+      purchaseDate:'',
+      comments:'',
+      openedDate:'',
+      currentWeight:dec(base.fullWeight)
+    };
+    state.bottles.unshift(b);
+  }
+
+  b.baseId=base.id;
+  b.price=dec(f.price.value);
+  b.purchaseDate=f.purchaseDate.value||new Date().toISOString().slice(0,10);
+  b.comments=String(f.comments.value||'').trim();
+  if(!b.currentWeight)b.currentWeight=dec(base.fullWeight);
+
+  if(b.comments)addLog(b.id,isNew?'purchase':'manual',b.comments);
+
+  save();
+  f.reset();
+  f.id.value='';
+  f.purchaseDate.value=new Date().toISOString().slice(0,10);
+  clearSelectedBase_v155();
+  render();
+  show('stock');
+  return true;
+}
+
+function initPurchasedBottle_v155(){
+  const f=document.getElementById('bottleForm');
+  const input=document.getElementById('baseSearchInput');
+  if(f&&f.dataset.v155Bound!=='1'){
+    f.dataset.v155Bound='1';
+    f.addEventListener('submit',savePurchasedBottle_v155,true);
+  }
+  if(input&&input.dataset.v155Bound!=='1'){
+    input.dataset.v155Bound='1';
+    input.addEventListener('focus',()=>renderBaseChoices_v155(input.value));
+    input.addEventListener('input',()=>{
+      selectedBaseId_v155='';
+      const status=document.getElementById('selectedBaseStatus');
+      if(status){status.textContent='No bottle selected';status.classList.remove('ok');}
+      renderBaseChoices_v155(input.value);
+    });
+  }
+}
+
+const oldEditBottle_v155=editBottle;
+editBottle=function(id){
+  const b=getBottle(id);
+  if(!b)return;
+  oldEditBottle_v155(id);
+  setTimeout(()=>{
+    const base=getBase(b.baseId);
+    if(base)setSelectedBase_v155(base);
+  },0);
+};
+
+const oldRender_v155=render;
+render=function(){
+  oldRender_v155();
+  initPurchasedBottle_v155();
 };
