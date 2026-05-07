@@ -1,12 +1,7 @@
-# WhiskyLog v1.55 Purchased Bottle Fixed
+# WhiskyLog v1.57 Tasting Comments Restored
 
 Changes:
-- "Add bottle to stock" renamed to "Purchased bottle".
-- Norwegian wording: "Kjøpt flaske".
-- Purchased bottle flow rebuilt:
-  - type bottle name
-  - tap one visible result
-  - selected bottle is clearly confirmed
-  - save creates bottle in My stock
-- Does not rely on hidden select alone.
-- Cache-busted with v=155.
+- Restored tasting comments field.
+- Tasting comments are saved with the tasting.
+- Comments are also written to the bottle log/history.
+- Cache-busted with v=157.

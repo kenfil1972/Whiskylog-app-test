@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.55';
+window.WHISKYLOG_VERSION='1.57';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -539,4 +539,168 @@ const oldRender_v155=render;
 render=function(){
   oldRender_v155();
   initPurchasedBottle_v155();
+};
+
+
+/* v1.56 full backup/restore to file */
+function buildBackupPayload_v156(){
+  return {app:'WhiskyLog',version:window.WHISKYLOG_VERSION||'1.56',exportedAt:new Date().toISOString(),state:state,settings:settings};
+}
+function downloadBackupFile_v156(){
+  const text=JSON.stringify(buildBackupPayload_v156(),null,2);
+  const safeDate=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+  const blob=new Blob([text],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`whiskylog-backup-${safeDate}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},250);
+}
+function restoreBackupObject_v156(data){
+  if(!data||typeof data!=='object')throw new Error('Invalid backup file');
+  const nextState=data.state||data;
+  const nextSettings=data.settings||null;
+  if(!nextState||!Array.isArray(nextState.bases)||!Array.isArray(nextState.bottles))throw new Error('This does not look like a WhiskyLog backup');
+  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]},nextState);
+  if(nextSettings)settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},nextSettings);
+  save();
+  saveSettings();
+  const title=document.getElementById('appTitle');
+  if(title)title.textContent=`${settings.ownerName||'Kenneth'}'s WhiskyLog`;
+  render();
+  show('home');
+}
+function restoreFromFile_v156(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      const ok=confirm('Restore backup from file? This will replace the data currently stored in the app on this device.');
+      if(!ok)return;
+      restoreBackupObject_v156(data);
+      alert('Backup restored.');
+    }catch(err){
+      alert('Could not restore backup: '+(err&&err.message?err.message:'Invalid file'));
+    }
+  };
+  reader.onerror=()=>alert('Could not read file.');
+  reader.readAsText(file);
+}
+function initBackupFileButtons_v156(){
+  const backupBtn=document.getElementById('backupToFileBtn');
+  const restoreBtn=document.getElementById('restoreFromFileBtn');
+  const fileInput=document.getElementById('backupFileInput');
+  if(backupBtn&&backupBtn.dataset.v156Bound!=='1'){
+    backupBtn.dataset.v156Bound='1';
+    backupBtn.onclick=e=>{e.preventDefault();downloadBackupFile_v156();};
+  }
+  if(restoreBtn&&fileInput&&restoreBtn.dataset.v156Bound!=='1'){
+    restoreBtn.dataset.v156Bound='1';
+    restoreBtn.onclick=e=>{e.preventDefault();fileInput.value='';fileInput.click();};
+  }
+  if(fileInput&&fileInput.dataset.v156Bound!=='1'){
+    fileInput.dataset.v156Bound='1';
+    fileInput.onchange=()=>{const file=fileInput.files&&fileInput.files[0];if(file)restoreFromFile_v156(file);};
+  }
+  const exportTextBtn=document.getElementById('exportBtn');
+  if(exportTextBtn&&exportTextBtn.dataset.v156Bound!=='1'){
+    exportTextBtn.dataset.v156Bound='1';
+    exportTextBtn.onclick=e=>{e.preventDefault();const area=document.getElementById('importText');if(area)area.value=JSON.stringify(buildBackupPayload_v156(),null,2);};
+  }
+  const importTextBtn=document.getElementById('importBtn');
+  if(importTextBtn&&importTextBtn.dataset.v156Bound!=='1'){
+    importTextBtn.dataset.v156Bound='1';
+    importTextBtn.onclick=e=>{
+      e.preventDefault();
+      try{
+        const area=document.getElementById('importText');
+        const data=JSON.parse(area.value);
+        const ok=confirm('Restore backup from text? This will replace the data currently stored in the app on this device.');
+        if(!ok)return;
+        restoreBackupObject_v156(data);
+        alert('Backup restored.');
+      }catch(err){alert('Could not restore backup text.');}
+    };
+  }
+}
+const oldRender_v156=render;
+render=function(){oldRender_v156();initBackupFileButtons_v156();};
+
+
+/* v1.57 tasting comments restored */
+function ensureTastingComment_v157(t){
+  if(typeof t.comment==='undefined')t.comment='';
+  return t;
+}
+
+const oldSaveTasting_v157=saveTasting;
+saveTasting=function(e){
+  if(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+
+  const f=document.getElementById('tastingForm');
+  if(!f)return false;
+
+  const bottleId=f.bottleId.value;
+  const b=getBottle(bottleId);
+  const base=b&&getBase(b.baseId);
+
+  if(!b||!base){
+    alert('Choose bottle');
+    return false;
+  }
+
+  const tasting={
+    id:uid(),
+    bottleId,
+    date:f.date.value||new Date().toISOString().slice(0,10),
+    ml:dec(f.ml.value||settings.defaultTastingMl||20),
+    appearance:dec(f.appearance.value),
+    nose:dec(f.nose.value),
+    taste:dec(f.taste.value),
+    watered:dec(f.watered.value),
+    finish:dec(f.finish.value),
+    comment:String(f.tastingComment&&f.tastingComment.value||'').trim()
+  };
+
+  ensureTastingComment_v157(tasting);
+
+  if(!Array.isArray(state.tastings))state.tastings=[];
+  state.tastings.unshift(tasting);
+
+  const current=dec(b.currentWeight||base.fullWeight||0);
+  const emptyEstimate=dec(base.emptyWeight||0);
+
+  if(base.fullWeight && current>0){
+    const perMl=(dec(base.fullWeight)-emptyEstimate)/(dec(base.volume)||700);
+    if(perMl>0){
+      b.currentWeight=Math.max(emptyEstimate,current-(perMl*tasting.ml));
+    }
+  }
+
+  if(tasting.comment){
+    addLog(b.id,'tasting',tasting.comment);
+  }
+
+  save();
+  render();
+  f.reset();
+  f.date.value=new Date().toISOString().slice(0,10);
+  show('stock');
+  return true;
+};
+
+function renderTastingComments_v157(){
+  if(!Array.isArray(state.tastings))return;
+  state.tastings.forEach(ensureTastingComment_v157);
+}
+
+const oldRender_v157=render;
+render=function(){
+  oldRender_v157();
+  renderTastingComments_v157();
 };
