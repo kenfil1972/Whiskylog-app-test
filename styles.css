@@ -56,3 +56,13 @@ input[list]{padding-right:14px}
 #libraryClearButton{width:100%;margin-top:10px}
 .library-status{margin-top:10px;color:var(--muted);font-weight:700}
 #libraryForm.editing{border-color:rgba(240,193,92,.55);box-shadow:0 0 0 3px rgba(240,193,92,.12)}
+
+/* v1.53 readable choice menus */
+input[list],select{min-height:58px;font-size:1.08rem}
+.choice-list{margin-top:10px;display:grid;gap:8px;max-height:280px;overflow:auto;padding:8px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:18px}
+.choice-option{width:100%;text-align:left;border:1px solid rgba(240,193,92,.24);background:rgba(255,255,255,.055);color:#fff;border-radius:16px;padding:13px 14px;display:grid;gap:4px}
+.choice-option strong{display:block;font-size:1.05rem;line-height:1.2}
+.choice-option small{display:block;color:var(--muted);line-height:1.25}
+.choice-option:active,.choice-option.selected{background:rgba(240,193,92,.18);border-color:rgba(240,193,92,.55)}
+.choice-empty{color:var(--muted);padding:12px;line-height:1.35}
+@media(max-width:760px){input[list],select{min-height:60px;font-size:1.1rem}.choice-list{max-height:330px}.choice-option{padding:15px 14px}}

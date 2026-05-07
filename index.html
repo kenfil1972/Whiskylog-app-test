@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.52</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=152">
+  <title>WhiskyLog v1.53</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=153">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=152">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=153">
 </head>
 <body>
 <div class="app">
@@ -98,8 +98,9 @@
       <form id="bottleForm" class="card form" autocomplete="off">
         <input type="hidden" name="id">
         <label><span data-i18n="libraryItem">Library item</span>
-          <input id="baseSearchInput" list="baseOptionsList" autocomplete="off" placeholder="Start typing bottle name">
+          <input id="baseSearchInput" list="baseOptionsList" autocomplete="off" placeholder="Type to search, then tap a result">
           <datalist id="baseOptionsList"></datalist>
+          <div id="baseSuggestionList" class="choice-list hidden"></div>
           <select name="baseId" required class="hidden"></select>
         </label>
         <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
@@ -120,8 +121,9 @@
       <div class="card hero"><h2 data-i18n="correctStock">Correct stock</h2><p data-i18n="correctionSub">Adjust weight or volume without tasting</p></div>
       <form id="correctionForm" class="card form">
         <label><span data-i18n="bottle">Bottle</span>
-          <input id="correctionBottleSearchInput" list="correctionBottleOptionsList" autocomplete="off" placeholder="Start typing bottle name">
+          <input id="correctionBottleSearchInput" list="correctionBottleOptionsList" autocomplete="off" placeholder="Type to search, then tap a result">
           <datalist id="correctionBottleOptionsList"></datalist>
+          <div id="correctionSuggestionList" class="choice-list hidden"></div>
           <select name="bottleId" required class="hidden"></select>
         </label>
         <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
@@ -169,6 +171,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=152"></script>
+<script src="/Whiskylog-app-test/app.js?v=153"></script>
 </body>
 </html>

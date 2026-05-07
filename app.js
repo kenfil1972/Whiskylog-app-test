@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.52';
+window.WHISKYLOG_VERSION='1.53';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -131,7 +131,7 @@ render=function(){
 const oldEditBottle_v151=editBottle;
 editBottle=function(id){
   oldEditBottle_v151(id);
-  setTimeout(syncBaseSearchFromSelect,0);
+  setTimeout(()=>{syncBaseSearchFromSelect();hideChoiceList_v153(document.getElementById('baseSuggestionList'));},0);
 };
 
 
@@ -231,3 +231,39 @@ render=function(){
   initLibraryForm_v152();
   if(typeof setupSearchablePickers==='function')setupSearchablePickers();
 };
+
+
+/* v1.53 readable custom choice lists */
+function showChoiceList_v153(listEl){if(listEl)listEl.classList.remove('hidden')}
+function hideChoiceList_v153(listEl){if(listEl)listEl.classList.add('hidden')}
+function normalizeText_v153(value){return String(value||'').toLowerCase().trim()}
+function renderBaseChoices_v153(filter=''){
+  const list=document.getElementById('baseSuggestionList'), input=document.getElementById('baseSearchInput'), form=document.getElementById('bottleForm');
+  if(!list||!input||!form)return;
+  const q=normalizeText_v153(filter||input.value);
+  const items=state.bases.filter(b=>!q||normalizeText_v153(`${b.name} ${b.type} ${b.distillery} ${b.region}`).includes(q)).slice(0,12);
+  if(!items.length){list.innerHTML='<div class="choice-empty">No matching bottles in library. Add the bottle to the library first.</div>';showChoiceList_v153(list);return}
+  list.innerHTML=items.map(b=>`<button type="button" class="choice-option" data-base-id="${b.id}"><strong>${esc(b.name||'Unnamed')}</strong><small>${esc(b.type||'Unknown type')} · ${b.abv||'—'}% · ${b.volume||'—'} ml ${b.distillery?'· '+esc(b.distillery):''}</small></button>`).join('');
+  list.querySelectorAll('[data-base-id]').forEach(btn=>{btn.onclick=()=>{const base=getBase(btn.dataset.baseId);form.baseId.value=btn.dataset.baseId;input.value=base?optionLabelForBase(base):'';hideChoiceList_v153(list)}});
+  showChoiceList_v153(list);
+}
+function renderCorrectionChoices_v153(filter=''){
+  const list=document.getElementById('correctionSuggestionList'), input=document.getElementById('correctionBottleSearchInput'), form=document.getElementById('correctionForm');
+  if(!list||!input||!form)return;
+  const q=normalizeText_v153(filter||input.value);
+  const bottles=state.bottles.filter(b=>status(b.id)!=='empty');
+  const items=bottles.filter(b=>{const base=getBase(b.baseId);return !q||normalizeText_v153(`${bottleName(b)} ${base&&base.type||''}`).includes(q)}).slice(0,12);
+  if(!items.length){list.innerHTML='<div class="choice-empty">No matching bottles in current stock.</div>';showChoiceList_v153(list);return}
+  list.innerHTML=items.map(b=>{const base=getBase(b.baseId);return `<button type="button" class="choice-option" data-bottle-id="${b.id}"><strong>${esc(bottleName(b))}</strong><small>${esc(base&&base.type||'')} · ${ml(bottleVolume(b.id))} left · ${money(bottleValue(b.id))}</small></button>`}).join('');
+  list.querySelectorAll('[data-bottle-id]').forEach(btn=>{btn.onclick=()=>{const b=getBottle(btn.dataset.bottleId);form.bottleId.value=btn.dataset.bottleId;input.value=b?optionLabelForBottle(b):'';hideChoiceList_v153(list)}});
+  showChoiceList_v153(list);
+}
+function initReadableChoiceMenus_v153(){
+  const baseInput=document.getElementById('baseSearchInput');
+  if(baseInput&&baseInput.dataset.v153Bound!=='1'){baseInput.dataset.v153Bound='1';baseInput.addEventListener('focus',()=>renderBaseChoices_v153(baseInput.value));baseInput.addEventListener('input',()=>renderBaseChoices_v153(baseInput.value))}
+  const corrInput=document.getElementById('correctionBottleSearchInput');
+  if(corrInput&&corrInput.dataset.v153Bound!=='1'){corrInput.dataset.v153Bound='1';corrInput.addEventListener('focus',()=>renderCorrectionChoices_v153(corrInput.value));corrInput.addEventListener('input',()=>renderCorrectionChoices_v153(corrInput.value))}
+}
+document.addEventListener('click',e=>{const inside=e.target.closest('#baseSearchInput,#baseSuggestionList,#correctionBottleSearchInput,#correctionSuggestionList');if(!inside){hideChoiceList_v153(document.getElementById('baseSuggestionList'));hideChoiceList_v153(document.getElementById('correctionSuggestionList'))}},true);
+const oldRender_v153=render;
+render=function(){oldRender_v153();initReadableChoiceMenus_v153()};
