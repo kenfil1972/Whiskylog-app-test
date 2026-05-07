@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.53';
+window.WHISKYLOG_VERSION='1.54';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -267,3 +267,112 @@ function initReadableChoiceMenus_v153(){
 document.addEventListener('click',e=>{const inside=e.target.closest('#baseSearchInput,#baseSuggestionList,#correctionBottleSearchInput,#correctionSuggestionList');if(!inside){hideChoiceList_v153(document.getElementById('baseSuggestionList'));hideChoiceList_v153(document.getElementById('correctionSuggestionList'))}},true);
 const oldRender_v153=render;
 render=function(){oldRender_v153();initReadableChoiceMenus_v153()};
+
+
+/* v1.54 robust Add bottle to stock fix */
+function selectedBaseFromAddBottle_v154(){
+  const f=document.getElementById('bottleForm');
+  if(!f)return null;
+
+  // 1. Prefer hidden select when set by tapping a custom choice.
+  let base=getBase(f.baseId.value);
+  if(base)return base;
+
+  // 2. Fall back to visible search input.
+  const input=document.getElementById('baseSearchInput');
+  const raw=String(input&&input.value||'').trim();
+  if(!raw)return null;
+  const q=raw.toLowerCase();
+
+  base=state.bases.find(b=>typeof optionLabelForBase==='function' && optionLabelForBase(b).toLowerCase()===q);
+  if(base){f.baseId.value=base.id;return base;}
+
+  base=state.bases.find(b=>String(b.name||'').toLowerCase()===q);
+  if(base){f.baseId.value=base.id;return base;}
+
+  base=state.bases.find(b=>String(b.name||'').toLowerCase().includes(q) || q.includes(String(b.name||'').toLowerCase()));
+  if(base){f.baseId.value=base.id;return base;}
+
+  return null;
+}
+
+function saveBottleItem_v154(e){
+  if(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }
+  const f=document.getElementById('bottleForm');
+  if(!f)return false;
+
+  const base=selectedBaseFromAddBottle_v154();
+  if(!base){
+    alert('Choose a library item first. Type and tap one of the results.');
+    return false;
+  }
+
+  const id=(f.id&&f.id.value)||uid();
+  let b=getBottle(id);
+  const isNew=!b;
+  if(!b){
+    b={
+      id,
+      baseId:base.id,
+      price:0,
+      purchaseDate:'',
+      comments:'',
+      openedDate:'',
+      currentWeight:dec(base.fullWeight)
+    };
+    state.bottles.unshift(b);
+  }
+
+  b.baseId=base.id;
+  b.price=dec(f.price.value);
+  b.purchaseDate=f.purchaseDate.value||new Date().toISOString().slice(0,10);
+  b.comments=String(f.comments.value||'').trim();
+  if(!b.currentWeight)b.currentWeight=dec(base.fullWeight);
+
+  if(b.comments){
+    addLog(b.id,isNew?'purchase':'manual',b.comments);
+  }
+
+  save();
+  f.reset();
+  f.id.value='';
+  f.purchaseDate.value=new Date().toISOString().slice(0,10);
+  const input=document.getElementById('baseSearchInput');
+  if(input)input.value='';
+  if(typeof hideChoiceList_v153==='function')hideChoiceList_v153(document.getElementById('baseSuggestionList'));
+
+  render();
+  show('stock');
+  return true;
+}
+
+function initAddBottleForm_v154(){
+  const f=document.getElementById('bottleForm');
+  if(!f||f.dataset.v154Bound==='1')return;
+  f.dataset.v154Bound='1';
+  f.addEventListener('submit',saveBottleItem_v154,true);
+}
+
+// Override editBottle so the visible searchable field is always populated.
+const oldEditBottle_v154=editBottle;
+editBottle=function(id){
+  const b=getBottle(id);
+  if(!b)return;
+  oldEditBottle_v154(id);
+  setTimeout(()=>{
+    const f=document.getElementById('bottleForm');
+    const input=document.getElementById('baseSearchInput');
+    const base=getBase(b.baseId);
+    if(f)f.baseId.value=b.baseId;
+    if(input&&base&&typeof optionLabelForBase==='function')input.value=optionLabelForBase(base);
+  },0);
+};
+
+const oldRender_v154=render;
+render=function(){
+  oldRender_v154();
+  initAddBottleForm_v154();
+};
