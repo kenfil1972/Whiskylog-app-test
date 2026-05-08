@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.13';
+const VERSION = '2.14';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.13',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.14',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.13',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.14',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -850,4 +850,105 @@ ${libCount} ${tr('library')} · ${bottleCount} ${tr('bottles')} · ${tastingCoun
 }
 
 render();
+})();
+
+
+/* ===== v2.14 wishlist enhancements ===== */
+(function(){
+  const oldRenderWishlist = window.renderWishlist;
+  if(!oldRenderWishlist) return;
+
+  function calcWishlistStats(items){
+    let total=0;
+    for(const i of items){
+      total += Number(i.price||0);
+    }
+    return {count: items.length, total};
+  }
+
+  window.renderWishlist = function(){
+    oldRenderWishlist();
+
+    const root = document.querySelector('#wishlistPage, .wishlistPage, [data-page="wishlist"]');
+    const list = window.state?.wishlist || JSON.parse(localStorage.getItem('wishlist') || '[]');
+
+    if(root && !root.querySelector('.wishlistStats')){
+      const stats = calcWishlistStats(list);
+
+      const statsCard = document.createElement('div');
+      statsCard.className = 'wishlistStats card';
+      statsCard.innerHTML = `
+        <div class="wishlistStatBox">
+          <div class="wishlistStatValue">${stats.count}</div>
+          <div class="wishlistStatLabel">Flasker i ønskeliste</div>
+        </div>
+        <div class="wishlistStatBox">
+          <div class="wishlistStatValue">${stats.total.toFixed(2)} NOK</div>
+          <div class="wishlistStatLabel">Total ønskelisteverdi</div>
+        </div>
+      `;
+
+      const target = root.querySelector('.wishlistList') || root.firstElementChild?.nextElementSibling || root;
+      root.insertBefore(statsCard, target);
+    }
+
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form=>{
+      if(form.dataset.wishlistImageApplied) return;
+
+      const heading = form.querySelector('h2,h3');
+      if(heading && heading.textContent.toLowerCase().includes('ønsk')){
+        const imageWrap = document.createElement('div');
+        imageWrap.className = 'field';
+
+        imageWrap.innerHTML = `
+          <label>Ønskebilde</label>
+          <input type="file" accept="image/*">
+        `;
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if(submitBtn){
+          submitBtn.parentElement.insertBefore(imageWrap, submitBtn);
+        }else{
+          form.appendChild(imageWrap);
+        }
+
+        const input = imageWrap.querySelector('input');
+        input.addEventListener('change', e=>{
+          const file = e.target.files[0];
+          if(!file) return;
+
+          const reader = new FileReader();
+          reader.onload = ()=>{
+            form.dataset.wishlistImage = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        form.addEventListener('submit', ()=>{
+          if(form.dataset.wishlistImage){
+            const wishlist = window.state?.wishlist || JSON.parse(localStorage.getItem('wishlist') || '[]');
+            if(wishlist.length){
+              wishlist[wishlist.length-1].image = form.dataset.wishlistImage;
+              localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            }
+          }
+        });
+
+        form.dataset.wishlistImageApplied = "1";
+      }
+    });
+
+    document.querySelectorAll('.wishlistItem').forEach(item=>{
+      if(item.querySelector('.wishlistThumb')) return;
+      const idx = Number(item.dataset.index||0);
+      const entry = list[idx];
+      if(entry && entry.image){
+        const img = document.createElement('img');
+        img.src = entry.image;
+        img.className = 'wishlistThumb';
+        item.prepend(img);
+      }
+    });
+  };
 })();
