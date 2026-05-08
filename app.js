@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.16';
+const VERSION = '2.17';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.16',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.17',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.16',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.17',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -189,6 +189,7 @@ let page = 'home';
 let editLibraryId = '';
 let editBottleId = '';
 let editTastingId = '';
+let selectedTastingBottleId = '';
 let stockPageStatus = '';
 let editWishlistId = '';
 
@@ -371,7 +372,12 @@ function stockListByStatus(status){
       <div><div class="title">${esc(base.name||'')}</div>
       <div class="meta">${esc(base.type||'')} · ${Math.round(vol)} ml ${tr('left')} · ${money(bottleValue(b))}</div>
       <div class="small">${tr('purchased')}: ${esc(b.purchaseDate||'')}</div></div>
-      <div class="actions"><button class="ghost">${tr('edit')}</button><button class="danger" onclick="event.stopPropagation();deleteBottle('${b.id}')">${tr('delete')}</button></div>
+      <div class="actions">
+        <button class="ghost">${tr('edit')}</button>
+        ${status === 'opened'
+          ? `<button class="primary" onclick="event.stopPropagation();openTastingForBottle('${b.id}')">${tr('registerTasting')}</button>`
+          : `<button class="danger" onclick="event.stopPropagation();deleteBottle('${b.id}')">${tr('delete')}</button>`}
+      </div>
     </div>`;
   }).join('');
 }
@@ -385,10 +391,23 @@ function stockList(){
       <div><div class="title">${esc(base.name||'')}</div>
       <div class="meta">${esc(base.type||'')} · ${Math.round(vol)} ml ${tr('left')} · ${money(bottleValue(b))}</div>
       <div class="small">${tr('status')}: ${tr(status)}</div></div>
-      <div class="actions"><button class="ghost">${tr('edit')}</button><button class="danger" onclick="event.stopPropagation();deleteBottle('${b.id}')">${tr('delete')}</button></div>
+      <div class="actions">
+        <button class="ghost">${tr('edit')}</button>
+        ${status === 'opened'
+          ? `<button class="primary" onclick="event.stopPropagation();openTastingForBottle('${b.id}')">${tr('registerTasting')}</button>`
+          : `<button class="danger" onclick="event.stopPropagation();deleteBottle('${b.id}')">${tr('delete')}</button>`}
+      </div>
     </div>`;
   }).join('');
 }
+
+window.openTastingForBottle = function(id){
+  selectedTastingBottleId = id;
+  editTastingId = '';
+  page = 'tasting';
+  render();
+};
+
 window.editBottle = id => { editBottleId=id; page='addStock'; render(); };
 window.deleteBottle = id => {
   const b=getBottle(id), base=bottleBase(b||{});
@@ -522,7 +541,7 @@ function bottleOptions(selected=''){
 }
 function renderTasting(){
   if(!state.bottles.length){ shell(`<section class="hero"><h2>${tr('registerTasting')}</h2><p class="sub">${tr('noItems')}</p></section>`,'logging'); return; }
-  const t=editTastingId ? state.tastings.find(x=>x.id===editTastingId)||{} : {};
+  const t=editTastingId ? state.tastings.find(x=>x.id===editTastingId)||{} : (selectedTastingBottleId ? {bottleId:selectedTastingBottleId} : {});
   shell(`
     <section class="hero"><h2>${tr('registerTasting')}</h2><p class="sub">${tr('tastingSub')}</p></section>
     <section class="card"><form id="tastingForm">
@@ -553,7 +572,7 @@ function renderTasting(){
     const ix=state.tastings.findIndex(x=>x.id===id);
     if(ix>=0) state.tastings[ix]=item; else state.tastings.push(item);
     const b=getBottle(bottleId); if(b && !b.openedDate) b.openedDate=fd.get('date')||today();
-    save(); render();
+    save(); selectedTastingBottleId=''; render();
   };
 }
 function tastingList(){
