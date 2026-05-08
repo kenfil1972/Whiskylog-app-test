@@ -1,7 +1,9 @@
-# WhiskyLog v2.03 Restore Icons
+# WhiskyLog v2.10 Stable UI
 
-Changes:
-- Restored previous app icon files where available: True.
-- Menu choices now use distinct old-style picture/icon sets instead of four identical glasses.
-- Kept clean v2 codebase and v1 backup import.
-- Version updated to v2.03 / v=203.
+Stable v2 codebase with:
+- No emoji menu buttons.
+- Clean consistent inline SVG icon system.
+- Previous app icon files retained.
+- Bottle images are stored locally and included in JSON backup.
+- Import supports older v1 backup structure.
+- Norwegian default.

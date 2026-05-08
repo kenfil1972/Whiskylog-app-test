@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.03';
+const VERSION = '2.10';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.03',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.10',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.03',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.10',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -114,7 +114,7 @@ function money(v){ return `${num(v).toFixed(2)} ${state.settings.currency || 'NO
 function today(){ return new Date().toISOString().slice(0,10); }
 function getLibrary(id){ return state.library.find(x => x.id === id); }
 function getBottle(id){ return state.bottles.find(x => x.id === id); }
-function img(item){ return item?.image ? `<img class="thumb" src="${item.image}" alt="">` : `<div class="thumbFallback">🥃</div>`; }
+function img(item){ return item?.image ? `<img class="thumb" src="${item.image}" alt="">` : `<div class="thumbFallback">${iconSvg('bottle','miniSvg')}</div>`; }
 function bottleBase(b){ return getLibrary(b.libraryId) || {}; }
 function density(abv){ return 0.9982 + (0.897 - 0.9982) * (num(abv)/100); }
 function estimatedEmptyWeight(base){
@@ -206,26 +206,49 @@ function renderHome(){
     </section>
 
     <section class="quickSettings">
-      <button class="ghost smallButton" onclick="go('settings')">⚙️ ${tr('settings')}</button>
+      <button class="ghost smallButton" onclick="go('settings')">${iconSvg('settings','buttonSvg')} ${tr('settings')}</button>
     </section>
   `);
 }
 
-function menuArt(to){
+
+
+
+function iconSvg(kind, cls='menuIcon'){
+  const common = `class="${cls}" viewBox="0 0 64 64" aria-hidden="true"`;
+  const stroke = `fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"`;
+  const gold = `fill="rgba(244,191,79,.24)" stroke="currentColor" stroke-width="3"`;
   const icons = {
-    stock:['🥃','📦','🥃','🗃️'],
-    logging:['📝','⚖️','➕','📚'],
-    overview:['📊','🏆','💰','🕒'],
-    wishlist:['⭐','🛒','📌','💡'],
-    settings:['⚙️','💾','↩️','🌐']
+    stock:`<svg ${common}><rect x="12" y="17" width="40" height="34" rx="8" ${stroke}/><path d="M20 17v-5h24v5" ${stroke}/><path d="M18 32h28" ${stroke}/><path d="M24 40h16" ${stroke}/></svg>`,
+    logging:`<svg ${common}><path d="M18 12h24l8 8v32H18z" ${stroke}/><path d="M42 12v10h10" ${stroke}/><path d="M24 32h16M24 42h12" ${stroke}/><path d="M43 46l8-8 4 4-8 8-6 2z" ${gold}/></svg>`,
+    overview:`<svg ${common}><rect x="12" y="36" width="8" height="16" rx="2" ${gold}/><rect x="28" y="24" width="8" height="28" rx="2" ${gold}/><rect x="44" y="14" width="8" height="38" rx="2" ${gold}/><path d="M10 54h46" ${stroke}/></svg>`,
+    wishlist:`<svg ${common}><path d="M32 9l7 14 15 2-11 11 3 15-14-7-14 7 3-15L10 25l15-2z" ${gold}/></svg>`,
+    settings:`<svg ${common}><circle cx="32" cy="32" r="8" ${stroke}/><path d="M32 10v8M32 46v8M10 32h8M46 32h8M16 16l6 6M42 42l6 6M48 16l-6 6M22 42l-6 6" ${stroke}/></svg>`,
+    library:`<svg ${common}><path d="M14 15h15v38H14zM35 15h15v38H35z" ${stroke}/><path d="M20 23h3M41 23h3M20 43h3M41 43h3" ${stroke}/></svg>`,
+    bottle:`<svg ${common}><path d="M26 8h12v12l5 8v25a5 5 0 0 1-5 5H26a5 5 0 0 1-5-5V28l5-8z" ${stroke}/><path d="M24 38h16" ${stroke}/><path d="M27 8h10" ${stroke}/></svg>`,
+    tasting:`<svg ${common}><path d="M20 10h24l-4 23a8 8 0 0 1-16 0z" ${stroke}/><path d="M24 28h16" ${gold}/><path d="M32 41v12M24 54h16" ${stroke}/></svg>`,
+    correct:`<svg ${common}><path d="M32 12v40M18 20h28" ${stroke}/><path d="M18 20l-8 16h16zM46 20l-8 16h16z" ${gold}/></svg>`,
+    add:`<svg ${common}><circle cx="32" cy="32" r="22" ${stroke}/><path d="M32 20v24M20 32h24" ${stroke}/></svg>`
   };
-  const arr = icons[to] || ['🥃','🥃','🥃','🥃'];
-  return `<div class="menuArt" aria-hidden="true">${arr.map(x=>`<span>${x}</span>`).join('')}</div>`;
+  return icons[kind] || icons.bottle;
+}
+
+function menuArt(to){
+  const sets = {
+    stock:['bottle','stock','tasting','library'],
+    logging:['tasting','correct','add','library'],
+    overview:['overview','tasting','stock','settings'],
+    wishlist:['wishlist','add','library','stock'],
+    settings:['settings','stock','library','tasting']
+  };
+  const arr = sets[to] || ['bottle','stock','tasting','library'];
+  return `<div class="menuArt cleanMenuArt" aria-hidden="true">${arr.map(x=>`<span>${iconSvg(x,'miniSvg')}</span>`).join('')}</div>`;
 }
 
 function tile(to, icon, title, sub){
+  const mainKind = to === 'stock' ? 'stock' : to === 'logging' ? 'logging' : to === 'overview' ? 'overview' : to === 'wishlist' ? 'wishlist' : 'settings';
   return `<div class="tile oldTile" onclick="go('${to}')">
-    <div class="tileText"><div class="icon">${icon}</div><h3>${title}</h3><div class="sub">${sub}</div></div>
+    <div class="tileText"><div class="icon">${iconSvg(mainKind)}</div><h3>${title}</h3><div class="sub">${sub}</div></div>
     ${menuArt(to)}
   </div>`;
 }
@@ -235,7 +258,7 @@ function stockStats(status){
   return {count:bs.length, value:bs.reduce((a,b)=>a+bottleValue(b),0), volume:bs.reduce((a,b)=>a+bottleVolume(b),0)};
 }
 function renderStock(){
-  const statuses = [['unopened',tr('unopened'),'📦'],['opened',tr('opened'),'🥃'],['empty',tr('empty'),'🗃️']];
+  const statuses = [['unopened',tr('unopened'),'stock'],['opened',tr('opened'),'tasting'],['empty',tr('empty'),'library']];
   shell(`
     <section class="hero dashboardHero">
       <h2>${tr('myStock')}</h2>
@@ -246,7 +269,7 @@ function renderStock(){
       ${statuses.map(([s,label,icon])=>{
         const st=stockStats(s);
         return `<div class="stockBox" onclick="document.getElementById('list-${s}')?.scrollIntoView({behavior:'smooth'})">
-          <div class="icon">${icon}</div>
+          <div class="icon">${iconSvg(icon)}</div>
           <h3>${label}</h3>
           <p class="sub">${st.count} ${tr('bottles')} · ${money(st.value)}</p>
           <p class="small">${Math.round(st.volume)} ml</p>
