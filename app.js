@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.65';
+window.WHISKYLOG_VERSION='1.66';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1735,3 +1735,168 @@ document.addEventListener('click', () => setTimeout(() => {
   fixLibraryNorwegianText_v165();
 }, 80));
 document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v165, 80));
+
+
+/* v1.66 forced library renderer + final text normalization */
+window.WHISKYLOG_VERSION='1.66';
+
+function no66(){return settings && settings.language==='no'}
+function txt66(en,no){return no66()?no:en}
+
+function fixCamelLabels66(root=document){
+  const mapNo={
+    saveAddNext:'Lagre og legg til neste',
+    clearForm:'Tøm skjema',
+    createRestorePoint:'Opprett gjenopprettingspunkt',
+    backupToFile:'Lagre backup til fil',
+    restoreFromFile:'Hent backup fra fil',
+    exportBackupText:'Eksporter backuptekst',
+    importBackupText:'Importer backuptekst',
+    Edit:'Rediger',
+    Delete:'Slett'
+  };
+  const mapEn={
+    saveAddNext:'Save & add next',
+    clearForm:'Clear form',
+    createRestorePoint:'Create restore point',
+    backupToFile:'Backup to file',
+    restoreFromFile:'Restore from file',
+    exportBackupText:'Export backup text',
+    importBackupText:'Import backup text',
+    Rediger:'Edit',
+    Slett:'Delete'
+  };
+  root.querySelectorAll('button').forEach(btn=>{
+    const t=(btn.textContent||'').trim();
+    if(no66() && mapNo[t])btn.textContent=mapNo[t];
+    if(!no66() && mapEn[t])btn.textContent=mapEn[t];
+  });
+  const v=document.getElementById('appVersionText');
+  if(v)v.textContent='v1.66';
+}
+
+function deleteBase_v166(id){
+  const base=getBase(id);
+  if(!base)return;
+  const bottleIds=(state.bottles||[]).filter(b=>b.baseId===id).map(b=>b.id);
+  const tCount=(state.tastings||[]).filter(t=>bottleIds.includes(t.bottleId)).length;
+  const cCount=(state.comments||[]).filter(c=>bottleIds.includes(c.bottleId)).length;
+
+  const msg=bottleIds.length
+    ? txt66(
+      `Delete "${base.name}" from the library permanently?\n\nThis is used by ${bottleIds.length} bottle(s), ${tCount} tasting(s) and ${cCount} comment/log item(s).\n\nDeleting it will also delete all related bottles, tastings and comments. This cannot be undone.`,
+      `Slette "${base.name}" permanent fra biblioteket?\n\nDenne brukes av ${bottleIds.length} flaske(r), ${tCount} smaking(er) og ${cCount} kommentar/loggpunkt.\n\nSletting vil også slette alle tilknyttede flasker, smakinger og kommentarer. Dette kan ikke angres.`
+    )
+    : txt66(
+      `Delete "${base.name}" from the library permanently?\n\nThis cannot be undone.`,
+      `Slette "${base.name}" permanent fra biblioteket?\n\nDette kan ikke angres.`
+    );
+
+  if(!confirm(msg))return;
+
+  state.bases=(state.bases||[]).filter(b=>b.id!==id);
+  if(bottleIds.length){
+    state.bottles=(state.bottles||[]).filter(b=>b.baseId!==id);
+    state.tastings=(state.tastings||[]).filter(t=>!bottleIds.includes(t.bottleId));
+    state.comments=(state.comments||[]).filter(c=>!bottleIds.includes(c.bottleId));
+  }
+  save();
+
+  const f=document.getElementById('libraryForm');
+  if(f && f.id && f.id.value===id){
+    f.reset();
+    f.id.value='';
+  }
+
+  render();
+  alert(txt66('Library item deleted.','Bibliotekflaske slettet.'));
+}
+
+function findLibraryHost66(){
+  return document.getElementById('baseList') ||
+         document.getElementById('libraryList') ||
+         document.querySelector('#library .list') ||
+         document.querySelector('#library [id$="List"]');
+}
+
+function forceRenderLibrary66(){
+  const host=findLibraryHost66();
+  if(!host)return false;
+
+  const bases=state.bases||[];
+  if(!bases.length){
+    host.innerHTML=`<div class="sub">${txt66('No library items yet.','Ingen flasker i biblioteket ennå.')}</div>`;
+    return true;
+  }
+
+  host.innerHTML=bases.map(b=>{
+    const used=(state.bottles||[]).filter(x=>x.baseId===b.id).length;
+    const img=b.image ? `<img class="thumb" src="${b.image}" alt="">` : '📚';
+    const usedTxt=used ? ` · ${used} ${txt66('in stock','i beholdning')}` : '';
+    return `
+      <div class="item library-item-v166">
+        <div>${img}</div>
+        <div>
+          <div class="title">${esc(b.name||'')}</div>
+          <div class="meta">${esc(b.type||'')} · ${b.abv||'—'}% · ${b.volume||'—'} ml</div>
+          <div class="sub">${esc(b.distillery||'')}${b.region?' · '+esc(b.region):''}${usedTxt}</div>
+          <div class="library-actions-v166">
+            <button class="ghost" type="button" onclick="editBase('${b.id}')">${txt66('Edit','Rediger')}</button>
+            <button class="danger" type="button" onclick="deleteBase_v166('${b.id}')">${txt66('Delete','Slett')}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  return true;
+}
+
+function fixLibraryText66(){
+  const lib=document.getElementById('library');
+  if(!lib)return;
+  const h=lib.querySelector('h2');
+  if(h && ['Bottle library','Flaskebibliotek'].includes(h.textContent.trim())){
+    h.textContent=txt66('Bottle library','Flaskebibliotek');
+  }
+  lib.querySelectorAll('p,.sub').forEach(el=>{
+    const t=(el.textContent||'').trim();
+    if(t.includes('Use Save & add next when entering several bottles') ||
+       t.includes('Use “Save & add next” when entering several bottles') ||
+       t.includes('Bruk «Lagre og legg til neste»')){
+      el.textContent=txt66(
+        'Use “Save & add next” when entering several bottles. Saved bottles appear immediately when adding to stock.',
+        'Bruk «Lagre og legg til neste» når du legger inn flere flasker. Lagrede flasker vises straks når du legger dem inn i beholdning.'
+      );
+    }
+    if(t==='Core data can only be edited here.' || t==='Grunndata kan kun redigeres her.'){
+      el.textContent=txt66('Core data can only be edited here.','Grunndata kan kun redigeres her.');
+    }
+  });
+}
+
+function forceAll66(){
+  forceRenderLibrary66();
+  fixLibraryText66();
+  fixCamelLabels66();
+}
+
+// Important: run AFTER all older render wrappers have run.
+const oldRender_v166=render;
+render=function(){
+  oldRender_v166();
+  setTimeout(forceAll66,0);
+  setTimeout(forceAll66,80);
+};
+
+// Also run when page/navigation changes.
+document.addEventListener('click',()=>setTimeout(forceAll66,120),true);
+document.addEventListener('change',()=>setTimeout(forceAll66,120),true);
+document.addEventListener('DOMContentLoaded',()=>setTimeout(forceAll66,200));
+
+// Safety interval for first seconds after load to defeat older late renderers.
+let v166Runs=0;
+const v166Timer=setInterval(()=>{
+  forceAll66();
+  v166Runs++;
+  if(v166Runs>20)clearInterval(v166Timer);
+},250);
