@@ -1,10 +1,7 @@
-# WhiskyLog v2.01 Old Structure Layout
+# WhiskyLog v2.02 Menu Icons + Old Backup Import
 
-Clean v2 codebase with layout adjusted closer to the old app structure.
-
-Changes:
-- More compact dashboard/home structure.
-- Four main home tiles, settings as smaller secondary button.
-- My Stock page restored to status cards plus action strip.
-- Norwegian remains default.
-- No old v1.x settings/restore code.
+Clean v2 codebase with:
+- Old-style four mini icons on menu choices.
+- Restore-from-file migration for older v1 backups using bases/bottles/tastings/comments/wishlist.
+- Norwegian default.
+- No old v1.66 settings code.

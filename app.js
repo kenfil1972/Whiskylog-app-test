@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.01';
+const VERSION = '2.02';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.01',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.02',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -35,14 +35,14 @@ const T = {
     saveSettings:'Lagre innstillinger', backup:'Backup', restorePoints:'Gjenopprettingspunkter',
     restorePointsSub:'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.',
     createRestore:'Opprett gjenopprettingspunkt', restore:'Gjenopprett', backupFile:'Lagre backup til fil', restoreFile:'Hent backup fra fil',
-    backupIncludes:'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, kommentarer, ønskeliste og innstillinger.',
+    backupIncludes:'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, kommentarer, ønskeliste og innstillinger. Du kan også hente inn eldre backup fra v1-versjoner.',
     deletePermanent:'Slette permanent?', deleteLibraryWarn:'Dette sletter også tilknyttede beholdningsflasker, smakinger og kommentarer. Dette kan ikke angres.',
     saved:'Lagret.', restored:'Gjenopprettet.', chooseBottle:'Velg flaske', averageScore:'Gjennomsnitt', bottleRanking:'Flaskerangering',
     noBottleSelected:'Velg en flaske først.', missingLibrary:'Legg først inn en flaske i biblioteket.',
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.01',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.02',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -69,7 +69,7 @@ const T = {
     saveSettings:'Save settings', backup:'Backup', restorePoints:'Restore points',
     restorePointsSub:'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',
     createRestore:'Create restore point', restore:'Restore', backupFile:'Backup to file', restoreFile:'Restore from file',
-    backupIncludes:'Backup includes library, bottles, images saved in the app, tastings, comments, wishlist and settings.',
+    backupIncludes:'Backup includes library, bottles, images saved in the app, tastings, comments, wishlist and settings. Older v1 backup files can also be imported.',
     deletePermanent:'Delete permanently?', deleteLibraryWarn:'This also deletes related stock bottles, tastings and comments. This cannot be undone.',
     saved:'Saved.', restored:'Restored.', chooseBottle:'Choose bottle', averageScore:'Average score', bottleRanking:'Bottle ranking',
     noBottleSelected:'Choose a bottle first.', missingLibrary:'Add a bottle to the library first.',
@@ -210,8 +210,16 @@ function renderHome(){
     </section>
   `);
 }
+
+function fourMiniGlasses(){
+  return `<div class="fourMini" aria-hidden="true"><span>🥃</span><span>🥃</span><span>🥃</span><span>🥃</span></div>`;
+}
+
 function tile(to, icon, title, sub){
-  return `<div class="tile" onclick="go('${to}')"><div class="icon">${icon}</div><h3>${title}</h3><div class="sub">${sub}</div></div>`;
+  return `<div class="tile oldTile" onclick="go('${to}')">
+    <div class="tileText"><div class="icon">${icon}</div><h3>${title}</h3><div class="sub">${sub}</div></div>
+    ${fourMiniGlasses()}
+  </div>`;
 }
 
 function stockStats(status){
@@ -558,15 +566,104 @@ window.backupToFile=()=>{
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`WhiskyLog_backup_${today()}.json`; a.click(); URL.revokeObjectURL(a.href);
 };
+
+function migrateImportedState(raw){
+  const data = raw && raw.state ? raw.state : raw;
+  const next = defaultState();
+
+  if(raw && raw.settings){
+    next.settings = merge(next.settings, raw.settings);
+  }else if(data && data.settings){
+    next.settings = merge(next.settings, data.settings);
+  }
+
+  // v2 format already
+  if(data && Array.isArray(data.library)){
+    next.library = data.library || [];
+    next.bottles = data.bottles || [];
+    next.tastings = data.tastings || [];
+    next.comments = data.comments || [];
+    next.wishlist = data.wishlist || [];
+    return next;
+  }
+
+  // v1 format: bases -> library, baseId -> libraryId
+  if(data && Array.isArray(data.bases)){
+    const idMap = {};
+    next.library = data.bases.map(b => {
+      const id = b.id || uid();
+      idMap[b.id] = id;
+      return {
+        id,
+        name: b.name || b.title || '',
+        distillery: b.distillery || b.producer || '',
+        type: b.type || '',
+        abv: b.abv || b.alcohol || '',
+        volume: b.volume || b.bottleVolume || '',
+        fullWeight: b.fullWeight || b.fullBottleWeight || '',
+        region: b.region || b.country || '',
+        image: b.image || '',
+        comment: b.comment || b.notes || ''
+      };
+    });
+
+    next.bottles = (data.bottles || []).map(b => {
+      const id = b.id || uid();
+      return {
+        id,
+        libraryId: idMap[b.baseId] || idMap[b.libraryId] || b.libraryId || b.baseId || '',
+        price: b.price || '',
+        purchaseDate: b.purchaseDate || b.date || '',
+        currentWeight: b.currentWeight || '',
+        currentVolume: b.currentVolume || b.remainingVolume || '',
+        openedDate: b.openedDate || '',
+        comment: b.comment || b.notes || ''
+      };
+    });
+
+    next.tastings = (data.tastings || []).map(t => ({
+      id: t.id || uid(),
+      bottleId: t.bottleId || '',
+      date: t.date || t.tastingDate || '',
+      mode: t.mode || t.tastingType || 'neat',
+      drops: t.drops || '',
+      ml: t.ml || t.amountMl || '',
+      appearance: t.appearance || t.appearanceScore || '',
+      nose: t.nose || t.smell || t.noseScore || '',
+      neatTaste: t.neatTaste || t.tasteNeat || t.neatScore || '',
+      waterTaste: t.waterTaste || t.tasteWater || t.waterScore || '',
+      finish: t.finish || t.aftertaste || t.finishScore || '',
+      notes: t.notes || t.comment || ''
+    }));
+
+    next.comments = data.comments || [];
+    next.wishlist = data.wishlist || [];
+    return next;
+  }
+
+  throw new Error(state.settings.language === 'no' ? 'Ukjent backupformat' : 'Unknown backup format');
+}
+
 function restoreFromFile(file){
   const r=new FileReader();
   r.onload=()=>{
     try{
-      const data=JSON.parse(r.result); const next=data.state||data;
-      if(!next.library || !next.bottles) throw new Error('Invalid');
-      if(!confirm(tr('restoreFile'))) return;
-      state=merge(defaultState(), next); save(); render();
-    }catch(e){ alert('Backup error'); }
+      const raw=JSON.parse(r.result);
+      const migrated=migrateImportedState(raw);
+      const libCount = migrated.library.length;
+      const bottleCount = migrated.bottles.length;
+      const tastingCount = migrated.tastings.length;
+      const msg = `${tr('restoreFile')}?
+
+${libCount} ${tr('library')} · ${bottleCount} ${tr('bottles')} · ${tastingCount} ${tr('registerTasting')}`;
+      if(!confirm(msg)) return;
+      state=migrated;
+      save();
+      render();
+      alert(tr('restored'));
+    }catch(e){
+      alert((state.settings.language === 'no' ? 'Kunne ikke hente backup: ' : 'Could not restore backup: ') + (e.message || ''));
+    }
   };
   r.readAsText(file);
 }
