@@ -113,3 +113,36 @@ input[list],select{min-height:58px;font-size:1.08rem}
   padding:9px 12px;
   border-radius:12px;
 }
+
+/* v1.61 compact prompt/date modal + action controls */
+.input-modal{
+  max-width:360px !important;
+  padding:18px !important;
+}
+.input-modal h3{
+  font-size:1.25rem !important;
+  margin-top:0 !important;
+}
+.input-modal input[type="date"]{
+  min-height:48px !important;
+  font-size:1rem !important;
+}
+.input-modal-actions button{
+  padding:8px 12px !important;
+}
+.row-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.row-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+  font-size:.9rem;
+}
+.danger{
+  background:rgba(180,35,24,.18);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.45);
+}

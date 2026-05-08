@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.60</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=160">
+  <title>WhiskyLog v1.61</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=161">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=160">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=161">
 </head>
 <body>
 <div class="app">
@@ -85,9 +85,9 @@
         <label><span data-i18n="libraryComment">Library comment</span><textarea name="notes" rows="3"></textarea></label>
         <div class="grid two library-buttons">
           <button class="primary" id="librarySaveButton" type="submit" data-i18n="saveLibrary">Save library item</button>
-          <button class="ghost" id="librarySaveNewButton" type="button">Save & add next</button>
+          <button class="ghost" id="librarySaveNewButton" type="button" data-i18n="saveAddNext">Save & add next</button>
         </div>
-        <button class="ghost" id="libraryClearButton" type="button">Clear form</button>
+        <button class="ghost" id="libraryClearButton" type="button" data-i18n="clearForm">Clear form</button>
       </form>
       <div class="card"><h3 data-i18n="libraryItems">Library items</h3><div id="libraryList" class="list"></div></div>
     </section>
@@ -126,13 +126,6 @@
           <div id="correctionSuggestionList" class="choice-list hidden"></div>
           <select name="bottleId" required class="hidden"></select>
         </label>
-        <label><span>Tasting type</span>
-          <select name="tastingMode" id="tastingModeSelect">
-            <option value="neat">Neat / ren</option>
-            <option value="water">With water / med vann</option>
-          </select>
-        </label>
-        <label id="waterDropsLabel" class="hidden"><span>Water drops</span><input name="waterDrops" type="number" min="1" inputmode="numeric" placeholder="Number of drops"></label>
         <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
         <label><span data-i18n="orVolume">Or remaining volume ml</span><input name="remaining" inputmode="decimal"></label>
         <label><span data-i18n="comment">Comment</span><textarea name="comment" rows="3"></textarea></label>
@@ -183,19 +176,19 @@
       <div class="card form">
         <h3>Restore points</h3>
         <p class="sub">Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.</p>
-        <button class="primary" id="createRestorePointBtn" type="button">Create restore point</button>
+        <button class="primary" id="createRestorePointBtn" type="button" data-i18n="createRestorePoint">Create restore point</button>
         <div id="restorePointList" class="list"></div>
         <p class="sub version-line">App version: <strong id="appVersionText">v1.60</strong></p>
       </div>
 
-      <div class="card form"><button class="primary" id="backupToFileBtn" type="button">Backup to file</button>
-        <button class="ghost" id="restoreFromFileBtn" type="button">Restore from file</button>
+      <div class="card form"><button class="primary" id="backupToFileBtn" type="button" data-i18n="backupToFile">Backup to file</button>
+        <button class="ghost" id="restoreFromFileBtn" type="button" data-i18n="restoreFromFile">Restore from file</button>
         <input id="backupFileInput" class="hidden" type="file" accept="application/json,.json">
         <p class="sub">Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.</p>
-        <button class="ghost" id="exportBtn" type="button" data-i18n="export">Export backup text</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" type="button" data-i18n="import">Import backup text</button></div>
+        <button class="ghost" id="exportBtn" type="button" data-i18n="export" data-i18n="exportBackupText">Export backup text</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" type="button" data-i18n="import" data-i18n="importBackupText">Import backup text</button></div>
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=160"></script>
+<script src="/Whiskylog-app-test/app.js?v=161"></script>
 </body>
 </html>

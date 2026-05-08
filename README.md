@@ -1,13 +1,9 @@
-# WhiskyLog v1.60 Restore Points + Visible Version
+# WhiskyLog v1.61 Tasting Edit/Delete + Language Fix
 
 Changes:
-- Added Create restore point under Settings.
-- Restore points are stored internally in browser/app localStorage on the same device.
-- Restore point list shows date, version and counts.
-- Restore and Delete buttons added for each restore point.
-- Confirmation before restoring or deleting restore points.
-- App version is visible under Settings.
-- Cache-busted with v=160.
-
-Important:
-Restore points are internal to this browser/app storage. Use Backup to file for long-term external backup.
+- Added reliable edit/delete controls for tastings in tasting overview.
+- Tasting edit/delete requires confirmation.
+- Date/modal prompt is narrower.
+- Removed irrelevant Tasting type field from Correct stock.
+- Added broader Norwegian/English localization for dynamic buttons and submenus.
+- Cache-busted with v=161.

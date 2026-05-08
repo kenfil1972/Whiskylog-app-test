@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.60';
+window.WHISKYLOG_VERSION='1.61';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1105,3 +1105,216 @@ render=function(){
   oldRender_v160();
   initRestorePoints_v160();
 };
+
+
+/* v1.61 tasting edit/delete, correction cleanup, and broader language support */
+function lang_v161(){return settings && settings.language==='no' ? 'no' : 'en'}
+const L_v161={
+  en:{
+    edit:'Edit',delete:'Delete',save:'Save',cancel:'Cancel',restore:'Restore',
+    tastingOverview:'Tasting overview',noTastings:'No tastings registered for this bottle.',
+    editTastingConfirm:'Edit this tasting?',deleteTastingConfirm:'Delete this tasting permanently? This cannot be undone.',
+    saveTastingConfirm:'Save changes to this tasting?',chooseBottle:'Choose bottle',
+    tastingDate:'Tasting date',amountMl:'Amount ml',appearance:'Appearance',nose:'Nose / smell',
+    tasteNeat:'Taste neat',tasteWater:'Taste with water',finish:'Finish',comment:'Comment',
+    tastingType:'Tasting type',neat:'Neat',water:'With water',waterDrops:'Water drops',
+    enterDrops:'Enter number of water drops.',average:'Average',volume:'Volume',
+    saveAddNext:'Save & add next',clearForm:'Clear form',backupToFile:'Backup to file',
+    restoreFromFile:'Restore from file',exportBackupText:'Export backup text',importBackupText:'Import backup text',
+    createRestorePoint:'Create restore point'
+  },
+  no:{
+    edit:'Rediger',delete:'Slett',save:'Lagre',cancel:'Avbryt',restore:'Gjenopprett',
+    tastingOverview:'Smaksoversikt',noTastings:'Ingen smakinger registrert for denne flasken.',
+    editTastingConfirm:'Vil du redigere denne smakingen?',deleteTastingConfirm:'Slette denne smakingen permanent? Dette kan ikke angres.',
+    saveTastingConfirm:'Lagre endringer i denne smakingen?',chooseBottle:'Velg flaske',
+    tastingDate:'Smaksdato',amountMl:'Mengde ml',appearance:'Utseende',nose:'Lukt',
+    tasteNeat:'Smak ren',tasteWater:'Smak med vann',finish:'Ettersmak',comment:'Kommentar',
+    tastingType:'Smakstype',neat:'Ren',water:'Med vann',waterDrops:'Antall dråper',
+    enterDrops:'Legg inn antall dråper vann.',average:'Snitt',volume:'Volum',
+    saveAddNext:'Lagre og legg til neste',clearForm:'Tøm skjema',backupToFile:'Lagre backup til fil',
+    restoreFromFile:'Hent backup fra fil',exportBackupText:'Eksporter backuptekst',importBackupText:'Importer backuptekst',
+    createRestorePoint:'Opprett gjenopprettingspunkt'
+  }
+};
+function tv161(k){return (L_v161[lang_v161()]&&L_v161[lang_v161()][k])||k}
+function localizeExtra_v161(){
+  document.querySelectorAll('[data-i18n]').forEach(e=>{
+    const k=e.dataset.i18n;
+    if(L_v161[lang_v161()] && L_v161[lang_v161()][k])e.textContent=tv161(k);
+  });
+  // translate dynamically inserted button texts by id where data-i18n was not present
+  const pairs=[
+    ['librarySaveNewButton','saveAddNext'],['libraryClearButton','clearForm'],
+    ['backupToFileBtn','backupToFile'],['restoreFromFileBtn','restoreFromFile'],
+    ['createRestorePointBtn','createRestorePoint']
+  ];
+  pairs.forEach(([id,k])=>{const el=document.getElementById(id); if(el)el.textContent=tv161(k);});
+}
+
+function tastingModeLabel_v161(t){
+  const mode=t.tastingMode||t.mode||'neat';
+  if(mode==='water'){
+    const drops=dec(t.waterDrops);
+    return drops ? `${tv161('water')} · ${drops} ${lang_v161()==='no'?'dråper':'drops'}` : tv161('water');
+  }
+  return tv161('neat');
+}
+function tastingAverage_v161(t){
+  const vals=[dec(t.appearance),dec(t.nose),dec(t.taste||t.tasteNeat),dec(t.watered||t.tasteWater),dec(t.finish)].filter(v=>v>0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : (dec(t.score)||0);
+}
+function getTasting_v161(id){return (state.tastings||[]).find(t=>t.id===id)}
+let editingTastingId_v161='';
+let tastingOverviewBottleId_v161='';
+
+async function promptTastingField_v161(label, opts={}){
+  if(typeof modal==='function')return await modal(label, opts);
+  const v=prompt(label, opts.value||'');
+  return v===null?null:v;
+}
+
+async function addOrEditTasting_v161(bottleId, tastingId=''){
+  const b=getBottle(bottleId), base=b&&getBase(b.baseId);
+  if(!b||!base){alert(tv161('chooseBottle'));return;}
+  const existing=tastingId?getTasting_v161(tastingId):null;
+  if(existing && !confirm(tv161('editTastingConfirm')))return;
+
+  const date=await promptTastingField_v161(tv161('tastingDate'),{type:'date',inputmode:'none',value:existing?.date||new Date().toISOString().slice(0,10)});
+  if(date===null)return;
+  const ml=dec(await promptTastingField_v161(tv161('amountMl'),{type:'number',inputmode:'decimal',value:String(existing?.ml||settings.defaultTastingMl||20)}));
+  if(!ml)return;
+
+  let mode=existing?.tastingMode||'neat';
+  const modeChoice=confirm(lang_v161()==='no' ? 'Trykk OK for med vann, Avbryt for ren.' : 'Press OK for with water, Cancel for neat.');
+  mode=modeChoice?'water':'neat';
+  let drops=0;
+  if(mode==='water'){
+    drops=dec(await promptTastingField_v161(tv161('waterDrops'),{type:'number',inputmode:'numeric',value:String(existing?.waterDrops||'')}));
+    if(!drops){alert(tv161('enterDrops'));return;}
+  }
+  const appearance=dec(await promptTastingField_v161(tv161('appearance')+' 1-10',{type:'number',inputmode:'numeric',value:String(existing?.appearance||'')}));
+  const nose=dec(await promptTastingField_v161(tv161('nose')+' 1-10',{type:'number',inputmode:'numeric',value:String(existing?.nose||'')}));
+  const taste=dec(await promptTastingField_v161(tv161('tasteNeat')+' 1-10',{type:'number',inputmode:'numeric',value:String(existing?.taste||existing?.tasteNeat||'')}));
+  const watered=dec(await promptTastingField_v161(tv161('tasteWater')+' 1-10',{type:'number',inputmode:'numeric',value:String(existing?.watered||existing?.tasteWater||'')}));
+  const finish=dec(await promptTastingField_v161(tv161('finish')+' 1-10',{type:'number',inputmode:'numeric',value:String(existing?.finish||'')}));
+  const comment=await promptTastingField_v161(tv161('comment'),{multiline:true,value:existing?.comment||existing?.notes||''});
+  if(comment===null)return;
+  if(existing && !confirm(tv161('saveTastingConfirm')))return;
+
+  const tasting={id:existing?existing.id:uid(),bottleId,date,ml,tastingMode:mode,waterDrops:drops,appearance,nose,taste,watered,finish,comment:String(comment||'').trim()};
+  tasting.score=tastingAverage_v161(tasting);
+
+  state.tastings=state.tastings||[];
+  if(existing){
+    const idx=state.tastings.findIndex(t=>t.id===existing.id);
+    if(idx>=0)state.tastings[idx]=tasting;
+  }else{
+    state.tastings.unshift(tasting);
+    // deduct only on new tasting, not on edit
+    const current=dec(b.currentWeight||base.fullWeight||0);
+    const emptyEstimate=dec(base.emptyWeight||0);
+    if(base.fullWeight&&current>0){
+      const perMl=(dec(base.fullWeight)-emptyEstimate)/(dec(base.volume)||700);
+      if(perMl>0)b.currentWeight=Math.max(emptyEstimate,current-(perMl*tasting.ml));
+    }
+  }
+  if(!b.openedDate)b.openedDate=tasting.date;
+  if(tasting.comment)addLog(b.id,'tasting',[tastingModeLabel_v161(tasting),tasting.comment].filter(Boolean).join(' — '));
+  save(); render();
+  if(tastingOverviewBottleId_v161){renderTastingOverview_v161();}
+  show(existing?'tastingOverview':'stock');
+}
+
+function editTasting_v161(id){
+  const t=getTasting_v161(id);
+  if(!t)return;
+  tastingOverviewBottleId_v161=t.bottleId;
+  addOrEditTasting_v161(t.bottleId,id);
+}
+function deleteTasting_v161(id){
+  const t=getTasting_v161(id);
+  if(!t)return;
+  if(!confirm(tv161('deleteTastingConfirm')))return;
+  state.tastings=(state.tastings||[]).filter(x=>x.id!==id);
+  save();render();renderTastingOverview_v161();
+}
+
+function renderTastingOverview_v161(){
+  const host=document.getElementById('tastingOverviewList');
+  if(!host)return;
+  const tastings=(state.tastings||[]).filter(t=>t.bottleId===tastingOverviewBottleId_v161);
+  if(!tastings.length){host.innerHTML=`<div class="sub">${tv161('noTastings')}</div>`;return;}
+  host.innerHTML=tastings.map(t=>`
+    <div class="item">
+      <div>📝</div>
+      <div>
+        <div class="title">${esc(t.date||'—')} · ${tv161('average')} ${tastingAverage_v161(t)||'—'}</div>
+        <div class="tasting-mode-pill">${esc(tastingModeLabel_v161(t))}</div>
+        <div class="tasting-score-grid">
+          <small>${tv161('appearance')}: ${t.appearance||'—'}</small>
+          <small>${tv161('nose')}: ${t.nose||'—'}</small>
+          <small>${tv161('tasteNeat')}: ${t.taste||t.tasteNeat||'—'}</small>
+          <small>${tv161('tasteWater')}: ${t.watered||t.tasteWater||'—'}</small>
+          <small>${tv161('finish')}: ${t.finish||'—'}</small>
+          <small>${tv161('volume')}: ${t.ml||'—'} ml</small>
+        </div>
+        <div class="sub">${esc(t.comment||t.notes||'')}</div>
+        <div class="row-actions">
+          <button class="ghost" type="button" onclick="editTasting_v161('${t.id}')">${tv161('edit')}</button>
+          <button class="danger" type="button" onclick="deleteTasting_v161('${t.id}')">${tv161('delete')}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function openTastingOverview_v161(bottleId){
+  tastingOverviewBottleId_v161=bottleId;
+  renderTastingOverview_v161();
+  show('tastingOverview');
+}
+function patchDetailTastingButton_v161(){
+  // override detail button injection to use v161 overview
+  if(typeof openDetail!=='function'||openDetail.v161)return;
+  const old=openDetail;
+  const wrapped=function(id,rv='stock'){
+    old(id,rv);
+    const detail=document.getElementById('detailContent');
+    if(detail&&!detail.querySelector('[data-v161-overview]')){
+      const card=document.createElement('div');
+      card.className='card shortcut-bar';
+      card.setAttribute('data-v161-overview','1');
+      card.innerHTML=`<button class="ghost" type="button" onclick="openTastingOverview_v161('${id}')">${tv161('tastingOverview')}</button>`;
+      detail.appendChild(card);
+    }
+  };
+  wrapped.v161=true;
+  openDetail=wrapped;
+}
+function patchTastingList_v161(){
+  const list=document.getElementById('tastingList');
+  if(!list)return;
+  list.querySelectorAll('.item[onclick^="addTasting("]').forEach(el=>{
+    const m=String(el.getAttribute('onclick')||'').match(/addTasting\('([^']+)'\)/);
+    if(m)el.setAttribute('onclick',`addOrEditTasting_v161('${m[1]}')`);
+  });
+}
+const oldRender_v161=render;
+render=function(){
+  oldRender_v161();
+  localizeExtra_v161();
+  patchDetailTastingButton_v161();
+  patchTastingList_v161();
+  if(tastingOverviewBottleId_v161)renderTastingOverview_v161();
+};
+
+/* v1.61 route older tasting overview names */
+if(typeof openTastingOverview_v158==='function'){
+  openTastingOverview_v158=function(bottleId){openTastingOverview_v161(bottleId);}
+}
+if(typeof renderTastingOverview_v158==='function'){
+  renderTastingOverview_v158=function(){renderTastingOverview_v161();}
+}
+if(typeof renderTastingOverview_v159==='function'){
+  renderTastingOverview_v159=function(){renderTastingOverview_v161();}
+}
