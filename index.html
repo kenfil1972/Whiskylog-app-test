@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.58</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=158">
+  <title>WhiskyLog v1.60</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=160">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=158">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=160">
 </head>
 <body>
 <div class="app">
@@ -180,6 +180,14 @@
         <label><span data-i18n="defaultMl">Default tasting ml</span><input name="defaultMl" type="number"></label>
         <button class="primary" data-i18n="saveSettings">Save settings</button>
       </form>
+      <div class="card form">
+        <h3>Restore points</h3>
+        <p class="sub">Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.</p>
+        <button class="primary" id="createRestorePointBtn" type="button">Create restore point</button>
+        <div id="restorePointList" class="list"></div>
+        <p class="sub version-line">App version: <strong id="appVersionText">v1.60</strong></p>
+      </div>
+
       <div class="card form"><button class="primary" id="backupToFileBtn" type="button">Backup to file</button>
         <button class="ghost" id="restoreFromFileBtn" type="button">Restore from file</button>
         <input id="backupFileInput" class="hidden" type="file" accept="application/json,.json">
@@ -188,6 +196,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=158"></script>
+<script src="/Whiskylog-app-test/app.js?v=160"></script>
 </body>
 </html>

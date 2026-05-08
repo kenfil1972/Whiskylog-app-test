@@ -1,9 +1,13 @@
-# WhiskyLog v1.58 Tasting Mode + Water Drops
+# WhiskyLog v1.60 Restore Points + Visible Version
 
 Changes:
-- Tasting now lets user choose Neat / ren or With water / med vann.
-- If With water is selected, user must enter number of water drops.
-- Tasting mode and water drops are saved with tasting.
-- Added Tasting overview button under bottle detail.
-- Tasting overview lists mode, drops, scores, volume and comment.
-- Cache-busted with v=158.
+- Added Create restore point under Settings.
+- Restore points are stored internally in browser/app localStorage on the same device.
+- Restore point list shows date, version and counts.
+- Restore and Delete buttons added for each restore point.
+- Confirmation before restoring or deleting restore points.
+- App version is visible under Settings.
+- Cache-busted with v=160.
+
+Important:
+Restore points are internal to this browser/app storage. Use Backup to file for long-term external backup.

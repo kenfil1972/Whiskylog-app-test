@@ -92,3 +92,24 @@ input[list],select{min-height:58px;font-size:1.08rem}
 .tasting-score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
 .tasting-score-grid small{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px}
 @media(max-width:760px){.tasting-score-grid{grid-template-columns:1fr}}
+
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row-actions button{padding:9px 12px;border-radius:12px;font-size:.9rem}
+.danger{background:rgba(180,35,24,.18);color:#fff;border:1px solid rgba(255,90,70,.45)}
+
+/* v1.60 restore points */
+.version-line{
+  margin-top:18px;
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:14px;
+}
+.restore-point-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.restore-point-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+}

@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.58';
+window.WHISKYLOG_VERSION='1.60';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -820,4 +820,288 @@ render=function(){
   oldRender_v158();
   initTastingMode_v158();
   if(tastingOverviewBottleId_v158)renderTastingOverview_v158();
+};
+
+
+/* v1.59 edit/delete wishlist and tastings with confirmations */
+let editingWishlistId_v159='';
+let editingTastingId_v159='';
+
+function confirmChange_v159(message){return confirm(message||'Are you sure?');}
+
+function editWishlist_v159(id){
+  const item=(state.wishlist||[]).find(w=>w.id===id);
+  if(!item)return;
+  if(!confirmChange_v159('Edit this wishlist item?'))return;
+  const f=document.getElementById('wishForm'); if(!f)return;
+  editingWishlistId_v159=id;
+  if(f.id)f.id.value=id;
+  if(f.name)f.name.value=item.name||'';
+  if(f.notes)f.notes.value=item.notes||'';
+  show('wishlist');
+}
+function deleteWishlist_v159(id){
+  const item=(state.wishlist||[]).find(w=>w.id===id);
+  if(!item)return;
+  if(!confirmChange_v159('Delete this wishlist item permanently? This cannot be undone.'))return;
+  state.wishlist=state.wishlist.filter(w=>w.id!==id);
+  save(); render();
+}
+function saveWish_v159(e){
+  if(e){e.preventDefault();e.stopImmediatePropagation();}
+  const f=document.getElementById('wishForm'); if(!f)return false;
+  const name=String(f.name&&f.name.value||'').trim();
+  if(!name){alert('Name is required.');return false;}
+  const notes=String(f.notes&&f.notes.value||'').trim();
+  const id=(f.id&&f.id.value)||editingWishlistId_v159||uid();
+  const existing=(state.wishlist||[]).find(w=>w.id===id);
+  if(existing){
+    if(!confirmChange_v159('Save changes to this wishlist item?'))return false;
+    existing.name=name; existing.notes=notes;
+  }else{
+    state.wishlist=state.wishlist||[];
+    state.wishlist.push({id,name,notes});
+  }
+  editingWishlistId_v159='';
+  if(f.id)f.id.value='';
+  f.reset(); save(); render(); show('wishlist');
+  return true;
+}
+function renderWish_v159(){
+  const host=document.getElementById('wishList'); if(!host)return;
+  const items=state.wishlist||[];
+  host.innerHTML=items.map(w=>`
+    <div class="item"><div>⭐</div><div>
+      <div class="title">${esc(w.name||'')}</div>
+      <div class="sub">${esc(w.notes||'')}</div>
+      <div class="row-actions">
+        <button class="ghost" type="button" onclick="editWishlist_v159('${w.id}')">Edit</button>
+        <button class="danger" type="button" onclick="deleteWishlist_v159('${w.id}')">Delete</button>
+      </div>
+    </div></div>`).join('') || '<div class="sub">No wishlist items.</div>';
+}
+
+function getTasting_v159(id){return (state.tastings||[]).find(t=>t.id===id);}
+function editTasting_v159(id){
+  const t=getTasting_v159(id); if(!t)return;
+  if(!confirmChange_v159('Edit this tasting?'))return;
+  editingTastingId_v159=id;
+  const f=document.getElementById('tastingForm'); if(!f)return;
+  if(f.bottleId)f.bottleId.value=t.bottleId||'';
+  if(f.date)f.date.value=t.date||new Date().toISOString().slice(0,10);
+  if(f.ml)f.ml.value=t.ml||settings.defaultTastingMl||20;
+  if(f.tastingMode)f.tastingMode.value=t.tastingMode||'neat';
+  if(f.waterDrops)f.waterDrops.value=t.waterDrops||'';
+  if(f.appearance)f.appearance.value=t.appearance||'';
+  if(f.nose)f.nose.value=t.nose||'';
+  if(f.taste)f.taste.value=t.taste||t.tasteNeat||'';
+  if(f.watered)f.watered.value=t.watered||t.tasteWater||'';
+  if(f.finish)f.finish.value=t.finish||'';
+  if(f.tastingComment)f.tastingComment.value=t.comment||t.notes||'';
+  const dropsLabel=document.getElementById('waterDropsLabel');
+  if(dropsLabel){((f.tastingMode&&f.tastingMode.value)==='water')?dropsLabel.classList.remove('hidden'):dropsLabel.classList.add('hidden');}
+  show('tasting');
+}
+function deleteTasting_v159(id){
+  const t=getTasting_v159(id); if(!t)return;
+  if(!confirmChange_v159('Delete this tasting permanently? This cannot be undone.'))return;
+  state.tastings=state.tastings.filter(x=>x.id!==id);
+  save(); render();
+  if(typeof renderTastingOverview_v159==='function')renderTastingOverview_v159();
+}
+function saveTasting_v159(e){
+  if(e){e.preventDefault();e.stopImmediatePropagation();}
+  const f=document.getElementById('tastingForm'); if(!f)return false;
+  const bottleId=f.bottleId.value;
+  const b=getBottle(bottleId), base=b&&getBase(b.baseId);
+  if(!b||!base){alert('Choose bottle');return false;}
+  const isEdit=!!editingTastingId_v159;
+  if(isEdit&&!confirmChange_v159('Save changes to this tasting?'))return false;
+  const mode=(f.tastingMode&&f.tastingMode.value)||'neat';
+  let drops=0;
+  if(mode==='water'){drops=dec(f.waterDrops&&f.waterDrops.value); if(!drops){alert('Enter number of water drops.');return false;}}
+  const tasting={
+    id:isEdit?editingTastingId_v159:uid(), bottleId,
+    date:f.date.value||new Date().toISOString().slice(0,10),
+    ml:dec(f.ml.value||settings.defaultTastingMl||20),
+    tastingMode:mode, waterDrops:drops,
+    appearance:dec(f.appearance&&f.appearance.value),
+    nose:dec(f.nose&&f.nose.value),
+    taste:dec(f.taste&&f.taste.value),
+    watered:dec(f.watered&&f.watered.value),
+    finish:dec(f.finish&&f.finish.value),
+    comment:String(f.tastingComment&&f.tastingComment.value||'').trim()
+  };
+  tasting.score=typeof tastingAverage_v158==='function'?tastingAverage_v158(tasting):0;
+  state.tastings=state.tastings||[];
+  if(isEdit){
+    const idx=state.tastings.findIndex(t=>t.id===editingTastingId_v159);
+    if(idx>=0)state.tastings[idx]=tasting;
+  }else{
+    state.tastings.unshift(tasting);
+    const current=dec(b.currentWeight||base.fullWeight||0);
+    const emptyEstimate=dec(base.emptyWeight||0);
+    if(base.fullWeight&&current>0){
+      const perMl=(dec(base.fullWeight)-emptyEstimate)/(dec(base.volume)||700);
+      if(perMl>0)b.currentWeight=Math.max(emptyEstimate,current-(perMl*tasting.ml));
+    }
+  }
+  if(!b.openedDate)b.openedDate=tasting.date;
+  if(tasting.comment)addLog(b.id,'tasting',tasting.comment);
+  editingTastingId_v159='';
+  save(); render(); f.reset();
+  if(f.date)f.date.value=new Date().toISOString().slice(0,10);
+  if(f.tastingMode)f.tastingMode.value='neat';
+  const dropsLabel=document.getElementById('waterDropsLabel'); if(dropsLabel)dropsLabel.classList.add('hidden');
+  show(isEdit?'tastingOverview':'stock');
+  return true;
+}
+function renderTastingOverview_v159(){
+  const host=document.getElementById('tastingOverviewList'); if(!host)return;
+  const bottleId=typeof tastingOverviewBottleId_v158!=='undefined'?tastingOverviewBottleId_v158:'';
+  const tastings=(state.tastings||[]).filter(t=>t.bottleId===bottleId);
+  if(!tastings.length){host.innerHTML='<div class="sub">No tastings registered for this bottle.</div>';return;}
+  host.innerHTML=tastings.map(t=>{
+    const avg=typeof tastingAverage_v158==='function'?tastingAverage_v158(t):(t.score||0);
+    const mode=typeof tastingModeLabel_v158==='function'?tastingModeLabel_v158(t):(t.tastingMode||'neat');
+    return `<div class="item"><div>📝</div><div>
+      <div class="title">${esc(t.date||'—')} · Average ${avg||'—'}</div>
+      <div class="tasting-mode-pill">${esc(mode)}</div>
+      <div class="tasting-score-grid">
+        <small>Appearance: ${t.appearance||'—'}</small><small>Nose: ${t.nose||'—'}</small>
+        <small>Taste: ${t.taste||t.tasteNeat||'—'}</small><small>Water: ${t.watered||t.tasteWater||'—'}</small>
+        <small>Finish: ${t.finish||'—'}</small><small>Volume: ${t.ml||'—'} ml</small>
+      </div>
+      <div class="sub">${esc(t.comment||t.notes||'')}</div>
+      <div class="row-actions">
+        <button class="ghost" type="button" onclick="editTasting_v159('${t.id}')">Edit</button>
+        <button class="danger" type="button" onclick="deleteTasting_v159('${t.id}')">Delete</button>
+      </div>
+    </div></div>`;
+  }).join('');
+}
+function initEditDelete_v159(){
+  const wish=document.getElementById('wishForm');
+  if(wish&&wish.dataset.v159Bound!=='1'){wish.dataset.v159Bound='1';wish.addEventListener('submit',saveWish_v159,true);}
+  const tasting=document.getElementById('tastingForm');
+  if(tasting&&tasting.dataset.v159Bound!=='1'){tasting.dataset.v159Bound='1';tasting.addEventListener('submit',saveTasting_v159,true);}
+}
+const oldRender_v159=render;
+render=function(){
+  oldRender_v159();
+  initEditDelete_v159();
+  renderWish_v159();
+  if(typeof tastingOverviewBottleId_v158!=='undefined'&&tastingOverviewBottleId_v158)renderTastingOverview_v159();
+};
+if(typeof openTastingOverview_v158==='function'){
+  openTastingOverview_v158=function(bottleId){
+    tastingOverviewBottleId_v158=bottleId;
+    show('tastingOverview');
+    renderTastingOverview_v159();
+  };
+}
+
+
+/* v1.60 restore points and visible version */
+const RESTORE_POINTS_KEY_v160='whiskylog_restore_points_v160';
+const MAX_RESTORE_POINTS_v160=10;
+
+function getRestorePoints_v160(){
+  try{
+    const points=JSON.parse(localStorage.getItem(RESTORE_POINTS_KEY_v160)||'[]');
+    return Array.isArray(points)?points:[];
+  }catch(e){
+    return [];
+  }
+}
+
+function saveRestorePoints_v160(points){
+  localStorage.setItem(RESTORE_POINTS_KEY_v160,JSON.stringify(points.slice(0,MAX_RESTORE_POINTS_v160)));
+}
+
+function createRestorePoint_v160(){
+  const name=prompt('Restore point name', 'Before cleanup');
+  if(name===null)return;
+  const point={
+    id:uid(),
+    name:String(name||'Restore point').trim(),
+    createdAt:new Date().toLocaleString('sv-SE'),
+    version:window.WHISKYLOG_VERSION||'1.60',
+    state:JSON.parse(JSON.stringify(state)),
+    settings:JSON.parse(JSON.stringify(settings))
+  };
+  const points=getRestorePoints_v160();
+  points.unshift(point);
+  saveRestorePoints_v160(points);
+  renderRestorePoints_v160();
+  alert('Restore point created.');
+}
+
+function restorePoint_v160(id){
+  const points=getRestorePoints_v160();
+  const point=points.find(p=>p.id===id);
+  if(!point)return;
+  const ok=confirm('Restore this restore point? This will replace the current app data on this device.');
+  if(!ok)return;
+  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, point.state||{});
+  settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, point.settings||{});
+  save();
+  saveSettings();
+  const title=document.getElementById('appTitle');
+  if(title)title.textContent=`${settings.ownerName||'Kenneth'}'s WhiskyLog`;
+  render();
+  show('home');
+  alert('Restore point restored.');
+}
+
+function deleteRestorePoint_v160(id){
+  const ok=confirm('Delete this restore point permanently?');
+  if(!ok)return;
+  const points=getRestorePoints_v160().filter(p=>p.id!==id);
+  saveRestorePoints_v160(points);
+  renderRestorePoints_v160();
+}
+
+function renderRestorePoints_v160(){
+  const host=document.getElementById('restorePointList');
+  if(!host)return;
+  const points=getRestorePoints_v160();
+  if(!points.length){
+    host.innerHTML='<div class="sub">No restore points yet.</div>';
+    return;
+  }
+  host.innerHTML=points.map(p=>`
+    <div class="item">
+      <div>↩️</div>
+      <div>
+        <div class="title">${esc(p.name||'Restore point')}</div>
+        <div class="meta">${esc(p.createdAt||'')} · v${esc(p.version||'')}</div>
+        <div class="sub">${(p.state&&p.state.bases?p.state.bases.length:0)} library · ${(p.state&&p.state.bottles?p.state.bottles.length:0)} bottles · ${(p.state&&p.state.tastings?p.state.tastings.length:0)} tastings</div>
+        <div class="restore-point-actions">
+          <button class="ghost" type="button" onclick="restorePoint_v160('${p.id}')">Restore</button>
+          <button class="danger" type="button" onclick="deleteRestorePoint_v160('${p.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function initRestorePoints_v160(){
+  const btn=document.getElementById('createRestorePointBtn');
+  if(btn&&btn.dataset.v160Bound!=='1'){
+    btn.dataset.v160Bound='1';
+    btn.onclick=e=>{
+      e.preventDefault();
+      createRestorePoint_v160();
+    };
+  }
+  const version=document.getElementById('appVersionText');
+  if(version)version.textContent='v'+(window.WHISKYLOG_VERSION||'1.60');
+  renderRestorePoints_v160();
+}
+
+const oldRender_v160=render;
+render=function(){
+  oldRender_v160();
+  initRestorePoints_v160();
 };
