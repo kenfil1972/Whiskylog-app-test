@@ -1,10 +1,9 @@
-# WhiskyLog v1.75 Clean app.js Package
+# WhiskyLog v1.76 Rebuild Settings Backup
 
-Fixes included:
-- Clean app.js with active version v1.75.
-- Final Settings override so old v1.66 text should not appear.
-- Restore point / backup buttons converted from camelCase labels to readable text.
-- Slett/Delete injected beside Rediger/Edit in library.
-- Version references updated to v1.75 / v=174.
-
-Upload all files in this ZIP to GitHub Pages repo.
+Changes:
+- Removes old Settings restore/version/backup cards at runtime.
+- Rebuilds Restore points and Backup/Restore from file sections with clean Norwegian/English text.
+- No version text is shown inside Settings.
+- Version is kept in title / home placement only.
+- Fixes library helper text and common camelCase button labels.
+- Cache-busted with v=176.

@@ -302,3 +302,9 @@ button{
 }
 
 .wl75-home-version{color:#d6c3a5}
+
+/* v1.76 rebuilt settings section */
+#wl76SettingsExtras .card{margin-top:18px}
+#wl76SettingsExtras button{margin-top:10px}
+.restore-point-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.danger{background:rgba(180,35,24,.22)!important;color:#fff!important;border:1px solid rgba(255,90,70,.55)!important}
