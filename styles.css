@@ -1,0 +1,243 @@
+
+:root{--bg:#090604;--panel:#24170f;--line:rgba(255,255,255,.13);--text:#fff;--muted:#d9bb93;--gold:#efbd55;--input:#070503}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#1d2427 0,#090604 55%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}.app{max-width:980px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 14px 90px}.topbar{display:flex;justify-content:space-between;margin-bottom:22px}.eyebrow{text-transform:uppercase;color:#d49b45;letter-spacing:.13em;font-weight:800;font-size:.78rem}h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:.2rem 0}h2{font-size:clamp(1.8rem,6vw,2.8rem);margin:.1rem 0 .5rem}h3{font-size:1.45rem;margin:.1rem 0 .8rem}p,small,.sub,.meta{color:var(--muted);line-height:1.35}.view{display:none}.view.active{display:block}.card{background:linear-gradient(135deg,rgba(67,47,31,.96),rgba(31,18,12,.96));border:1px solid var(--line);border-radius:26px;padding:22px;margin:14px 0;box-shadow:0 10px 32px rgba(0,0,0,.20)}.hero{background:linear-gradient(135deg,rgba(86,66,43,.96),rgba(48,30,20,.96))}.grid{display:grid;gap:14px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}.action{width:100%;text-align:left;color:var(--text);cursor:pointer}.action span{font-size:1.55rem;display:block;margin-bottom:8px}.action strong{display:block;font-size:1.18rem}.back{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:14px 18px;font-weight:800}.primary{background:linear-gradient(180deg,#f6d06d,#d99b3d);color:#170d06;border:0;border-radius:18px;padding:14px 18px;font-weight:900}.ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:14px 18px;font-weight:800}label{display:block;margin:13px 0;color:var(--muted);font-weight:700}input,select,textarea{width:100%;margin-top:8px;background:var(--input);color:var(--text);border:1px solid rgba(255,255,255,.14);border-radius:17px;padding:14px 16px}.list{display:grid;gap:10px}.item{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:18px;padding:12px;cursor:pointer}.thumb{width:58px;height:58px;border-radius:14px;object-fit:cover;background:#110a07;display:flex;align-items:center;justify-content:center;border:1px solid rgba(239,189,85,.30);font-size:1.5rem}.title{font-weight:850}.side{text-align:right}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:5px 9px;color:var(--muted);font-size:.82rem}.stock-card{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;min-height:160px}.mini-strip{display:grid;grid-template-columns:repeat(2,54px);gap:8px}.mini-strip img,.mini-strip .mini-fallback{width:54px;height:54px;border-radius:14px;object-fit:cover;background:#110a07;border:1px solid rgba(239,189,85,.4);display:flex;align-items:center;justify-content:center}.preview{max-width:120px;border-radius:14px;margin-top:10px}.hidden{display:none!important}.input-modal-backdrop{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px}.input-modal{width:min(420px,100%);background:#f5f2f7;color:#111;border-radius:22px;padding:22px}.input-modal h3{color:#111}.input-modal input,.input-modal textarea{background:#fff;color:#111;border:1px solid #ccc}.input-modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:14px}.input-modal-actions button{background:transparent;color:#007aff;border:0;font-weight:800}
+@media(max-width:760px){.two,.three{grid-template-columns:1fr}.card{padding:18px}.item{grid-template-columns:auto 1fr}.side{grid-column:1/-1;text-align:left}.stock-card{grid-template-columns:1fr auto}.mini-strip{grid-template-columns:repeat(2,48px)}.mini-strip img,.mini-strip .mini-fallback{width:48px;height:48px}}
+
+
+/* v1.49 stability, spacing and date-field polish */
+.action strong{
+  margin-top:6px;
+  margin-bottom:8px;
+  line-height:1.15;
+}
+.action small{
+  display:block;
+  margin-top:4px;
+  line-height:1.35;
+}
+.card.action{
+  padding-top:24px;
+  padding-bottom:24px;
+}
+.hero p{
+  margin-top:10px;
+}
+.topbar{
+  padding-top:env(safe-area-inset-top);
+}
+input[type="date"]{
+  min-height:54px;
+}
+.form label span{
+  display:block;
+  margin-bottom:4px;
+}
+@media(max-width:760px){
+  .topbar{
+    margin-top:6px;
+  }
+  .card.action{
+    min-height:132px;
+  }
+}
+
+/* v1.51 searchable pickers and shortcuts */
+.shortcut-bar{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.shortcut-bar button{width:100%}
+input[list]{padding-right:14px}
+@media(max-width:760px){.shortcut-bar{grid-template-columns:1fr}}
+
+/* v1.52 library save/edit fixes */
+.library-buttons{margin-top:14px}
+#libraryClearButton{width:100%;margin-top:10px}
+.library-status{margin-top:10px;color:var(--muted);font-weight:700}
+#libraryForm.editing{border-color:rgba(240,193,92,.55);box-shadow:0 0 0 3px rgba(240,193,92,.12)}
+
+/* v1.53 readable choice menus */
+input[list],select{min-height:58px;font-size:1.08rem}
+.choice-list{margin-top:10px;display:grid;gap:8px;max-height:280px;overflow:auto;padding:8px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:18px}
+.choice-option{width:100%;text-align:left;border:1px solid rgba(240,193,92,.24);background:rgba(255,255,255,.055);color:#fff;border-radius:16px;padding:13px 14px;display:grid;gap:4px}
+.choice-option strong{display:block;font-size:1.05rem;line-height:1.2}
+.choice-option small{display:block;color:var(--muted);line-height:1.25}
+.choice-option:active,.choice-option.selected{background:rgba(240,193,92,.18);border-color:rgba(240,193,92,.55)}
+.choice-empty{color:var(--muted);padding:12px;line-height:1.35}
+@media(max-width:760px){input[list],select{min-height:60px;font-size:1.1rem}.choice-list{max-height:330px}.choice-option{padding:15px 14px}}
+
+
+/* v1.55 purchased bottle selection status */
+.selected-status{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.12);
+  color:var(--muted);
+  font-weight:700;
+}
+.selected-status.ok{
+  color:#fff;
+  border-color:rgba(240,193,92,.55);
+  background:rgba(240,193,92,.12);
+}
+
+/* v1.56 backup/restore file controls */
+#backupToFileBtn,#restoreFromFileBtn{width:100%;margin-bottom:10px}
+
+/* v1.58 tasting mode and overview */
+.tasting-mode-pill{display:inline-block;margin-top:6px;padding:5px 9px;border-radius:999px;border:1px solid rgba(240,193,92,.35);color:#fff;background:rgba(240,193,92,.12);font-size:.85rem}
+.tasting-score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
+.tasting-score-grid small{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px}
+@media(max-width:760px){.tasting-score-grid{grid-template-columns:1fr}}
+
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row-actions button{padding:9px 12px;border-radius:12px;font-size:.9rem}
+.danger{background:rgba(180,35,24,.18);color:#fff;border:1px solid rgba(255,90,70,.45)}
+
+/* v1.60 restore points */
+.version-line{
+  margin-top:18px;
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:14px;
+}
+.restore-point-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.restore-point-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+}
+
+/* v1.61 compact prompt/date modal + action controls */
+.input-modal{
+  max-width:360px !important;
+  padding:18px !important;
+}
+.input-modal h3{
+  font-size:1.25rem !important;
+  margin-top:0 !important;
+}
+.input-modal input[type="date"]{
+  min-height:48px !important;
+  font-size:1rem !important;
+}
+.input-modal-actions button{
+  padding:8px 12px !important;
+}
+.row-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.row-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+  font-size:.9rem;
+}
+.danger{
+  background:rgba(180,35,24,.18);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.45);
+}
+
+
+/* v1.62 compact date dialog + library delete */
+.modal,
+.prompt,
+.dialog,
+.input-modal{
+  max-width:320px !important;
+  width:calc(100vw - 52px) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.modal input,
+.prompt input,
+.dialog input,
+.input-modal input{
+  max-width:260px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.modal input[type="date"],
+.prompt input[type="date"],
+.dialog input[type="date"],
+.input-modal input[type="date"]{
+  min-height:44px !important;
+  font-size:.95rem !important;
+  padding:8px 10px !important;
+}
+.row-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.row-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+  font-size:.9rem;
+}
+.danger{
+  background:rgba(180,35,24,.18);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.45);
+}
+
+/* v1.63 library list action buttons */
+.library-actions,.base-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.library-actions button,.base-actions button{padding:9px 12px;border-radius:12px;font-size:.9rem}
+.danger{background:rgba(180,35,24,.18);color:#fff;border:1px solid rgba(255,90,70,.45)}
+
+/* v1.64 language + spacing pass */
+button,.button,.primary,.ghost,.danger{white-space:normal;word-break:normal;overflow-wrap:normal;letter-spacing:normal}
+#appVersionText{letter-spacing:normal}
+
+/* v1.65 library action buttons */
+.library-actions-v165{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.library-actions-v165 button{
+  min-width:96px;
+  padding:10px 14px;
+  border-radius:16px;
+}
+.danger{
+  background:rgba(180,35,24,.18);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.45);
+}
+
+/* v1.66 forced library actions + no camelCase labels */
+.library-actions-v166{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.library-actions-v166 button{
+  min-width:94px;
+  padding:10px 14px;
+  border-radius:16px;
+}
+.danger{
+  background:rgba(180,35,24,.20);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.55);
+}
+button{
+  white-space:normal;
+  word-break:normal;
+}

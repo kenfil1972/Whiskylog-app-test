@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base href="/Whiskylog-app-test/">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#130c08">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="WhiskyLog">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>WhiskyLog v1.67</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=167">
+  <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=167">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow" data-i18n="journal">Premium spirits journal</div>
+      <h1 id="appTitle">WhiskyLog</h1>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="view active">
+      <div class="card hero">
+        <h2 data-i18n="homeTitle">Your spirits journal</h2>
+        <p data-i18n="homeSub">Personal logging for bottles, tastings, stock and future purchases.</p>
+      </div>
+      <div class="grid two">
+        <button class="card action" data-view="stock"><span>🥃</span><strong data-i18n="myStock">My stock</strong><small data-i18n="myStockSub">Unopened, opened and empty bottles</small></button>
+        <button class="card action" data-view="logging"><span>✍️</span><strong data-i18n="logging">Logging</strong><small data-i18n="loggingSub">Bottle, tasting and stock registration</small></button>
+        <button class="card action" data-view="overview"><span>📊</span><strong data-i18n="overview">Overview / statistics</strong><small data-i18n="overviewSub">Ranking, scores and settings</small></button>
+        <button class="card action" data-view="wishlist"><span>⭐</span><strong data-i18n="wishlist">Wishlist</strong><small data-i18n="wishlistSub">Future bottles</small></button>
+      </div>
+    </section>
+
+    <section id="stock" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="myStock">My stock</h2><p data-i18n="stockSub">All bottles grouped by status.</p></div>
+      <div class="grid three">
+        <button class="card action stock-card" data-view="unopened"><div><span>📦</span><strong data-i18n="unopened">Unopened bottles</strong><small id="sumUnopened">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgUnopened"></div></button>
+        <button class="card action stock-card" data-view="opened"><div><span>🥃</span><strong data-i18n="opened">Opened bottles</strong><small id="sumOpened">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgOpened"></div></button>
+        <button class="card action stock-card" data-view="empty"><div><span>🗃️</span><strong data-i18n="empty">Empty bottles</strong><small id="sumEmpty">0 bottles · 0.00 NOK</small></div><div class="mini-strip" id="imgEmpty"></div></button>
+      </div>
+      <div class="card shortcut-bar">
+        <button class="ghost" data-view="addBottle" type="button">Purchased bottle</button>
+        <button class="ghost" data-view="tasting" type="button">Register tasting</button>
+        <button class="ghost" data-view="correction" type="button">Correct stock</button>
+      </div>
+    </section>
+
+    <section id="logging" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="logging">Logging</h2><p data-i18n="chooseRegister">Choose what you want to register.</p></div>
+      <div class="grid two">
+        <button class="card action" data-view="tasting"><span>📝</span><strong data-i18n="registerTasting">Register tasting</strong><small data-i18n="tastingSub">Scores and tasting notes</small></button>
+        <button class="card action" data-view="correction"><span>⚖️</span><strong data-i18n="correctStock">Correct stock</strong><small data-i18n="correctionSub">Adjust weight or volume without tasting</small></button>
+        <button class="card action" data-view="addBottle"><span>➕</span><strong data-i18n="addBottleStock">Purchased bottle</strong><small data-i18n="addBottleStockSub">Register a purchased bottle</small></button>
+        <button class="card action" data-view="library"><span>📚</span><strong data-i18n="library">Bottle library</strong><small data-i18n="librarySub">Core bottle data</small></button>
+      </div>
+    </section>
+
+    <section id="unopened" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="unopened">Unopened bottles</h2></div><div class="card"><div id="unopenedList" class="list"></div></div></section>
+    <section id="opened" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="opened">Opened bottles</h2></div><div class="card"><div id="openedList" class="list"></div></div></section>
+    <section id="empty" class="view list-page"><button class="back" data-view="stock">← <span data-i18n="myStock">My stock</span></button><div class="card hero"><h2 data-i18n="empty">Empty bottles</h2></div><div class="card"><div id="emptyList" class="list"></div></div></section>
+
+    <section id="library" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="library">Bottle library</h2><p data-i18n="libraryRule">Core data can only be edited here.</p><p class="sub">Use Save & add next when entering several bottles. Saved bottles appear immediately when adding to stock.</p></div>
+      <form id="libraryForm" class="card form" autocomplete="off">
+        <input type="hidden" name="id">
+        <label><span data-i18n="name">Name</span><input name="name" required autocomplete="off"></label>
+        <label><span data-i18n="distillery">Distillery / producer</span><input name="distillery" autocomplete="off"></label>
+        <div class="grid three">
+          <label><span data-i18n="type">Type</span><select name="type" required><option value="">Choose type</option><option>Whisky</option><option>Bourbon</option><option>Rye Whiskey</option><option>Single Malt Scotch</option><option>Blended Scotch</option><option>Irish Whiskey</option><option>Japanese Whisky</option><option>Rum</option><option>Cognac</option><option>Brandy</option><option>Other</option></select></label>
+          <label><span data-i18n="abv">ABV %</span><input name="abv" inputmode="decimal"></label>
+          <label><span data-i18n="volume">Bottle volume ml</span><input name="volume" inputmode="decimal"></label>
+        </div>
+        <label><span data-i18n="fullWeight">Full bottle weight g</span><input name="fullWeight" inputmode="decimal"></label>
+        <label><span data-i18n="region">Region / country</span><input name="region"></label>
+        <label><span data-i18n="image">Image</span><input name="image" type="file" accept="image/*"></label>
+        <img id="imagePreview" class="preview hidden" alt="">
+        <label><span data-i18n="libraryComment">Library comment</span><textarea name="notes" rows="3"></textarea></label>
+        <div class="grid two library-buttons">
+          <button class="primary" id="librarySaveButton" type="submit" data-i18n="saveLibrary">Save library item</button>
+          <button class="ghost" id="librarySaveNewButton" type="button" data-i18n="saveAddNext">Save & add next</button>
+        </div>
+        <button class="ghost" id="libraryClearButton" type="button" data-i18n="clearForm">Clear form</button>
+      </form>
+      <div class="card"><h3 data-i18n="libraryItems">Library items</h3><div id="libraryList" class="list"></div></div>
+    </section>
+
+    <section id="addBottle" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="addBottleStock">Purchased bottle</h2><p data-i18n="stockBottleRule">Type the bottle name, tap the correct result, then enter price, date and comment.</p></div>
+      <form id="bottleForm" class="card form" autocomplete="off">
+        <input type="hidden" name="id">
+        <label><span data-i18n="libraryItem">Library item</span>
+          <input id="baseSearchInput" autocomplete="off" placeholder="Type bottle name and tap a result">
+          <datalist id="baseOptionsList"></datalist>
+          <div id="baseSuggestionList" class="choice-list hidden"></div><div id="selectedBaseStatus" class="selected-status">No bottle selected</div>
+          <select name="baseId" required class="hidden"></select>
+        </label>
+        <label><span data-i18n="price">Price</span><input name="price" inputmode="decimal"></label>
+        <label><span data-i18n="purchaseDate">Purchase date</span><input name="purchaseDate" type="date" inputmode="none"></label>
+        <label><span data-i18n="comment">Comment</span><textarea name="comments" rows="3"></textarea></label>
+        <button class="primary" type="submit" data-i18n="saveBottle">Save bottle</button>
+      </form>
+    </section>
+
+    <section id="tasting" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="registerTasting">Register tasting</h2></div>
+      <div class="card"><div id="tastingList" class="list"></div></div>
+    </section>
+
+    <section id="correction" class="view">
+      <button class="back" data-view="logging">← <span data-i18n="logging">Logging</span></button>
+      <div class="card hero"><h2 data-i18n="correctStock">Correct stock</h2><p data-i18n="correctionSub">Adjust weight or volume without tasting</p></div>
+      <form id="correctionForm" class="card form">
+        <label><span data-i18n="bottle">Bottle</span>
+          <input id="correctionBottleSearchInput" list="correctionBottleOptionsList" autocomplete="off" placeholder="Type to search, then tap a result">
+          <datalist id="correctionBottleOptionsList"></datalist>
+          <div id="correctionSuggestionList" class="choice-list hidden"></div>
+          <select name="bottleId" required class="hidden"></select>
+        </label>
+        <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
+        <label><span data-i18n="orVolume">Or remaining volume ml</span><input name="remaining" inputmode="decimal"></label>
+        <label><span data-i18n="comment">Comment</span><textarea name="comment" rows="3"></textarea></label>
+        <button class="primary" data-i18n="saveCorrection">Save correction</button>
+      </form>
+      <div class="card shortcut-bar">
+        <button class="ghost" data-view="stock" type="button">Go to My stock</button>
+        <button class="ghost" data-view="tasting" type="button">Register tasting</button>
+        <button class="ghost" data-view="addBottle" type="button">Purchased bottle</button>
+      </div>
+    </section>
+
+    <section id="detail" class="view">
+      <button class="back" data-view="stock">← <span data-i18n="back">Back</span></button>
+      <div id="detailContent"></div>
+    </section>
+
+    <section id="overview" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="overview">Overview / statistics</h2></div>
+      <button class="card action" data-view="settings"><span>⚙️</span><strong data-i18n="settings">Settings</strong><small data-i18n="settingsSub">Name, currency, language and backup</small></button>
+      <div class="card"><h3 data-i18n="ranking">Bottle ranking</h3><div id="rankingList" class="list"></div></div>
+    </section>
+
+    <section id="wishlist" class="view">
+      <button class="back" data-view="home">← <span data-i18n="home">Home</span></button>
+      <div class="card hero"><h2 data-i18n="wishlist">Wishlist</h2></div>
+      <form id="wishForm" class="card form"><input type="hidden" name="id"><label><span data-i18n="name">Name</span><input name="name"></label><label><span data-i18n="comment">Comment</span><textarea name="notes"></textarea></label><button class="primary" data-i18n="saveWishlist">Save wishlist item</button></form>
+      <div class="card"><div id="wishList" class="list"></div></div>
+    </section>
+
+    <section id="tastingOverview" class="view">
+      <button class="back" id="tastingOverviewBack" data-view="stock">← <span>Back</span></button>
+      <div class="card hero"><h2>Tasting overview</h2><p>Neat/water choice, drops and tasting results for this bottle.</p></div>
+      <div class="card"><div id="tastingOverviewList" class="list"></div></div>
+    </section>
+
+    <section id="settings" class="view">
+      <button class="back" data-view="overview">← <span data-i18n="overview">Overview / statistics</span></button>
+      <div class="card hero"><h2 data-i18n="settings">Settings</h2></div>
+      <form id="settingsForm" class="card form">
+        <label><span data-i18n="name">Name</span><input name="ownerName"></label>
+        <label><span data-i18n="currency">Currency</span><select name="currency"><option>NOK</option><option>SEK</option><option>DKK</option><option>EUR</option><option>USD</option></select></label>
+        <label><span data-i18n="language">Language</span><select name="language"><option value="en">English</option><option value="no">Norsk</option></select></label>
+        <label><span data-i18n="defaultMl">Default tasting ml</span><input name="defaultMl" type="number"></label>
+        <button class="primary" data-i18n="saveSettings">Save settings</button>
+      </form>
+      <div class="card form">
+        <h3>Restore points</h3>
+        <p class="sub">Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.</p>
+        <button class="primary" id="createRestorePointBtn" type="button" data-i18n="createRestorePoint" data-i18n="createRestorePoint">Create restore point</button>
+        <div id="restorePointList" class="list"></div>
+        <p class="sub version-line">App version: <strong id="appVersionText">v1.66</strong></p>
+      </div>
+
+      <div class="card form"><button class="primary" id="backupToFileBtn" type="button" data-i18n="backupToFile" data-i18n="backupToFile">Backup to file</button>
+        <button class="ghost" id="restoreFromFileBtn" type="button" data-i18n="restoreFromFile" data-i18n="restoreFromFile">Restore from file</button>
+        <input id="backupFileInput" class="hidden" type="file" accept="application/json,.json">
+        <p class="sub">Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.</p>
+        <button class="ghost" id="exportBtn" type="button" data-i18n="export" data-i18n="exportBackupText" data-i18n="exportBackupText">Export backup text</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" type="button" data-i18n="import" data-i18n="importBackupText" data-i18n="importBackupText">Import backup text</button></div>
+    </section>
+  </main>
+</div>
+<script src="/Whiskylog-app-test/app.js?v=167"></script>
+</body>
+</html>
