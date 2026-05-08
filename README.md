@@ -1,8 +1,9 @@
-# WhiskyLog v1.63 Library Delete Button + Language Pass
+# WhiskyLog v1.64 Language / Restore / Version Fix
 
-Changes:
-- Library list is rendered with Edit and Delete buttons side by side.
-- Delete from library now works directly from the library list.
-- Delete confirmation warns if the library item is used by stock bottles, tastings or comments.
-- Broader Norwegian translation pass for visible buttons/menus/dynamic UI.
-- Cache-busted with v=163.
+Fixes:
+- Settings version now always displays active code version.
+- createRestorePoint / backupToFile / restoreFromFile key names are replaced with readable labels.
+- Broader Norwegian/English language pass for Settings and dynamic restore controls.
+- Added spacing-safe CSS for button labels.
+- Restore from file keeps full backup shape: state + settings.
+- Cache-busted with v=164.

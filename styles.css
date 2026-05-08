@@ -197,3 +197,7 @@ input[list],select{min-height:58px;font-size:1.08rem}
 .library-actions,.base-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .library-actions button,.base-actions button{padding:9px 12px;border-radius:12px;font-size:.9rem}
 .danger{background:rgba(180,35,24,.18);color:#fff;border:1px solid rgba(255,90,70,.45)}
+
+/* v1.64 language + spacing pass */
+button,.button,.primary,.ghost,.danger{white-space:normal;word-break:normal;overflow-wrap:normal;letter-spacing:normal}
+#appVersionText{letter-spacing:normal}

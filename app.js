@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.63';
+window.WHISKYLOG_VERSION='1.64';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1513,3 +1513,101 @@ render=function(){
 };
 document.addEventListener('click',()=>setTimeout(()=>{renderLibraryList_v163();applyLanguage163();},80));
 document.addEventListener('change',()=>setTimeout(applyLanguage163,80));
+
+
+/* v1.64 language, spacing and version fix */
+function lang164(){return settings&&settings.language==='no'?'no':'en'}
+const UI164={
+  en:{createRestorePoint:'Create restore point',backupToFile:'Backup to file',restoreFromFile:'Restore from file',exportBackupText:'Export backup text',importBackupText:'Import backup text',saveAddNext:'Save & add next',clearForm:'Clear form',appVersion:'App version',restorePoints:'Restore points',restorePointsSub:'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',backupSub:'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',restore:'Restore',delete:'Delete',noRestorePoints:'No restore points yet.',restorePointName:'Restore point name',beforeCleanup:'Before cleanup',restorePointCreated:'Restore point created.',restoreConfirm:'Restore this restore point? This will replace the current app data on this device.',deleteRestoreConfirm:'Delete this restore point permanently?',restorePointRestored:'Restore point restored.',restorePointDeleted:'Restore point deleted.',fileRestoreConfirm:'Restore backup from file? This will replace the data currently stored in the app on this device.',fileRestored:'Backup restored.',fileRestoreError:'Could not restore backup',invalidBackup:'This does not look like a WhiskyLog backup'},
+  no:{createRestorePoint:'Opprett gjenopprettingspunkt',backupToFile:'Lagre backup til fil',restoreFromFile:'Hent backup fra fil',exportBackupText:'Eksporter backuptekst',importBackupText:'Importer backuptekst',saveAddNext:'Lagre og legg til neste',clearForm:'Tøm skjema',appVersion:'Appversjon',restorePoints:'Gjenopprettingspunkter',restorePointsSub:'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.',backupSub:'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.',restore:'Gjenopprett',delete:'Slett',noRestorePoints:'Ingen gjenopprettingspunkter ennå.',restorePointName:'Navn på gjenopprettingspunkt',beforeCleanup:'Før rydding',restorePointCreated:'Gjenopprettingspunkt opprettet.',restoreConfirm:'Gjenopprette dette punktet? Dette erstatter gjeldende appdata på denne enheten.',deleteRestoreConfirm:'Slette dette gjenopprettingspunktet permanent?',restorePointRestored:'Gjenopprettingspunkt gjenopprettet.',restorePointDeleted:'Gjenopprettingspunkt slettet.',fileRestoreConfirm:'Hente backup fra fil? Dette erstatter dataene som ligger i appen på denne enheten.',fileRestored:'Backup gjenopprettet.',fileRestoreError:'Kunne ikke gjenopprette backup',invalidBackup:'Dette ser ikke ut som en WhiskyLog-backup'}
+};
+function tr164(k){return (UI164[lang164()]&&UI164[lang164()][k])||k}
+function readableText164(text){
+  const raw=String(text||'').trim();
+  const map={createRestorePoint:'createRestorePoint',backupToFile:'backupToFile',restoreFromFile:'restoreFromFile',exportBackupText:'exportBackupText',importBackupText:'importBackupText',saveAddNext:'saveAddNext',clearForm:'clearForm'};
+  return map[raw]?tr164(map[raw]):raw;
+}
+function localizeSettings164(){
+  const v=document.getElementById('appVersionText');
+  if(v)v.textContent='v'+(window.WHISKYLOG_VERSION||'1.64');
+
+  [['createRestorePointBtn','createRestorePoint'],['backupToFileBtn','backupToFile'],['restoreFromFileBtn','restoreFromFile'],['exportBtn','exportBackupText'],['importBtn','importBackupText'],['librarySaveNewButton','saveAddNext'],['libraryClearButton','clearForm']].forEach(([id,key])=>{
+    const el=document.getElementById(id); if(el)el.textContent=tr164(key);
+  });
+
+  document.querySelectorAll('button').forEach(btn=>{btn.textContent=readableText164(btn.textContent)});
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n'); if(UI164[lang164()]&&UI164[lang164()][key])el.textContent=tr164(key)});
+
+  document.querySelectorAll('h3,h2,p,.sub,label,span,div').forEach(el=>{
+    if(!el||el.children.length>0)return;
+    const t=(el.textContent||'').trim();
+    if(t==='Restore points'||t==='Gjenopprettingspunkter')el.textContent=tr164('restorePoints');
+    if(t.startsWith('Create an internal restore point')||t.startsWith('Opprett et internt gjenopprettingspunkt'))el.textContent=tr164('restorePointsSub');
+    if(t.startsWith('Backup includes')||t.startsWith('Backup inkluderer'))el.textContent=tr164('backupSub');
+    if(t.startsWith('App version:')||t.startsWith('Appversjon:'))el.innerHTML=`${tr164('appVersion')}: <strong id="appVersionText">v${window.WHISKYLOG_VERSION||'1.64'}</strong>`;
+  });
+}
+
+const RESTORE_POINTS_KEY_v164='whiskylog_restore_points_v160';
+const MAX_RESTORE_POINTS_v164=10;
+function getRestorePoints_v164(){try{const p=JSON.parse(localStorage.getItem(RESTORE_POINTS_KEY_v164)||'[]');return Array.isArray(p)?p:[]}catch(e){return []}}
+function saveRestorePoints_v164(points){localStorage.setItem(RESTORE_POINTS_KEY_v164,JSON.stringify(points.slice(0,MAX_RESTORE_POINTS_v164)))}
+function createRestorePoint_v164(){
+  const name=prompt(tr164('restorePointName'),tr164('beforeCleanup'));
+  if(name===null)return;
+  const point={id:uid(),name:String(name||tr164('beforeCleanup')).trim(),createdAt:new Date().toLocaleString('sv-SE'),version:window.WHISKYLOG_VERSION||'1.64',state:JSON.parse(JSON.stringify(state)),settings:JSON.parse(JSON.stringify(settings))};
+  const points=getRestorePoints_v164();points.unshift(point);saveRestorePoints_v164(points);renderRestorePoints_v164();alert(tr164('restorePointCreated'));
+}
+function restorePoint_v164(id){
+  const point=getRestorePoints_v164().find(p=>p.id===id);if(!point)return;
+  if(!confirm(tr164('restoreConfirm')))return;
+  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]},point.state||{});
+  settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},point.settings||{});
+  save();saveSettings();render();show('home');alert(tr164('restorePointRestored'));
+}
+function deleteRestorePoint_v164(id){
+  if(!confirm(tr164('deleteRestoreConfirm')))return;
+  saveRestorePoints_v164(getRestorePoints_v164().filter(p=>p.id!==id));renderRestorePoints_v164();alert(tr164('restorePointDeleted'));
+}
+function renderRestorePoints_v164(){
+  const host=document.getElementById('restorePointList');if(!host)return;
+  const points=getRestorePoints_v164();
+  if(!points.length){host.innerHTML=`<div class="sub">${tr164('noRestorePoints')}</div>`;return}
+  host.innerHTML=points.map(p=>`<div class="item"><div>↩️</div><div><div class="title">${esc(p.name||tr164('beforeCleanup'))}</div><div class="meta">${esc(p.createdAt||'')} · v${esc(p.version||'')}</div><div class="sub">${(p.state&&p.state.bases?p.state.bases.length:0)} ${lang164()==='no'?'bibliotek':'library'} · ${(p.state&&p.state.bottles?p.state.bottles.length:0)} ${lang164()==='no'?'flasker':'bottles'} · ${(p.state&&p.state.tastings?p.state.tastings.length:0)} ${lang164()==='no'?'smakinger':'tastings'}</div><div class="restore-point-actions"><button class="ghost" type="button" onclick="restorePoint_v164('${p.id}')">${tr164('restore')}</button><button class="danger" type="button" onclick="deleteRestorePoint_v164('${p.id}')">${tr164('delete')}</button></div></div></div>`).join('');
+}
+function initRestorePoints_v164(){
+  const btn=document.getElementById('createRestorePointBtn');
+  if(btn)btn.onclick=e=>{e.preventDefault();createRestorePoint_v164()};
+  renderRestorePoints_v164();
+}
+
+function restoreBackupObject_v164(data){
+  if(!data||typeof data!=='object')throw new Error(tr164('invalidBackup'));
+  const nextState=data.state||data;
+  const nextSettings=data.settings||null;
+  if(!nextState||!Array.isArray(nextState.bases)||!Array.isArray(nextState.bottles))throw new Error(tr164('invalidBackup'));
+  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]},nextState);
+  if(nextSettings)settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},nextSettings);
+  save();saveSettings();
+  const title=document.getElementById('appTitle');if(title)title.textContent=`${settings.ownerName||'Kenneth'}'s WhiskyLog`;
+  render();show('home');
+}
+function restoreFromFile_v164(file){
+  const reader=new FileReader();
+  reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!confirm(tr164('fileRestoreConfirm')))return;restoreBackupObject_v164(data);alert(tr164('fileRestored'))}catch(err){alert(`${tr164('fileRestoreError')}: ${err&&err.message?err.message:''}`)}};
+  reader.onerror=()=>alert(tr164('fileRestoreError'));
+  reader.readAsText(file);
+}
+function initBackupFileButtons_v164(){
+  const restoreBtn=document.getElementById('restoreFromFileBtn');
+  const fileInput=document.getElementById('backupFileInput');
+  if(restoreBtn&&fileInput){
+    restoreBtn.onclick=e=>{e.preventDefault();fileInput.value='';fileInput.click()};
+    fileInput.onchange=()=>{const file=fileInput.files&&fileInput.files[0];if(file)restoreFromFile_v164(file)};
+  }
+}
+const oldRender_v164=render;
+render=function(){oldRender_v164();initRestorePoints_v164();initBackupFileButtons_v164();localizeSettings164()};
+document.addEventListener('click',()=>setTimeout(localizeSettings164,60));
+document.addEventListener('change',()=>setTimeout(localizeSettings164,60));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(localizeSettings164,100));

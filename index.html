@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.63</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=163">
+  <title>WhiskyLog v1.64</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=164">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=163">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=164">
 </head>
 <body>
 <div class="app">
@@ -176,19 +176,19 @@
       <div class="card form">
         <h3>Restore points</h3>
         <p class="sub">Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.</p>
-        <button class="primary" id="createRestorePointBtn" type="button" data-i18n="createRestorePoint">Create restore point</button>
+        <button class="primary" id="createRestorePointBtn" type="button" data-i18n="createRestorePoint" data-i18n="createRestorePoint">Create restore point</button>
         <div id="restorePointList" class="list"></div>
-        <p class="sub version-line">App version: <strong id="appVersionText">v1.60</strong></p>
+        <p class="sub version-line">App version: <strong id="appVersionText">v1.64</strong></p>
       </div>
 
-      <div class="card form"><button class="primary" id="backupToFileBtn" type="button" data-i18n="backupToFile">Backup to file</button>
-        <button class="ghost" id="restoreFromFileBtn" type="button" data-i18n="restoreFromFile">Restore from file</button>
+      <div class="card form"><button class="primary" id="backupToFileBtn" type="button" data-i18n="backupToFile" data-i18n="backupToFile">Backup to file</button>
+        <button class="ghost" id="restoreFromFileBtn" type="button" data-i18n="restoreFromFile" data-i18n="restoreFromFile">Restore from file</button>
         <input id="backupFileInput" class="hidden" type="file" accept="application/json,.json">
         <p class="sub">Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.</p>
-        <button class="ghost" id="exportBtn" type="button" data-i18n="export" data-i18n="exportBackupText">Export backup text</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" type="button" data-i18n="import" data-i18n="importBackupText">Import backup text</button></div>
+        <button class="ghost" id="exportBtn" type="button" data-i18n="export" data-i18n="exportBackupText" data-i18n="exportBackupText">Export backup text</button><textarea id="importText" rows="5"></textarea><button class="ghost" id="importBtn" type="button" data-i18n="import" data-i18n="importBackupText" data-i18n="importBackupText">Import backup text</button></div>
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=163"></script>
+<script src="/Whiskylog-app-test/app.js?v=164"></script>
 </body>
 </html>
