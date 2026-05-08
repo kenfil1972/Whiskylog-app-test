@@ -8,10 +8,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="WhiskyLog">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>WhiskyLog v1.57</title>
-  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=157">
+  <title>WhiskyLog v1.58</title>
+  <link rel="manifest" href="/Whiskylog-app-test/manifest.webmanifest?v=158">
   <link rel="apple-touch-icon" href="/Whiskylog-app-test/icon-192.png">
-  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=157">
+  <link rel="stylesheet" href="/Whiskylog-app-test/styles.css?v=158">
 </head>
 <body>
 <div class="app">
@@ -126,6 +126,13 @@
           <div id="correctionSuggestionList" class="choice-list hidden"></div>
           <select name="bottleId" required class="hidden"></select>
         </label>
+        <label><span>Tasting type</span>
+          <select name="tastingMode" id="tastingModeSelect">
+            <option value="neat">Neat / ren</option>
+            <option value="water">With water / med vann</option>
+          </select>
+        </label>
+        <label id="waterDropsLabel" class="hidden"><span>Water drops</span><input name="waterDrops" type="number" min="1" inputmode="numeric" placeholder="Number of drops"></label>
         <label><span data-i18n="newWeight">New current weight g</span><input name="weight" inputmode="decimal"></label>
         <label><span data-i18n="orVolume">Or remaining volume ml</span><input name="remaining" inputmode="decimal"></label>
         <label><span data-i18n="comment">Comment</span><textarea name="comment" rows="3"></textarea></label>
@@ -157,6 +164,12 @@
       <div class="card"><div id="wishList" class="list"></div></div>
     </section>
 
+    <section id="tastingOverview" class="view">
+      <button class="back" id="tastingOverviewBack" data-view="stock">← <span>Back</span></button>
+      <div class="card hero"><h2>Tasting overview</h2><p>Neat/water choice, drops and tasting results for this bottle.</p></div>
+      <div class="card"><div id="tastingOverviewList" class="list"></div></div>
+    </section>
+
     <section id="settings" class="view">
       <button class="back" data-view="overview">← <span data-i18n="overview">Overview / statistics</span></button>
       <div class="card hero"><h2 data-i18n="settings">Settings</h2></div>
@@ -175,6 +188,6 @@
     </section>
   </main>
 </div>
-<script src="/Whiskylog-app-test/app.js?v=157"></script>
+<script src="/Whiskylog-app-test/app.js?v=158"></script>
 </body>
 </html>

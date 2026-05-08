@@ -86,3 +86,9 @@ input[list],select{min-height:58px;font-size:1.08rem}
 
 /* v1.56 backup/restore file controls */
 #backupToFileBtn,#restoreFromFileBtn{width:100%;margin-bottom:10px}
+
+/* v1.58 tasting mode and overview */
+.tasting-mode-pill{display:inline-block;margin-top:6px;padding:5px 9px;border-radius:999px;border:1px solid rgba(240,193,92,.35);color:#fff;background:rgba(240,193,92,.12);font-size:.85rem}
+.tasting-score-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
+.tasting-score-grid small{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:7px}
+@media(max-width:760px){.tasting-score-grid{grid-template-columns:1fr}}

@@ -1,7 +1,9 @@
-# WhiskyLog v1.57 Tasting Comments Restored
+# WhiskyLog v1.58 Tasting Mode + Water Drops
 
 Changes:
-- Restored tasting comments field.
-- Tasting comments are saved with the tasting.
-- Comments are also written to the bottle log/history.
-- Cache-busted with v=157.
+- Tasting now lets user choose Neat / ren or With water / med vann.
+- If With water is selected, user must enter number of water drops.
+- Tasting mode and water drops are saved with tasting.
+- Added Tasting overview button under bottle detail.
+- Tasting overview lists mode, drops, scores, volume and comment.
+- Cache-busted with v=158.

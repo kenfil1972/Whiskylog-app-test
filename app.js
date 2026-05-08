@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.57';
+window.WHISKYLOG_VERSION='1.58';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -703,4 +703,121 @@ const oldRender_v157=render;
 render=function(){
   oldRender_v157();
   renderTastingComments_v157();
+};
+
+
+/* v1.58 tasting mode, water drops and tasting overview */
+let tastingOverviewBottleId_v158='';
+
+function initTastingMode_v158(){
+  const sel=document.getElementById('tastingModeSelect');
+  const label=document.getElementById('waterDropsLabel');
+  if(!sel||!label||sel.dataset.v158Bound==='1')return;
+  sel.dataset.v158Bound='1';
+  const update=()=>{sel.value==='water'?label.classList.remove('hidden'):label.classList.add('hidden')};
+  sel.addEventListener('change',update);
+  update();
+}
+
+function tastingModeLabel_v158(t){
+  const mode=t.tastingMode||t.mode||'neat';
+  if(mode==='water'){
+    const drops=dec(t.waterDrops);
+    return drops ? `With water · ${drops} drops` : 'With water';
+  }
+  return 'Neat';
+}
+
+function tastingAverage_v158(t){
+  const vals=[dec(t.appearance),dec(t.nose),dec(t.taste||t.tasteNeat),dec(t.watered||t.tasteWater),dec(t.finish)].filter(v=>v>0);
+  if(!vals.length)return dec(t.score)||0;
+  return Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
+}
+
+const oldSaveTasting_v158=typeof saveTasting==='function'?saveTasting:null;
+saveTasting=function(e){
+  if(e){e.preventDefault();e.stopImmediatePropagation();}
+  const f=document.getElementById('tastingForm');
+  if(!f){return oldSaveTasting_v158?oldSaveTasting_v158(e):false;}
+  const bottleId=f.bottleId.value;
+  const b=getBottle(bottleId);
+  const base=b&&getBase(b.baseId);
+  if(!b||!base){alert('Choose bottle');return false;}
+  const mode=(f.tastingMode&&f.tastingMode.value)||'neat';
+  let drops=0;
+  if(mode==='water'){
+    drops=dec(f.waterDrops&&f.waterDrops.value);
+    if(!drops){alert('Enter number of water drops.');return false;}
+  }
+  const tasting={
+    id:uid(),
+    bottleId,
+    date:f.date.value||new Date().toISOString().slice(0,10),
+    ml:dec(f.ml.value||settings.defaultTastingMl||20),
+    tastingMode:mode,
+    waterDrops:drops,
+    appearance:dec(f.appearance&&f.appearance.value),
+    nose:dec(f.nose&&f.nose.value),
+    taste:dec(f.taste&&f.taste.value),
+    watered:dec(f.watered&&f.watered.value),
+    finish:dec(f.finish&&f.finish.value),
+    comment:String(f.tastingComment&&f.tastingComment.value||'').trim()
+  };
+  tasting.score=tastingAverage_v158(tasting);
+  if(!Array.isArray(state.tastings))state.tastings=[];
+  state.tastings.unshift(tasting);
+  const current=dec(b.currentWeight||base.fullWeight||0);
+  const emptyEstimate=dec(base.emptyWeight||0);
+  if(base.fullWeight&&current>0){
+    const perMl=(dec(base.fullWeight)-emptyEstimate)/(dec(base.volume)||700);
+    if(perMl>0)b.currentWeight=Math.max(emptyEstimate,current-(perMl*tasting.ml));
+  }
+  if(!b.openedDate)b.openedDate=tasting.date;
+  addLog(b.id,'tasting',[tastingModeLabel_v158(tasting),tasting.comment].filter(Boolean).join(' — ')||'Tasting registered');
+  save();
+  render();
+  f.reset();
+  if(f.date)f.date.value=new Date().toISOString().slice(0,10);
+  if(f.tastingMode)f.tastingMode.value='neat';
+  const dropsLabel=document.getElementById('waterDropsLabel');
+  if(dropsLabel)dropsLabel.classList.add('hidden');
+  show('stock');
+  return true;
+};
+
+function openTastingOverview_v158(bottleId){
+  tastingOverviewBottleId_v158=bottleId;
+  renderTastingOverview_v158();
+  show('tastingOverview');
+}
+
+function renderTastingOverview_v158(){
+  const host=document.getElementById('tastingOverviewList');
+  if(!host)return;
+  const tastings=(state.tastings||[]).filter(t=>t.bottleId===tastingOverviewBottleId_v158);
+  if(!tastings.length){host.innerHTML='<div class="sub">No tastings registered for this bottle.</div>';return;}
+  host.innerHTML=tastings.map(t=>{
+    const avg=tastingAverage_v158(t);
+    return `<div class="item"><div>📝</div><div><div class="title">${esc(t.date||'—')} · Average ${avg||'—'}</div><div class="tasting-mode-pill">${esc(tastingModeLabel_v158(t))}</div><div class="tasting-score-grid"><small>Appearance: ${t.appearance||'—'}</small><small>Nose: ${t.nose||'—'}</small><small>Taste: ${t.taste||t.tasteNeat||'—'}</small><small>Water: ${t.watered||t.tasteWater||'—'}</small><small>Finish: ${t.finish||'—'}</small><small>Volume: ${t.ml||'—'} ml</small></div><div class="sub">${esc(t.comment||t.notes||'')}</div></div></div>`;
+  }).join('');
+}
+
+const oldOpenDetail_v158=openDetail;
+openDetail=function(id,rv='stock'){
+  oldOpenDetail_v158(id,rv);
+  const detail=document.getElementById('detailContent');
+  if(detail&&!detail.querySelector('[data-v158-overview]')){
+    const card=document.createElement('div');
+    card.className='card shortcut-bar';
+    card.setAttribute('data-v158-overview','1');
+    card.innerHTML=`<button class="ghost" type="button" onclick="openTastingOverview_v158('${id}')">Tasting overview / smaksoversikt</button>`;
+    detail.appendChild(card);
+  }
+};
+
+const oldRender_v158=render;
+render=function(){
+  oldRender_v158();
+  initTastingMode_v158();
+  if(tastingOverviewBottleId_v158)renderTastingOverview_v158();
 };
