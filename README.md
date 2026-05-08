@@ -1,8 +1,8 @@
-# WhiskyLog v1.62 Library Delete + Compact Date Dialog
+# WhiskyLog v1.63 Library Delete Button + Language Pass
 
 Changes:
-- Added Delete button for library bottles.
-- Confirmation before deleting a library item.
-- If the library item is used by stock bottles/tastings/comments, warning shows what will also be deleted.
-- Date/modal inputs are styled narrower and more compact.
-- Cache-busted with v=162.
+- Library list is rendered with Edit and Delete buttons side by side.
+- Delete from library now works directly from the library list.
+- Delete confirmation warns if the library item is used by stock bottles, tastings or comments.
+- Broader Norwegian translation pass for visible buttons/menus/dynamic UI.
+- Cache-busted with v=163.

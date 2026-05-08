@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.62';
+window.WHISKYLOG_VERSION='1.63';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1430,3 +1430,86 @@ render=function(){
 // Re-run compacting after modal creation too.
 document.addEventListener('focusin',()=>setTimeout(compactDateModals_v162,30));
 document.addEventListener('click',()=>setTimeout(()=>{patchLibraryDeleteButtons_v162();compactDateModals_v162();},50));
+
+
+/* v1.63 reliable library delete next to Edit + broader Norwegian UI */
+function lang163(){return settings && settings.language==='no' ? 'no' : 'en'}
+const UI163={
+en:{edit:'Edit',delete:'Delete',noLibrary:'No library items yet.',libraryDeleted:'Library item deleted.',deleteLibraryFree:'Delete this library item permanently? This cannot be undone.',deleteLibraryUsed:'Delete this library item permanently?\n\nIt is used by {bottles} bottle(s), {tastings} tasting(s) and {comments} comment/log item(s).\n\nDeleting it will also delete related bottles, tastings and comments. This cannot be undone.',addBottleStock:'Purchased bottle',addBottleStockSub:'Register a purchased bottle',myStock:'My stock',logging:'Logging',overview:'Overview / statistics',wishlist:'Wishlist',unopened:'Unopened bottles',opened:'Opened bottles',empty:'Empty bottles',registerTasting:'Register tasting',correctStock:'Correct stock',library:'Bottle library',backupToFile:'Backup to file',restoreFromFile:'Restore from file',createRestorePoint:'Create restore point',exportBackupText:'Export backup text',importBackupText:'Import backup text',saveAddNext:'Save & add next',clearForm:'Clear form',tastingOverview:'Tasting overview'},
+no:{edit:'Rediger',delete:'Slett',noLibrary:'Ingen flasker i biblioteket ennå.',libraryDeleted:'Bibliotekflaske slettet.',deleteLibraryFree:'Slette denne bibliotekflasken permanent? Dette kan ikke angres.',deleteLibraryUsed:'Slette denne bibliotekflasken permanent?\n\nDen brukes av {bottles} flaske(r), {tastings} smaking(er) og {comments} kommentar/loggpunkt.\n\nSletting vil også slette tilknyttede flasker, smakinger og kommentarer. Dette kan ikke angres.',addBottleStock:'Kjøpt flaske',addBottleStockSub:'Registrer kjøpt flaske',myStock:'Min beholdning',logging:'Loggføring',overview:'Oversikt / statistikk',wishlist:'Ønskeliste',unopened:'Uåpnede flasker',opened:'Åpnede flasker',empty:'Tomme flasker',registerTasting:'Registrer smaking',correctStock:'Korriger beholdning',library:'Flaskebibliotek',backupToFile:'Lagre backup til fil',restoreFromFile:'Hent backup fra fil',createRestorePoint:'Opprett gjenopprettingspunkt',exportBackupText:'Eksporter backuptekst',importBackupText:'Importer backuptekst',saveAddNext:'Lagre og legg til neste',clearForm:'Tøm skjema',tastingOverview:'Smaksoversikt'}
+};
+function u163(k){return (UI163[lang163()]&&UI163[lang163()][k])||k}
+function fmt163(template,data){return String(template).replace(/\{(\w+)\}/g,(m,k)=>data[k]??m)}
+
+function deleteBase_v163(id){
+  const base=getBase(id); if(!base)return;
+  const relatedBottles=(state.bottles||[]).filter(b=>b.baseId===id);
+  const relatedBottleIds=relatedBottles.map(b=>b.id);
+  const relatedTastings=(state.tastings||[]).filter(t=>relatedBottleIds.includes(t.bottleId));
+  const relatedComments=(state.comments||[]).filter(c=>relatedBottleIds.includes(c.bottleId));
+  const message=relatedBottles.length
+    ? fmt163(u163('deleteLibraryUsed'),{bottles:relatedBottles.length,tastings:relatedTastings.length,comments:relatedComments.length})
+    : u163('deleteLibraryFree');
+  if(!confirm(message))return;
+
+  state.bases=(state.bases||[]).filter(b=>b.id!==id);
+  if(relatedBottleIds.length){
+    state.bottles=(state.bottles||[]).filter(b=>b.baseId!==id);
+    state.tastings=(state.tastings||[]).filter(t=>!relatedBottleIds.includes(t.bottleId));
+    state.comments=(state.comments||[]).filter(c=>!relatedBottleIds.includes(c.bottleId));
+  }
+  save();
+  const f=document.getElementById('libraryForm');
+  if(f&&f.id&&f.id.value===id){f.reset();f.id.value='';}
+  render();
+  alert(u163('libraryDeleted'));
+}
+
+function renderLibraryList_v163(){
+  const host=document.getElementById('baseList') || document.getElementById('libraryList') || document.querySelector('#library .list');
+  if(!host)return false;
+  const bases=state.bases||[];
+  if(!bases.length){host.innerHTML=`<div class="sub">${u163('noLibrary')}</div>`;return true;}
+  host.innerHTML=bases.map(b=>{
+    const used=(state.bottles||[]).filter(x=>x.baseId===b.id).length;
+    return `<div class="item">
+      <div>${b.image?`<img class="thumb" src="${b.image}">`:'📚'}</div>
+      <div>
+        <div class="title">${esc(b.name||'')}</div>
+        <div class="meta">${esc(b.type||'')} · ${b.abv||'—'}% · ${b.volume||'—'} ml</div>
+        <div class="sub">${esc(b.distillery||'')}${b.region?' · '+esc(b.region):''}${used?` · ${used} ${lang163()==='no'?'i beholdning':'in stock'}`:''}</div>
+        <div class="library-actions">
+          <button class="ghost" type="button" onclick="editBase('${b.id}')">${u163('edit')}</button>
+          <button class="danger" type="button" onclick="deleteBase_v163('${b.id}')">${u163('delete')}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return true;
+}
+
+function applyLanguage163(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;
+    if(UI163[lang163()] && UI163[lang163()][k])el.textContent=u163(k);
+  });
+  [['librarySaveNewButton','saveAddNext'],['libraryClearButton','clearForm'],['backupToFileBtn','backupToFile'],['restoreFromFileBtn','restoreFromFile'],['createRestorePointBtn','createRestorePoint']].forEach(([id,k])=>{
+    const el=document.getElementById(id); if(el)el.textContent=u163(k);
+  });
+  document.querySelectorAll('button').forEach(btn=>{
+    const text=(btn.textContent||'').trim();
+    const no={'Edit':'Rediger','Delete':'Slett','Back':'Tilbake','Home':'Hjem','Save & add next':'Lagre og legg til neste','Clear form':'Tøm skjema','Backup to file':'Lagre backup til fil','Restore from file':'Hent backup fra fil','Create restore point':'Opprett gjenopprettingspunkt','Tasting overview':'Smaksoversikt','Tasting overview / smaksoversikt':'Smaksoversikt'};
+    const en={'Rediger':'Edit','Slett':'Delete','Tilbake':'Back','Hjem':'Home','Lagre og legg til neste':'Save & add next','Tøm skjema':'Clear form','Lagre backup til fil':'Backup to file','Hent backup fra fil':'Restore from file','Opprett gjenopprettingspunkt':'Create restore point','Smaksoversikt':'Tasting overview'};
+    if(lang163()==='no' && no[text])btn.textContent=no[text];
+    if(lang163()==='en' && en[text])btn.textContent=en[text];
+  });
+}
+
+const oldRender_v163=render;
+render=function(){
+  oldRender_v163();
+  renderLibraryList_v163();
+  applyLanguage163();
+};
+document.addEventListener('click',()=>setTimeout(()=>{renderLibraryList_v163();applyLanguage163();},80));
+document.addEventListener('change',()=>setTimeout(applyLanguage163,80));
