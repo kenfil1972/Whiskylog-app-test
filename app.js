@@ -2,19 +2,19 @@
 (() => {
 'use strict';
 
-const VERSION = '2.11';
+const VERSION = '2.12';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.11',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.12',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
     logging:'Loggføring', loggingSub:'Registrer smaking, korriger beholdning og legg til flasker.',
     overview:'Oversikt / statistikk', overviewSub:'Rangering, score, verdi og historikk.',
-    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.',
+    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste',
     settings:'Innstillinger', settingsSub:'Navn, valuta, språk og backup.',
     unopened:'Uåpnede flasker', opened:'Åpnede flasker', empty:'Tomme flasker',
     bottles:'flasker', value:'verdi', stockVolume:'volum i beholdning',
@@ -42,13 +42,13 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.11',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.12',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
     logging:'Logging', loggingSub:'Register tastings, correct stock and add bottles.',
     overview:'Overview / statistics', overviewSub:'Ranking, scores, value and history.',
-    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.',
+    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item',
     settings:'Settings', settingsSub:'Name, currency, language and backup.',
     unopened:'Unopened bottles', opened:'Opened bottles', empty:'Empty bottles',
     bottles:'bottles', value:'value', stockVolume:'stock volume',
@@ -162,6 +162,7 @@ let editLibraryId = '';
 let editBottleId = '';
 let editTastingId = '';
 let stockPageStatus = '';
+let editWishlistId = '';
 
 function shell(inner, backTo='home'){
   app.innerHTML = `
@@ -576,8 +577,117 @@ function renderOverview(){
   `);
 }
 function renderWishlist(){
-  shell(`<section class="hero"><h2>${tr('wishlist')}</h2><p class="sub">${tr('wishlistSub')}</p></section><section class="card"><p class="sub">${tr('noItems')}</p></section>`);
+  const w = editWishlistId ? (state.wishlist || []).find(x => x.id === editWishlistId) || {} : {};
+  shell(`
+    <section class="hero dashboardHero">
+      <h2>${tr('wishlist')}</h2>
+      <p class="sub">${tr('wishlistSub')}</p>
+    </section>
+
+    <section class="card">
+      <form id="wishlistForm">
+        <input type="hidden" name="id" value="${esc(w.id||'')}">
+        <label>${tr('name')}</label>
+        <input name="name" value="${esc(w.name||'')}" required autocomplete="off">
+
+        <div class="formgrid">
+          <div>
+            <label>${tr('type')}</label>
+            <select name="type">
+              <option value="">${tr('chooseType')}</option>
+              ${TYPES.map(x=>`<option ${w.type===x?'selected':''}>${x}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label>${tr('wishedPrice')}</label>
+            <input name="price" inputmode="decimal" value="${esc(w.price||'')}">
+          </div>
+          <div>
+            <label>${tr('priority')}</label>
+            <select name="priority">
+              <option value="high" ${w.priority==='high'?'selected':''}>${tr('high')}</option>
+              <option value="medium" ${!w.priority||w.priority==='medium'?'selected':''}>${tr('medium')}</option>
+              <option value="low" ${w.priority==='low'?'selected':''}>${tr('low')}</option>
+            </select>
+          </div>
+        </div>
+
+        <label>${tr('link')}</label>
+        <input name="link" value="${esc(w.link||'')}" autocomplete="off">
+
+        <label>${tr('comment')}</label>
+        <textarea name="comment">${esc(w.comment||'')}</textarea>
+
+        <div class="actions">
+          <button class="primary" type="submit">${tr('saveWishlist')}</button>
+          ${w.id ? `<button class="danger" type="button" onclick="deleteWishlist('${w.id}')">${tr('delete')}</button>` : ''}
+          <button class="ghost" type="button" onclick="editWishlistId='';render()">${tr('clearForm')}</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>${tr('wishlist')}</h2>
+      <div class="list">${wishlistList()}</div>
+    </section>
+  `);
+
+  document.getElementById('wishlistForm').onsubmit = e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const id = fd.get('id') || uid();
+    const item = {
+      id,
+      name: fd.get('name'),
+      type: fd.get('type'),
+      price: fd.get('price'),
+      priority: fd.get('priority'),
+      link: fd.get('link'),
+      comment: fd.get('comment'),
+      createdAt: w.createdAt || new Date().toISOString()
+    };
+    const ix = state.wishlist.findIndex(x => x.id === id);
+    if(ix >= 0) state.wishlist[ix] = item; else state.wishlist.push(item);
+    save();
+    editWishlistId = '';
+    render();
+  };
 }
+
+function wishlistList(){
+  if(!state.wishlist || !state.wishlist.length) return `<div class="sub">${tr('noItems')}</div>`;
+  const rank = {high:0, medium:1, low:2};
+  return state.wishlist.slice().sort((a,b)=>(rank[a.priority]??1)-(rank[b.priority]??1) || String(a.name).localeCompare(String(b.name))).map(w => `
+    <div class="item wishlistItem">
+      <div class="thumbFallback">${iconSvg('wishlist','miniSvg')}</div>
+      <div>
+        <div class="title">${esc(w.name||'')}</div>
+        <div class="meta">${esc(w.type||'')} ${w.price ? '· ' + money(w.price) : ''} · ${tr(w.priority||'medium')}</div>
+        ${w.comment ? `<div class="small">${esc(w.comment)}</div>` : ''}
+        ${w.link ? `<div class="small"><a href="${esc(w.link)}" target="_blank" rel="noopener">${esc(w.link)}</a></div>` : ''}
+      </div>
+      <div class="actions">
+        <button class="ghost" onclick="editWishlist('${w.id}')">${tr('edit')}</button>
+        <button class="danger" onclick="deleteWishlist('${w.id}')">${tr('delete')}</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.editWishlist = function(id){
+  editWishlistId = id;
+  render();
+};
+
+window.deleteWishlist = function(id){
+  const item = (state.wishlist || []).find(x => x.id === id);
+  if(!confirm(`${tr('deletePermanent')}
+${item ? item.name : ''}`)) return;
+  state.wishlist = (state.wishlist || []).filter(x => x.id !== id);
+  save();
+  editWishlistId = '';
+  render();
+};
 function renderSettings(){
   shell(`
     <section class="hero"><h2>${tr('settings')}</h2><p class="sub">${tr('settingsSub')}</p></section>

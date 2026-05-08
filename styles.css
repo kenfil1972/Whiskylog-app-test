@@ -306,3 +306,10 @@ h1{
     height:38px;
   }
 }
+
+
+/* v2.12 wishlist */
+.wishlistItem a{
+  color:#f4bf4f;
+  word-break:break-word;
+}
