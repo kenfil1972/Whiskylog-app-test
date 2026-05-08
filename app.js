@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.71';
+window.WHISKYLOG_VERSION='1.72';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1757,7 +1757,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.71';
+window.WHISKYLOG_VERSION='1.72';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1922,7 +1922,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.71';
+window.WHISKYLOG_VERSION='1.72';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -2062,7 +2062,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.71';
+window.WHISKYLOG_VERSION='1.72';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2221,7 +2221,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.71';
+window.WHISKYLOG_VERSION='1.72';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2352,3 +2352,111 @@ render = function(){
   oldRender_v171();
   fixLabels_v171();
 };
+
+
+/* v1.72 FINAL settings override: active version + no camelCase visible labels */
+window.WHISKYLOG_VERSION='1.72';
+
+function no172(){
+  return settings && settings.language === 'no';
+}
+function t172(en,no){
+  return no172() ? no : en;
+}
+
+function fixSettings172(){
+  const settingsView = document.getElementById('settings');
+  if(!settingsView) return;
+
+  settingsView.classList.add('settings-fixed-v172');
+
+  // Version must always be code version, never old stored/legacy value.
+  const version = document.getElementById('appVersionText');
+  if(version) version.textContent = 'v1.72';
+
+  // Buttons by id.
+  const labels = {
+    createRestorePointBtn: t172('Create restore point','Opprett gjenopprettingspunkt'),
+    backupToFileBtn: t172('Backup to file','Lagre backup til fil'),
+    restoreFromFileBtn: t172('Restore from file','Hent backup fra fil'),
+    exportBtn: t172('Export backup','Eksporter backup'),
+    importBtn: t172('Import backup','Importer backup')
+  };
+  Object.entries(labels).forEach(([id,label])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = label;
+  });
+
+  // CamelCase leftovers anywhere in settings.
+  settingsView.querySelectorAll('button').forEach(btn=>{
+    const txt = (btn.textContent || '').trim();
+    const mapNo = {
+      createRestorePoint:'Opprett gjenopprettingspunkt',
+      backupToFile:'Lagre backup til fil',
+      restoreFromFile:'Hent backup fra fil',
+      exportBackupText:'Eksporter backuptekst',
+      importBackupText:'Importer backuptekst',
+      saveAddNext:'Lagre og legg til neste',
+      clearForm:'Tøm skjema',
+      'Create restore point':'Opprett gjenopprettingspunkt',
+      'Backup to file':'Lagre backup til fil',
+      'Restore from file':'Hent backup fra fil'
+    };
+    const mapEn = {
+      createRestorePoint:'Create restore point',
+      backupToFile:'Backup to file',
+      restoreFromFile:'Restore from file',
+      exportBackupText:'Export backup text',
+      importBackupText:'Import backup text',
+      saveAddNext:'Save & add next',
+      clearForm:'Clear form',
+      'Opprett gjenopprettingspunkt':'Create restore point',
+      'Lagre backup til fil':'Backup to file',
+      'Hent backup fra fil':'Restore from file'
+    };
+    if(no172() && mapNo[txt]) btn.textContent = mapNo[txt];
+    if(!no172() && mapEn[txt]) btn.textContent = mapEn[txt];
+  });
+
+  // Headings and descriptions.
+  settingsView.querySelectorAll('h2,h3,p,.sub,div').forEach(el=>{
+    if(!el || el.children.length > 0) return;
+    const txt = (el.textContent || '').trim();
+
+    if(txt === 'Restore points' || txt === 'Gjenopprettingspunkter'){
+      el.textContent = t172('Restore points','Gjenopprettingspunkter');
+    }
+
+    if(txt.startsWith('Create an internal restore point') || txt.startsWith('Opprett et internt gjenopprettingspunkt')){
+      el.textContent = t172(
+        'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',
+        'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.'
+      );
+    }
+
+    if(txt.startsWith('Backup includes') || txt.startsWith('Backup inkluderer')){
+      el.textContent = t172(
+        'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',
+        'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.'
+      );
+    }
+
+    if(txt.startsWith('App version:') || txt.startsWith('Appversjon:')){
+      el.innerHTML = `${t172('App version','Appversjon')}: <strong id="appVersionText">v1.72</strong>`;
+    }
+  });
+}
+
+// Override old restore point init functions after they run.
+const oldRender172 = render;
+render = function(){
+  oldRender172();
+  setTimeout(fixSettings172, 0);
+  setTimeout(fixSettings172, 100);
+  setTimeout(fixSettings172, 500);
+};
+
+document.addEventListener('DOMContentLoaded',()=>setTimeout(fixSettings172,300));
+document.addEventListener('click',()=>setTimeout(fixSettings172,120),true);
+document.addEventListener('change',()=>setTimeout(fixSettings172,120),true);
+setInterval(fixSettings172,1000);

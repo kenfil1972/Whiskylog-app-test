@@ -282,3 +282,9 @@ button{
   color:#fff!important;
   border:1px solid rgba(255,90,70,.55)!important;
 }
+
+/* v1.72 settings final override */
+.settings-fixed-v172 .sub,
+.settings-fixed-v172 p{
+  white-space:normal;
+}
