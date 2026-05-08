@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1554,7 +1554,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1719,7 +1719,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -1859,7 +1859,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2018,7 +2018,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2154,7 +2154,7 @@ render = function(){
 
 
 /* v1.73 clean settings + restore points */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function wl73No(){ return settings && settings.language === 'no'; }
 function wl73(en,no){ return wl73No() ? no : en; }
@@ -2306,7 +2306,7 @@ setInterval(wl73FixSettings, 1000);
 
 
 /* v1.74 final clean override */
-window.WHISKYLOG_VERSION='1.75';
+window.WHISKYLOG_VERSION='1.76';
 
 function wl74No(){ return settings && settings.language === 'no'; }
 function wl74(en,no){ return wl74No() ? no : en; }
@@ -2469,3 +2469,213 @@ render = function(){
 };
 
 document.addEventListener('DOMContentLoaded',()=>setTimeout(wl75HomeVersion,300));
+
+
+/* v1.76 rebuild settings backup/restore section */
+window.WHISKYLOG_VERSION='1.76';
+
+function wl76No(){ return settings && settings.language === 'no'; }
+function wl76(en,no){ return wl76No() ? no : en; }
+
+function wl76BackupToFile(){
+  const payload = {
+    app: 'WhiskyLog',
+    version: window.WHISKYLOG_VERSION || '1.76',
+    exportedAt: new Date().toISOString(),
+    state: state,
+    settings: settings
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `WhiskyLog_backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+function wl76RestoreFromFile(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      const nextState = data.state || data;
+      const nextSettings = data.settings || null;
+      if(!nextState || !Array.isArray(nextState.bases) || !Array.isArray(nextState.bottles)){
+        throw new Error(wl76('Invalid backup file','Ugyldig backupfil'));
+      }
+      if(!confirm(wl76(
+        'Restore backup from file? Current app data on this device will be replaced.',
+        'Hente backup fra fil? Gjeldende appdata på denne enheten blir erstattet.'
+      ))) return;
+      state = Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, nextState);
+      if(nextSettings){
+        settings = Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, nextSettings);
+      }
+      save();
+      saveSettings();
+      render();
+      show('home');
+      alert(wl76('Backup restored.','Backup gjenopprettet.'));
+    }catch(err){
+      alert(wl76('Could not restore backup: ','Kunne ikke gjenopprette backup: ') + (err && err.message ? err.message : ''));
+    }
+  };
+  reader.readAsText(file);
+}
+
+function wl76CreateRestorePoint(){
+  const name = prompt(wl76('Restore point name','Navn på gjenopprettingspunkt'), wl76('Before cleanup','Før rydding'));
+  if(name === null) return;
+  const key = 'whiskylog_restore_points';
+  let points = [];
+  try{ points = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ points = []; }
+  if(!Array.isArray(points)) points = [];
+  points.unshift({
+    id: uid(),
+    name: String(name || wl76('Restore point','Gjenopprettingspunkt')).trim(),
+    createdAt: new Date().toLocaleString('sv-SE'),
+    version: window.WHISKYLOG_VERSION || '1.76',
+    state: JSON.parse(JSON.stringify(state)),
+    settings: JSON.parse(JSON.stringify(settings))
+  });
+  localStorage.setItem(key, JSON.stringify(points.slice(0,10)));
+  render();
+  alert(wl76('Restore point created.','Gjenopprettingspunkt opprettet.'));
+}
+
+function wl76RenderRestoreList(){
+  const key = 'whiskylog_restore_points';
+  let points = [];
+  try{ points = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ points = []; }
+  if(!Array.isArray(points)) points = [];
+  if(!points.length) return `<div class="sub">${wl76('No restore points yet.','Ingen gjenopprettingspunkter ennå.')}</div>`;
+  return points.map(p => `
+    <div class="item">
+      <div>↩️</div>
+      <div>
+        <div class="title">${esc(p.name || '')}</div>
+        <div class="meta">${esc(p.createdAt || '')} · v${esc(p.version || '')}</div>
+        <div class="restore-point-actions">
+          <button class="ghost" type="button" onclick="wl76RestorePoint('${p.id}')">${wl76('Restore','Gjenopprett')}</button>
+          <button class="danger" type="button" onclick="wl76DeleteRestorePoint('${p.id}')">${wl76('Delete','Slett')}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function wl76RestorePoint(id){
+  const key = 'whiskylog_restore_points';
+  let points = [];
+  try{ points = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ points = []; }
+  const p = points.find(x => x.id === id);
+  if(!p) return;
+  if(!confirm(wl76('Restore this point? Current app data will be replaced.','Gjenopprette dette punktet? Gjeldende appdata blir erstattet.'))) return;
+  state = Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, p.state || {});
+  settings = Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, p.settings || {});
+  save();
+  saveSettings();
+  render();
+  show('home');
+}
+
+function wl76DeleteRestorePoint(id){
+  const key = 'whiskylog_restore_points';
+  if(!confirm(wl76('Delete restore point permanently?','Slette gjenopprettingspunkt permanent?'))) return;
+  let points = [];
+  try{ points = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ points = []; }
+  localStorage.setItem(key, JSON.stringify(points.filter(p => p.id !== id)));
+  render();
+}
+
+function wl76RebuildSettingsExtras(){
+  const settingsView = document.getElementById('settings');
+  if(!settingsView) return;
+
+  [...settingsView.querySelectorAll('.card')].forEach(card => {
+    const txt = (card.textContent || '');
+    if(txt.includes('Restore points') || txt.includes('Gjenopprettingspunkter') ||
+       txt.includes('createRestorePoint') || txt.includes('backupToFile') ||
+       txt.includes('restoreFromFile') || txt.includes('App version:') ||
+       txt.includes('Appversjon:') || txt.includes('Backup includes') ||
+       txt.includes('Backup inkluderer')){
+      card.remove();
+    }
+  });
+
+  const old = settingsView.querySelector('#wl76SettingsExtras');
+  if(old) old.remove();
+
+  const wrap = document.createElement('div');
+  wrap.id = 'wl76SettingsExtras';
+  wrap.innerHTML = `
+    <section class="card">
+      <h2>${wl76('Restore points','Gjenopprettingspunkter')}</h2>
+      <p class="sub">${wl76(
+        'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',
+        'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.'
+      )}</p>
+      <button class="primary" type="button" id="wl76CreateRestore">${wl76('Create restore point','Opprett gjenopprettingspunkt')}</button>
+      <div class="restore-list">${wl76RenderRestoreList()}</div>
+    </section>
+    <section class="card">
+      <button class="primary" type="button" id="wl76BackupFile">${wl76('Backup to file','Lagre backup til fil')}</button>
+      <button class="ghost" type="button" id="wl76RestoreFile">${wl76('Restore from file','Hent backup fra fil')}</button>
+      <input type="file" id="wl76RestoreInput" accept="application/json,.json" style="display:none">
+      <p class="sub">${wl76(
+        'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',
+        'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.'
+      )}</p>
+    </section>
+  `;
+  settingsView.appendChild(wrap);
+
+  document.getElementById('wl76CreateRestore').onclick = wl76CreateRestorePoint;
+  document.getElementById('wl76BackupFile').onclick = wl76BackupToFile;
+  document.getElementById('wl76RestoreFile').onclick = () => {
+    const inp = document.getElementById('wl76RestoreInput');
+    inp.value = '';
+    inp.click();
+  };
+  document.getElementById('wl76RestoreInput').onchange = e => {
+    const file = e.target.files && e.target.files[0];
+    if(file) wl76RestoreFromFile(file);
+  };
+}
+
+function wl76FixOtherLanguage(){
+  document.querySelectorAll('#library p,.hero p,.sub').forEach(el => {
+    const txt = (el.textContent || '').trim();
+    if(txt.includes('Use Save & add next') || txt.includes('Use “Save & add next”') || txt.includes('Bruk «Lagre og legg til neste»')){
+      el.textContent = wl76(
+        'Use “Save & add next” when entering several bottles. Saved bottles appear immediately when adding to stock.',
+        'Bruk «Lagre og legg til neste» når du legger inn flere flasker. Lagrede flasker vises straks når du legger dem inn i beholdning.'
+      );
+    }
+  });
+  document.querySelectorAll('button').forEach(btn => {
+    const t = (btn.textContent || '').trim();
+    if(wl76No()){
+      if(t === 'saveAddNext') btn.textContent = 'Lagre og legg til neste';
+      if(t === 'clearForm') btn.textContent = 'Tøm skjema';
+      if(t === 'Edit') btn.textContent = 'Rediger';
+      if(t === 'Delete') btn.textContent = 'Slett';
+    }else{
+      if(t === 'saveAddNext') btn.textContent = 'Save & add next';
+      if(t === 'clearForm') btn.textContent = 'Clear form';
+    }
+  });
+}
+
+const oldRender_v176 = render;
+render = function(){
+  oldRender_v176();
+  setTimeout(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 0);
+  setTimeout(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 250);
+};
+
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 300));
+document.addEventListener('click', () => setTimeout(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 120), true);
+document.addEventListener('change', () => setTimeout(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 120), true);
+setInterval(() => { wl76RebuildSettingsExtras(); wl76FixOtherLanguage(); }, 3000);
