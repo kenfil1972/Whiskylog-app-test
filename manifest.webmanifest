@@ -1,0 +1,21 @@
+{
+  "name": "WhiskyLog v1.73",
+  "short_name": "WhiskyLog",
+  "start_url": "/Whiskylog-app-test/index.html?v=173",
+  "scope": "/Whiskylog-app-test/",
+  "display": "standalone",
+  "background_color": "#130c08",
+  "theme_color": "#130c08",
+  "icons": [
+    {
+      "src": "/Whiskylog-app-test/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/Whiskylog-app-test/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
