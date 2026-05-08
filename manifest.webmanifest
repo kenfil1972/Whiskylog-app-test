@@ -1,7 +1,7 @@
 {
-  "name": "WhiskyLog v2.15",
+  "name": "WhiskyLog v2.16",
   "short_name": "WhiskyLog",
-  "start_url": "/Whiskylog-app-test/index.html?v=215",
+  "start_url": "/Whiskylog-app-test/index.html?v=216",
   "display": "standalone",
   "background_color": "#0c0f10",
   "theme_color": "#101416",

@@ -2,19 +2,19 @@
 (() => {
 'use strict';
 
-const VERSION = '2.15';
+const VERSION = '2.16';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.15',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.16',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
     logging:'Loggføring', loggingSub:'Registrer smaking, korriger beholdning og legg til flasker.',
     overview:'Oversikt / statistikk', overviewSub:'Rangering, score, verdi og historikk.',
-    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste',
+    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste', lastSip:'Siste sipp smakt',
     settings:'Innstillinger', settingsSub:'Navn, valuta, språk og backup.',
     unopened:'Uåpnede flasker', opened:'Åpnede flasker', empty:'Tomme flasker',
     bottles:'flasker', value:'verdi', stockVolume:'volum i beholdning',
@@ -42,13 +42,13 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.15',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.16',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
     logging:'Logging', loggingSub:'Register tastings, correct stock and add bottles.',
     overview:'Overview / statistics', overviewSub:'Ranking, scores, value and history.',
-    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item',
+    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item', lastSip:'Last sip finished',
     settings:'Settings', settingsSub:'Name, currency, language and backup.',
     unopened:'Unopened bottles', opened:'Opened bottles', empty:'Empty bottles',
     bottles:'bottles', value:'value', stockVolume:'stock volume',
@@ -542,7 +542,7 @@ function renderTasting(){
         <div><label>${tr('finish')}</label><input name="finish" inputmode="numeric" value="${esc(t.finish||'')}"></div>
       </div>
       <label>${tr('notes')}</label><textarea name="notes">${esc(t.notes||'')}</textarea>
-      <div class="actions"><button class="primary">${tr('save')}</button>${t.id?`<button type="button" class="danger" onclick="deleteTasting('${t.id}')">${tr('delete')}</button>`:''}</div>
+      <div class="actions"><button class="primary">${tr('save')}</button>${t.id?`<button type="button" class="danger" onclick="markBottleEmptyFromTasting('${t.id}')">${tr('lastSip')}</button>`:''}</div>
     </form></section>
     <section class="card"><h2>${tr('registerTasting')}</h2><div class="list">${tastingList()}</div></section>
   `,'logging');
