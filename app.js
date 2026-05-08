@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.10';
+const VERSION = '2.11';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.10',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.11',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.10',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.11',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -161,6 +161,7 @@ let page = 'home';
 let editLibraryId = '';
 let editBottleId = '';
 let editTastingId = '';
+let stockPageStatus = '';
 
 function shell(inner, backTo='home'){
   app.innerHTML = `
@@ -181,6 +182,7 @@ window.go = function(p){
 function render(){
   if(page === 'home') renderHome();
   else if(page === 'stock') renderStock();
+  else if(page === 'stockCategory') renderStockCategory();
   else if(page === 'logging') renderLogging();
   else if(page === 'library') renderLibrary();
   else if(page === 'addStock') renderAddStock();
@@ -268,8 +270,11 @@ function renderStock(){
     <section class="stockDashboard">
       ${statuses.map(([s,label,icon])=>{
         const st=stockStats(s);
-        return `<div class="stockBox" onclick="document.getElementById('list-${s}')?.scrollIntoView({behavior:'smooth'})">
-          <div class="icon">${iconSvg(icon)}</div>
+        return `<div class="stockBox stockBoxWithImages" onclick="openStockCategory('${s}')">
+          <div class="stockBoxTop">
+            <div class="icon">${iconSvg(icon)}</div>
+            ${stockPreviewImages(s)}
+          </div>
           <h3>${label}</h3>
           <p class="sub">${st.count} ${tr('bottles')} · ${money(st.value)}</p>
           <p class="small">${Math.round(st.volume)} ml</p>
@@ -282,14 +287,49 @@ function renderStock(){
       <button class="ghost" onclick="go('tasting')">${tr('registerTasting')}</button>
       <button class="ghost" onclick="go('correctStock')">${tr('correctStock')}</button>
     </section>
-
-    ${statuses.map(([s,label])=>`
-      <section class="card compactListCard" id="list-${s}">
-        <h2>${label}</h2>
-        <div class="list">${stockListByStatus(s)}</div>
-      </section>
-    `).join('')}
   `);
+}
+
+
+function openStockCategory(status){
+  stockPageStatus = status;
+  page = 'stockCategory';
+  render();
+}
+window.openStockCategory = openStockCategory;
+
+function statusLabel(status){
+  if(status === 'unopened') return tr('unopened');
+  if(status === 'opened') return tr('opened');
+  if(status === 'empty') return tr('empty');
+  return tr('bottle');
+}
+
+function stockPreviewImages(status){
+  const bottles = state.bottles.filter(b => bottleStatus(b) === status).slice(0,4);
+  if(!bottles.length) return `<div class="stockPreview emptyPreview">${iconSvg('bottle','miniSvg')}</div>`;
+  return `<div class="stockPreview">${bottles.map(b=>{
+    const base = bottleBase(b);
+    return base.image ? `<img src="${base.image}" alt="">` : `<span>${iconSvg('bottle','miniSvg')}</span>`;
+  }).join('')}</div>`;
+}
+
+function renderStockCategory(){
+  const status = stockPageStatus || 'opened';
+  shell(`
+    <section class="hero dashboardHero">
+      <h2>${statusLabel(status)}</h2>
+      <p class="sub">${tr('myStockSub')}</p>
+    </section>
+    <section class="card compactListCard">
+      <div class="list">${stockListByStatus(status)}</div>
+    </section>
+    <section class="actionStrip">
+      <button class="ghost" onclick="go('addStock')">${tr('addStock')}</button>
+      <button class="ghost" onclick="go('tasting')">${tr('registerTasting')}</button>
+      <button class="ghost" onclick="go('correctStock')">${tr('correctStock')}</button>
+    </section>
+  `,'stock');
 }
 
 function stockListByStatus(status){

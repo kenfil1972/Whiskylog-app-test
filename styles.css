@@ -257,3 +257,52 @@ h1{
     height:21px;
   }
 }
+
+
+/* v2.11 stock category pages + bottle thumbnails on stock overview */
+.stockBoxWithImages{
+  min-height:160px;
+}
+.stockBoxTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.stockPreview{
+  display:grid;
+  grid-template-columns:repeat(2,42px);
+  grid-template-rows:repeat(2,42px);
+  gap:7px;
+}
+.stockPreview img,
+.stockPreview span{
+  width:42px;
+  height:42px;
+  border-radius:11px;
+  object-fit:cover;
+  background:rgba(0,0,0,.5);
+  border:1px solid rgba(244,191,79,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.emptyPreview{
+  grid-template-columns:42px;
+  grid-template-rows:42px;
+}
+.compactListCard .item{
+  align-items:start;
+}
+@media(max-width:700px){
+  .stockPreview{
+    grid-template-columns:repeat(2,38px);
+    grid-template-rows:repeat(2,38px);
+  }
+  .stockPreview img,
+  .stockPreview span{
+    width:38px;
+    height:38px;
+  }
+}
