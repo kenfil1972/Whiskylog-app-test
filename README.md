@@ -1,9 +1,12 @@
-# WhiskyLog v1.66 Forced Library Delete + Label Fix
+# WhiskyLog v1.69 Clean Version + Delete Fix
 
 Fixes:
-- Forced library list renderer that always shows Rediger/Edit + Slett/Delete.
-- Delete from library uses deleteBase_v166.
-- Defeats older late-render functions by re-rendering library actions after render/navigation.
-- Fixes camelCase button labels like saveAddNext and clearForm.
-- Forces visible version to v1.66.
-- Cache-busted with v=166.
+- README, index.html, app.js and manifest now all show v1.69.
+- Final forced delete button beside Edit/Rediger in library list.
+- Fixes camelCase labels:
+  - saveAddNext
+  - clearForm
+  - createRestorePoint
+  - backupToFile
+  - restoreFromFile
+- Cache-busted with v=169.

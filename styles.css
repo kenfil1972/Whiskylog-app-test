@@ -241,3 +241,8 @@ button{
   white-space:normal;
   word-break:normal;
 }
+
+/* v1.69 final library action layout */
+.wl69-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.wl69-actions button{padding:9px 13px;border-radius:14px}
+.wl69-delete{background:rgba(180,35,24,.22)!important;color:#fff!important;border:1px solid rgba(255,90,70,.55)!important}
