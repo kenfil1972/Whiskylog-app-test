@@ -1,9 +1,7 @@
-# WhiskyLog v1.64 Language / Restore / Version Fix
+# WhiskyLog v1.65 Library Delete + Norwegian Text Fix
 
 Fixes:
-- Settings version now always displays active code version.
-- createRestorePoint / backupToFile / restoreFromFile key names are replaced with readable labels.
-- Broader Norwegian/English language pass for Settings and dynamic restore controls.
-- Added spacing-safe CSS for button labels.
-- Restore from file keeps full backup shape: state + settings.
-- Cache-busted with v=164.
+- Library list is explicitly rebuilt with Rediger/Edit and Slett/Delete next to each other.
+- Delete from library uses deleteBase_v165 and removes related stock/tastings/comments only after confirmation.
+- Norwegian helper text in Bottle library is corrected.
+- Cache-busted with v=165.

@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.64';
+window.WHISKYLOG_VERSION='1.65';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1611,3 +1611,127 @@ render=function(){oldRender_v164();initRestorePoints_v164();initBackupFileButton
 document.addEventListener('click',()=>setTimeout(localizeSettings164,60));
 document.addEventListener('change',()=>setTimeout(localizeSettings164,60));
 document.addEventListener('DOMContentLoaded',()=>setTimeout(localizeSettings164,100));
+
+
+/* v1.65 final library delete + Norwegian text fix */
+function isNo165(){
+  return settings && settings.language === 'no';
+}
+function tx165(en,no){
+  return isNo165() ? no : en;
+}
+function deleteBase_v165(id){
+  const base = getBase(id);
+  if(!base) return;
+
+  const bottleIds = (state.bottles || []).filter(b => b.baseId === id).map(b => b.id);
+  const tCount = (state.tastings || []).filter(t => bottleIds.includes(t.bottleId)).length;
+  const cCount = (state.comments || []).filter(c => bottleIds.includes(c.bottleId)).length;
+
+  const msg = bottleIds.length
+    ? tx165(
+        `Delete "${base.name}" from the library permanently?\n\nThis is used by ${bottleIds.length} bottle(s), ${tCount} tasting(s) and ${cCount} comment/log item(s).\n\nDeleting it will also delete all related bottles, tastings and comments. This cannot be undone.`,
+        `Slette "${base.name}" permanent fra biblioteket?\n\nDenne brukes av ${bottleIds.length} flaske(r), ${tCount} smaking(er) og ${cCount} kommentar/loggpunkt.\n\nSletting vil også slette alle tilknyttede flasker, smakinger og kommentarer. Dette kan ikke angres.`
+      )
+    : tx165(
+        `Delete "${base.name}" from the library permanently?\n\nThis cannot be undone.`,
+        `Slette "${base.name}" permanent fra biblioteket?\n\nDette kan ikke angres.`
+      );
+
+  if(!confirm(msg)) return;
+
+  state.bases = (state.bases || []).filter(b => b.id !== id);
+  if(bottleIds.length){
+    state.bottles = (state.bottles || []).filter(b => b.baseId !== id);
+    state.tastings = (state.tastings || []).filter(t => !bottleIds.includes(t.bottleId));
+    state.comments = (state.comments || []).filter(c => !bottleIds.includes(c.bottleId));
+  }
+
+  const f = document.getElementById('libraryForm');
+  if(f && f.id && f.id.value === id){
+    f.reset();
+    f.id.value = '';
+  }
+
+  save();
+  render();
+  alert(tx165('Library item deleted.','Bibliotekflaske slettet.'));
+}
+
+function renderLibraryList_v165(){
+  const host = document.getElementById('baseList') || document.getElementById('libraryList') || document.querySelector('#library .list');
+  if(!host) return false;
+
+  const bases = state.bases || [];
+  if(!bases.length){
+    host.innerHTML = `<div class="sub">${tx165('No library items yet.','Ingen flasker i biblioteket ennå.')}</div>`;
+    return true;
+  }
+
+  host.innerHTML = bases.map(b => {
+    const used = (state.bottles || []).filter(x => x.baseId === b.id).length;
+    const img = b.image ? `<img class="thumb" src="${b.image}" alt="">` : '📚';
+    const usedTxt = used ? ` · ${used} ${tx165('in stock','i beholdning')}` : '';
+    return `
+      <div class="item">
+        <div>${img}</div>
+        <div>
+          <div class="title">${esc(b.name || '')}</div>
+          <div class="meta">${esc(b.type || '')} · ${b.abv || '—'}% · ${b.volume || '—'} ml</div>
+          <div class="sub">${esc(b.distillery || '')}${b.region ? ' · ' + esc(b.region) : ''}${usedTxt}</div>
+          <div class="library-actions-v165">
+            <button class="ghost" type="button" onclick="editBase('${b.id}')">${tx165('Edit','Rediger')}</button>
+            <button class="danger" type="button" onclick="deleteBase_v165('${b.id}')">${tx165('Delete','Slett')}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  return true;
+}
+
+function fixLibraryNorwegianText_v165(){
+  const no = isNo165();
+
+  document.querySelectorAll('#library p,.hero p,.card p,.sub').forEach(el => {
+    const t = (el.textContent || '').trim();
+
+    if(t === 'Use Save & add next when entering several bottles. Saved bottles appear immediately when adding to stock.' ||
+       t === 'Bruk Lagre og legg til neste når du legger inn flere flasker. Lagrede flasker vises straks når du legger dem inn i beholdning.'){
+      el.textContent = no
+        ? 'Bruk «Lagre og legg til neste» når du legger inn flere flasker. Lagrede flasker vises straks når du legger dem inn i beholdning.'
+        : 'Use “Save & add next” when entering several bottles. Saved bottles appear immediately when adding to stock.';
+    }
+
+    if(t === 'Core data can only be edited here.' || t === 'Grunndata kan kun redigeres her.'){
+      el.textContent = no ? 'Grunndata kan kun redigeres her.' : 'Core data can only be edited here.';
+    }
+  });
+
+  const libTitle = document.querySelector('#library h2');
+  if(libTitle && (libTitle.textContent.trim() === 'Bottle library' || libTitle.textContent.trim() === 'Flaskebibliotek')){
+    libTitle.textContent = no ? 'Flaskebibliotek' : 'Bottle library';
+  }
+
+  // Force known button texts in library area.
+  document.querySelectorAll('#library button').forEach(btn => {
+    const txt = (btn.textContent || '').trim();
+    if(['Edit','Rediger'].includes(txt)) btn.textContent = no ? 'Rediger' : 'Edit';
+    if(['Delete','Slett'].includes(txt)) btn.textContent = no ? 'Slett' : 'Delete';
+    if(['Save & add next','Lagre og legg til neste'].includes(txt)) btn.textContent = no ? 'Lagre og legg til neste' : 'Save & add next';
+    if(['Clear form','Tøm skjema'].includes(txt)) btn.textContent = no ? 'Tøm skjema' : 'Clear form';
+  });
+}
+
+const oldRender_v165 = render;
+render = function(){
+  oldRender_v165();
+  renderLibraryList_v165();
+  fixLibraryNorwegianText_v165();
+};
+
+document.addEventListener('click', () => setTimeout(() => {
+  renderLibraryList_v165();
+  fixLibraryNorwegianText_v165();
+}, 80));
+document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v165, 80));
