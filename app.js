@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1554,7 +1554,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1719,7 +1719,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -1859,7 +1859,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2018,7 +2018,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2154,7 +2154,7 @@ render = function(){
 
 
 /* v1.73 clean settings + restore points */
-window.WHISKYLOG_VERSION='1.73';
+window.WHISKYLOG_VERSION='1.74';
 
 function wl73No(){ return settings && settings.language === 'no'; }
 function wl73(en,no){ return wl73No() ? no : en; }
@@ -2303,3 +2303,142 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(wl73FixSettings, 
 document.addEventListener('click', () => setTimeout(wl73FixSettings, 80), true);
 document.addEventListener('change', () => setTimeout(wl73FixSettings, 80), true);
 setInterval(wl73FixSettings, 1000);
+
+
+/* v1.74 final clean override */
+window.WHISKYLOG_VERSION='1.74';
+
+function wl74No(){ return settings && settings.language === 'no'; }
+function wl74(en,no){ return wl74No() ? no : en; }
+
+function wl74DeleteBase(id){
+  const base = getBase(id);
+  if(!base) return;
+  const bottleIds = (state.bottles || []).filter(b => b.baseId === id).map(b => b.id);
+  const tCount = (state.tastings || []).filter(t => bottleIds.includes(t.bottleId)).length;
+  const cCount = (state.comments || []).filter(c => bottleIds.includes(c.bottleId)).length;
+
+  const msg = bottleIds.length
+    ? wl74(
+      `Delete "${base.name}" permanently?\n\nThis will also delete ${bottleIds.length} stock bottle(s), ${tCount} tasting(s) and ${cCount} comment/log item(s). This cannot be undone.`,
+      `Slette "${base.name}" permanent?\n\nDette vil også slette ${bottleIds.length} beholdningsflaske(r), ${tCount} smaking(er) og ${cCount} kommentar/loggpunkt. Dette kan ikke angres.`
+    )
+    : wl74(
+      `Delete "${base.name}" permanently? This cannot be undone.`,
+      `Slette "${base.name}" permanent? Dette kan ikke angres.`
+    );
+
+  if(!confirm(msg)) return;
+
+  state.bases = (state.bases || []).filter(b => b.id !== id);
+  state.bottles = (state.bottles || []).filter(b => b.baseId !== id);
+  state.tastings = (state.tastings || []).filter(t => !bottleIds.includes(t.bottleId));
+  state.comments = (state.comments || []).filter(c => !bottleIds.includes(c.bottleId));
+  save();
+  render();
+}
+
+function wl74FixVisibleText(){
+  const mapNo = {
+    saveAddNext:'Lagre og legg til neste',
+    clearForm:'Tøm skjema',
+    createRestorePoint:'Opprett gjenopprettingspunkt',
+    backupToFile:'Lagre backup til fil',
+    restoreFromFile:'Hent backup fra fil',
+    exportBackupText:'Eksporter backuptekst',
+    importBackupText:'Importer backuptekst',
+    Edit:'Rediger',
+    Delete:'Slett'
+  };
+  const mapEn = {
+    saveAddNext:'Save & add next',
+    clearForm:'Clear form',
+    createRestorePoint:'Create restore point',
+    backupToFile:'Backup to file',
+    restoreFromFile:'Restore from file',
+    exportBackupText:'Export backup text',
+    importBackupText:'Import backup text',
+    Rediger:'Edit',
+    Slett:'Delete'
+  };
+
+  document.querySelectorAll('button').forEach(btn => {
+    const txt = (btn.textContent || '').trim();
+    if(wl74No() && mapNo[txt]) btn.textContent = mapNo[txt];
+    if(!wl74No() && mapEn[txt]) btn.textContent = mapEn[txt];
+  });
+
+  const version = document.getElementById('appVersionText');
+  if(version) version.textContent = 'v1.74';
+
+  const settingsView = document.getElementById('settings');
+  if(settingsView){
+    settingsView.querySelectorAll('h2,h3,p,.sub,div').forEach(el => {
+      if(!el || el.children.length > 0) return;
+      const t = (el.textContent || '').trim();
+
+      if(['Restore points','Gjenopprettingspunkter'].includes(t)){
+        el.textContent = wl74('Restore points','Gjenopprettingspunkter');
+      }
+      if(t.startsWith('Create an internal restore point') || t.startsWith('Opprett et internt gjenopprettingspunkt')){
+        el.textContent = wl74(
+          'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',
+          'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.'
+        );
+      }
+      if(t.startsWith('Backup includes') || t.startsWith('Backup inkluderer')){
+        el.textContent = wl74(
+          'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',
+          'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.'
+        );
+      }
+      if(t.startsWith('App version:') || t.startsWith('Appversjon:')){
+        el.innerHTML = `${wl74('App version','Appversjon')}: <strong id="appVersionText">v1.74</strong>`;
+      }
+    });
+  }
+}
+
+function wl74EnsureLibraryDelete(){
+  const library = document.getElementById('library');
+  if(!library) return;
+
+  [...library.querySelectorAll('.item')].forEach(item => {
+    const editBtn = [...item.querySelectorAll('button')].find(btn => {
+      const t = (btn.textContent || '').trim().toLowerCase();
+      return t === 'edit' || t === 'rediger';
+    });
+    if(!editBtn || item.querySelector('.wl74-delete')) return;
+
+    const onclick = editBtn.getAttribute('onclick') || '';
+    const match = onclick.match(/editBase\('([^']+)'\)/);
+    let id = match ? match[1] : '';
+
+    if(!id){
+      const title = item.querySelector('.title');
+      const name = title ? title.textContent.trim() : '';
+      const base = (state.bases || []).find(b => String(b.name || '').trim() === name);
+      if(base) id = base.id;
+    }
+    if(!id) return;
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'danger wl74-delete';
+    del.textContent = wl74('Delete','Slett');
+    del.onclick = () => wl74DeleteBase(id);
+    editBtn.insertAdjacentElement('afterend', del);
+  });
+}
+
+const oldRender_v174 = render;
+render = function(){
+  oldRender_v174();
+  setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 0);
+  setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 250);
+};
+
+document.addEventListener('DOMContentLoaded', () => setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 300));
+document.addEventListener('click', () => setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 120), true);
+document.addEventListener('change', () => setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 120), true);
+setInterval(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 1000);

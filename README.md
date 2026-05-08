@@ -1,8 +1,10 @@
-# WhiskyLog v1.73 Remove Legacy Restore Settings
+# WhiskyLog v1.74 Clean app.js Package
 
-Fixes:
-- Removes old legacy restore/settings patches that wrote v1.66 and camelCase labels.
-- Settings now shows Appversjon/App version v1.73.
-- Restore point, backup and import/export labels are normalized in Norwegian/English.
-- Restore points are stored under a clean localStorage key: whiskylog_restore_points.
-- Version references updated to v1.73 / v=173.
+Fixes included:
+- Clean app.js with active version v1.74.
+- Final Settings override so old v1.66 text should not appear.
+- Restore point / backup buttons converted from camelCase labels to readable text.
+- Slett/Delete injected beside Rediger/Edit in library.
+- Version references updated to v1.74 / v=174.
+
+Upload all files in this ZIP to GitHub Pages repo.
