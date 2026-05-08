@@ -1900,3 +1900,76 @@ const v166Timer=setInterval(()=>{
   v166Runs++;
   if(v166Runs>20)clearInterval(v166Timer);
 },250);
+
+
+/* v1.67 HARD replace library cards */
+window.WHISKYLOG_VERSION='1.67';
+
+function wl67No(){return settings&&settings.language==='no'}
+function wl67Txt(en,no){return wl67No()?no:en}
+
+function wl67Delete(id){
+ const base=getBase(id);
+ if(!base)return;
+ if(!confirm(wl67Txt(
+   `Delete "${base.name}" permanently?`,
+   `Slette "${base.name}" permanent?`
+ ))) return;
+
+ const bottleIds=(state.bottles||[]).filter(b=>b.baseId===id).map(b=>b.id);
+ state.bases=(state.bases||[]).filter(b=>b.id!==id);
+ state.bottles=(state.bottles||[]).filter(b=>b.baseId!==id);
+ state.tastings=(state.tastings||[]).filter(t=>!bottleIds.includes(t.bottleId));
+ state.comments=(state.comments||[]).filter(c=>!bottleIds.includes(c.bottleId));
+
+ save();
+ render();
+}
+
+function wl67ReplaceLibrary(){
+ const lib=document.getElementById('library');
+ if(!lib)return;
+
+ const allButtons=[...lib.querySelectorAll('button')];
+ allButtons.forEach(btn=>{
+   const t=(btn.textContent||'').trim();
+   if(t==='saveAddNext')btn.textContent=wl67Txt('Save & add next','Lagre og legg til neste');
+   if(t==='clearForm')btn.textContent=wl67Txt('Clear form','Tøm skjema');
+ });
+
+ const items=[...lib.querySelectorAll('.item')];
+ items.forEach(item=>{
+   const oldEdit=[...item.querySelectorAll('button')].find(b=>(b.textContent||'').trim().toLowerCase().includes('edit')||(b.textContent||'').trim().toLowerCase().includes('rediger'));
+   if(!oldEdit)return;
+   if(item.querySelector('.wl67-delete'))return;
+
+   const onclick=oldEdit.getAttribute('onclick')||'';
+   const m=onclick.match(/editBase\('([^']+)'\)/);
+   if(!m)return;
+   const id=m[1];
+
+   const del=document.createElement('button');
+   del.className='danger wl67-delete';
+   del.style.marginLeft='8px';
+   del.textContent=wl67Txt('Delete','Slett');
+   del.onclick=()=>wl67Delete(id);
+
+   oldEdit.parentNode.insertBefore(del, oldEdit.nextSibling);
+ });
+
+ const v=document.getElementById('appVersionText');
+ if(v)v.textContent='v1.67';
+}
+
+const oldRender67=render;
+render=function(){
+ oldRender67();
+ setTimeout(wl67ReplaceLibrary,50);
+ setTimeout(wl67ReplaceLibrary,300);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+ setTimeout(wl67ReplaceLibrary,300);
+});
+
+setInterval(wl67ReplaceLibrary,1000);
