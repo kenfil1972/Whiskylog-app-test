@@ -313,3 +313,112 @@ h1{
   color:#f4bf4f;
   word-break:break-word;
 }
+
+
+/* v2.13 stock overview images and date field polish */
+.stockBoxWithImages{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-rows:auto 1fr;
+  gap:12px 18px;
+  min-height:185px;
+  overflow:hidden;
+}
+.stockBoxWithImages > .stockBoxTop{
+  display:contents;
+}
+.stockBoxWithImages > .stockBoxTop > .icon{
+  grid-column:1;
+  grid-row:1;
+}
+.stockBoxWithImages h3,
+.stockBoxWithImages .sub,
+.stockBoxWithImages .small{
+  grid-column:1;
+  max-width:100%;
+}
+.stockPreview{
+  grid-column:2;
+  grid-row:1 / span 4;
+  align-self:start;
+  justify-self:end;
+  display:grid;
+  grid-template-columns:repeat(2,58px);
+  grid-template-rows:repeat(2,58px);
+  gap:9px;
+  max-width:128px;
+}
+.stockPreview img,
+.stockPreview span{
+  width:58px;
+  height:58px;
+  border-radius:14px;
+  object-fit:cover;
+  background:rgba(0,0,0,.55);
+  border:2px solid rgba(244,191,79,.62);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.emptyPreview{
+  grid-template-columns:58px;
+  grid-template-rows:58px;
+}
+.dateInput{
+  width:100%;
+  text-align:left!important;
+  padding-left:15px!important;
+  padding-right:15px!important;
+  min-height:52px!important;
+}
+input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
+  text-align:left;
+}
+@media(max-width:700px){
+  .stockBoxWithImages{
+    grid-template-columns:1fr 132px;
+    min-height:220px;
+  }
+  .stockPreview{
+    grid-template-columns:repeat(2,58px);
+    grid-template-rows:repeat(2,58px);
+    gap:8px;
+    max-width:126px;
+  }
+  .stockPreview img,
+  .stockPreview span{
+    width:58px;
+    height:58px;
+  }
+  .stockBoxWithImages h3,
+  .stockBoxWithImages .sub,
+  .stockBoxWithImages .small{
+    max-width:calc(100vw - 210px);
+  }
+}
+@media(max-width:430px){
+  .stockBoxWithImages{
+    grid-template-columns:1fr 116px;
+    gap:10px 12px;
+  }
+  .stockPreview{
+    grid-template-columns:repeat(2,52px);
+    grid-template-rows:repeat(2,52px);
+    gap:7px;
+    max-width:111px;
+  }
+  .stockPreview img,
+  .stockPreview span{
+    width:52px;
+    height:52px;
+    border-radius:13px;
+  }
+  .stockBoxWithImages h3,
+  .stockBoxWithImages .sub,
+  .stockBoxWithImages .small{
+    max-width:calc(100vw - 195px);
+  }
+}

@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.12';
+const VERSION = '2.13';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.12',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.13',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.12',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.13',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -500,7 +500,7 @@ function renderTasting(){
       <input type="hidden" name="id" value="${esc(t.id||'')}">
       <label>${tr('bottle')}</label><select name="bottleId" required>${bottleOptions(t.bottleId)}</select>
       <div class="formgrid">
-        <div><label>${tr('tastingDate')}</label><input type="date" name="date" value="${esc(t.date||today())}"></div>
+        <div><label>${tr('tastingDate')}</label><input class="dateInput" type="date" name="date" value="${esc(t.date||today())}"></div>
         <div><label>${tr('tastingType')}</label><select name="mode"><option value="neat" ${t.mode!=='water'?'selected':''}>${tr('neat')}</option><option value="water" ${t.mode==='water'?'selected':''}>${tr('water')}</option></select></div>
         <div><label>${tr('drops')}</label><input name="drops" inputmode="numeric" value="${esc(t.drops||'')}"></div>
         <div><label>${tr('tastingMl')}</label><input name="ml" inputmode="numeric" value="${esc(t.ml||state.settings.defaultTastingMl)}"></div>

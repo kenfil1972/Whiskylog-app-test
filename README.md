@@ -1,7 +1,7 @@
-# WhiskyLog v2.12 Wishlist
+# WhiskyLog v2.13 Stock Images + Date Fix
 
 Changes:
-- Full wishlist: add, edit, delete.
-- Fields: name, type, wanted price, priority, link and comment.
-- Wishlist included in normal app storage and JSON backup.
-- Clean v2 codebase retained.
+- Larger bottle thumbnails on My Stock overview.
+- Thumbnails are constrained to the right side so they do not collide with text.
+- Tasting date input styled to match other fields.
+- Clean v2 codebase, wishlist and v1 backup import retained.
