@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.61';
+window.WHISKYLOG_VERSION='1.62';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1318,3 +1318,115 @@ if(typeof renderTastingOverview_v158==='function'){
 if(typeof renderTastingOverview_v159==='function'){
   renderTastingOverview_v159=function(){renderTastingOverview_v161();}
 }
+
+
+/* v1.62 delete from library + compact modal hooks */
+function t162(en,no){return settings&&settings.language==='no'?no:en}
+
+function deleteBase_v162(id){
+  const base=getBase(id);
+  if(!base)return;
+
+  const relatedBottles=(state.bottles||[]).filter(b=>b.baseId===id);
+  const relatedBottleIds=relatedBottles.map(b=>b.id);
+  const relatedTastings=(state.tastings||[]).filter(t=>relatedBottleIds.includes(t.bottleId));
+  const relatedComments=(state.comments||[]).filter(c=>relatedBottleIds.includes(c.bottleId));
+
+  let message='';
+  if(relatedBottles.length){
+    message=t162(
+      `Delete "${base.name}" from the library permanently?\n\nThis library item is used by ${relatedBottles.length} bottle(s), ${relatedTastings.length} tasting(s) and ${relatedComments.length} comment/log item(s).\n\nDeleting it will also delete those related bottles, tastings and comments. This cannot be undone.`,
+      `Slette "${base.name}" permanent fra biblioteket?\n\nDenne bibliotekflasken brukes av ${relatedBottles.length} flaske(r), ${relatedTastings.length} smaking(er) og ${relatedComments.length} kommentar/loggpunkt.\n\nSletting vil også slette disse tilknyttede flaskene, smakingene og kommentarene. Dette kan ikke angres.`
+    );
+  }else{
+    message=t162(
+      `Delete "${base.name}" from the library permanently?\n\nThis cannot be undone.`,
+      `Slette "${base.name}" permanent fra biblioteket?\n\nDette kan ikke angres.`
+    );
+  }
+
+  if(!confirm(message))return;
+
+  state.bases=(state.bases||[]).filter(b=>b.id!==id);
+  if(relatedBottleIds.length){
+    state.bottles=(state.bottles||[]).filter(b=>b.baseId!==id);
+    state.tastings=(state.tastings||[]).filter(t=>!relatedBottleIds.includes(t.bottleId));
+    state.comments=(state.comments||[]).filter(c=>!relatedBottleIds.includes(c.bottleId));
+  }
+
+  save();
+  render();
+  const f=document.getElementById('libraryForm');
+  if(f&&f.id&&f.id.value===id){
+    f.reset();
+    f.id.value='';
+  }
+  alert(t162('Library item deleted.','Bibliotekflaske slettet.'));
+}
+
+function patchLibraryDeleteButtons_v162(){
+  const host=document.getElementById('baseList') || document.getElementById('libraryList') || document.querySelector('#library .list');
+  if(!host)return;
+
+  // Avoid duplicate buttons.
+  host.querySelectorAll('.item').forEach(item=>{
+    if(item.querySelector('[data-v162-delete-base]'))return;
+
+    const editBtn=item.querySelector('button[onclick^="editBase"],button[onclick*="editBase("]');
+    let id='';
+    if(editBtn){
+      const oc=editBtn.getAttribute('onclick')||'';
+      const m=oc.match(/editBase\('([^']+)'\)/);
+      if(m)id=m[1];
+    }
+
+    // Fallback: try finding base by exact title text.
+    if(!id){
+      const title=item.querySelector('.title');
+      const txt=title?title.textContent.trim():'';
+      const base=(state.bases||[]).find(b=>String(b.name||'').trim()===txt);
+      if(base)id=base.id;
+    }
+
+    if(!id)return;
+
+    let actions=item.querySelector('.row-actions');
+    if(!actions){
+      actions=document.createElement('div');
+      actions.className='row-actions';
+      const content=item.children[item.children.length-1] || item;
+      content.appendChild(actions);
+    }
+
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='danger';
+    btn.setAttribute('data-v162-delete-base','1');
+    btn.textContent=t162('Delete','Slett');
+    btn.onclick=()=>deleteBase_v162(id);
+    actions.appendChild(btn);
+  });
+}
+
+function compactDateModals_v162(){
+  document.querySelectorAll('input[type="date"]').forEach(inp=>{
+    inp.style.maxWidth='260px';
+    inp.style.width='100%';
+  });
+  // Some modal implementations use a generic wrapper; constrain any visible modal-like block.
+  document.querySelectorAll('.modal,.prompt,.dialog,.input-modal').forEach(el=>{
+    el.style.maxWidth='320px';
+    el.style.width='calc(100vw - 52px)';
+  });
+}
+
+const oldRender_v162=render;
+render=function(){
+  oldRender_v162();
+  patchLibraryDeleteButtons_v162();
+  compactDateModals_v162();
+};
+
+// Re-run compacting after modal creation too.
+document.addEventListener('focusin',()=>setTimeout(compactDateModals_v162,30));
+document.addEventListener('click',()=>setTimeout(()=>{patchLibraryDeleteButtons_v162();compactDateModals_v162();},50));

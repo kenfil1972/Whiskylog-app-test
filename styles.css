@@ -146,3 +146,49 @@ input[list],select{min-height:58px;font-size:1.08rem}
   color:#fff;
   border:1px solid rgba(255,90,70,.45);
 }
+
+
+/* v1.62 compact date dialog + library delete */
+.modal,
+.prompt,
+.dialog,
+.input-modal{
+  max-width:320px !important;
+  width:calc(100vw - 52px) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.modal input,
+.prompt input,
+.dialog input,
+.input-modal input{
+  max-width:260px !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+.modal input[type="date"],
+.prompt input[type="date"],
+.dialog input[type="date"],
+.input-modal input[type="date"]{
+  min-height:44px !important;
+  font-size:.95rem !important;
+  padding:8px 10px !important;
+}
+.row-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.row-actions button{
+  padding:9px 12px;
+  border-radius:12px;
+  font-size:.9rem;
+}
+.danger{
+  background:rgba(180,35,24,.18);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.45);
+}
