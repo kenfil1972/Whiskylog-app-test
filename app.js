@@ -1973,3 +1973,70 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 setInterval(wl67ReplaceLibrary,1000);
+
+
+/* v1.68 FORCE DELETE BUTTONS */
+function forceDeleteButtons(){
+  document.querySelectorAll('#library .item').forEach(item=>{
+    if(item.querySelector('.forceDeleteBtn')) return;
+
+    const editBtn=[...item.querySelectorAll('button')].find(b=>{
+      const t=(b.innerText||'').toLowerCase().trim();
+      return t==='edit' || t==='rediger';
+    });
+
+    if(!editBtn) return;
+
+    const onclick=editBtn.getAttribute('onclick')||'';
+    const match=onclick.match(/editBase\('([^']+)'\)/);
+    if(!match) return;
+
+    const id=match[1];
+
+    const btn=document.createElement('button');
+    btn.className='forceDeleteBtn danger';
+    btn.innerText=settings && settings.language==='no' ? 'Slett' : 'Delete';
+    btn.style.marginLeft='10px';
+
+    btn.onclick=function(){
+      const base=getBase(id);
+      if(!base) return;
+
+      const ok=confirm(
+        settings && settings.language==='no'
+        ? `Slette "${base.name}" permanent?`
+        : `Delete "${base.name}" permanently?`
+      );
+
+      if(!ok) return;
+
+      const bottleIds=(state.bottles||[])
+        .filter(b=>b.baseId===id)
+        .map(b=>b.id);
+
+      state.bases=(state.bases||[]).filter(b=>b.id!==id);
+      state.bottles=(state.bottles||[]).filter(b=>b.baseId!==id);
+      state.tastings=(state.tastings||[]).filter(t=>!bottleIds.includes(t.bottleId));
+
+      save();
+      render();
+    };
+
+    editBtn.parentNode.appendChild(btn);
+  });
+
+  document.querySelectorAll('button').forEach(btn=>{
+    if(btn.innerText==='saveAddNext'){
+      btn.innerText='Lagre og neste';
+    }
+    if(btn.innerText==='clearForm'){
+      btn.innerText='Tøm skjema';
+    }
+  });
+}
+
+setInterval(forceDeleteButtons,500);
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(forceDeleteButtons,1000);
+});
