@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.69';
+window.WHISKYLOG_VERSION='1.70';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1738,7 +1738,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.69';
+window.WHISKYLOG_VERSION='1.70';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1903,7 +1903,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.69';
+window.WHISKYLOG_VERSION='1.70';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -2043,7 +2043,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.69';
+window.WHISKYLOG_VERSION='1.70';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2168,3 +2168,108 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(wl69ForceDeleteBu
 document.addEventListener('click', () => setTimeout(wl69ForceDeleteButtons, 120), true);
 document.addEventListener('change', () => setTimeout(wl69ForceDeleteButtons, 120), true);
 setInterval(wl69ForceDeleteButtons, 1000);
+
+
+function renderBases(){
+  const host = document.getElementById('baseList');
+  if(!host) return;
+
+  const no = settings && settings.language === 'no';
+  const editLabel = no ? 'Rediger' : 'Edit';
+  const deleteLabel = no ? 'Slett' : 'Delete';
+  const emptyLabel = no ? 'Ingen flasker i biblioteket ennå.' : 'No library items yet.';
+
+  if(!(state.bases || []).length){
+    host.innerHTML = `<div class="sub">${emptyLabel}</div>`;
+    return;
+  }
+
+  host.innerHTML = (state.bases || []).map(b => `
+    <div class="item library-item">
+      <div>${b.image ? `<img class="thumb" src="${b.image}" alt="">` : '📚'}</div>
+      <div>
+        <div class="title">${esc(b.name || '')}</div>
+        <div class="meta">${esc(b.type || '')} · ${b.abv || '—'}% · ${b.volume || '—'} ml</div>
+        <div class="sub">${esc(b.distillery || '')}${b.region ? ' · ' + esc(b.region) : ''}</div>
+        <div class="library-actions-v170">
+          <button class="ghost" type="button" onclick="editBase('${b.id}')">${editLabel}</button>
+          <button class="danger" type="button" onclick="deleteBase_v170('${b.id}')">${deleteLabel}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+
+/* v1.70 direct library delete */
+window.WHISKYLOG_VERSION='1.70';
+
+function deleteBase_v170(id){
+  const base = getBase(id);
+  if(!base) return;
+
+  const no = settings && settings.language === 'no';
+  const bottleIds = (state.bottles || []).filter(b => b.baseId === id).map(b => b.id);
+  const tCount = (state.tastings || []).filter(t => bottleIds.includes(t.bottleId)).length;
+  const cCount = (state.comments || []).filter(c => bottleIds.includes(c.bottleId)).length;
+
+  const msg = bottleIds.length
+    ? (no
+      ? `Slette "${base.name}" permanent?\n\nDette vil også slette ${bottleIds.length} beholdningsflaske(r), ${tCount} smaking(er) og ${cCount} kommentar/loggpunkt. Dette kan ikke angres.`
+      : `Delete "${base.name}" permanently?\n\nThis will also delete ${bottleIds.length} stock bottle(s), ${tCount} tasting(s) and ${cCount} comment/log item(s). This cannot be undone.`)
+    : (no
+      ? `Slette "${base.name}" permanent? Dette kan ikke angres.`
+      : `Delete "${base.name}" permanently? This cannot be undone.`);
+
+  if(!confirm(msg)) return;
+
+  state.bases = (state.bases || []).filter(b => b.id !== id);
+  state.bottles = (state.bottles || []).filter(b => b.baseId !== id);
+  state.tastings = (state.tastings || []).filter(t => !bottleIds.includes(t.bottleId));
+  state.comments = (state.comments || []).filter(c => !bottleIds.includes(c.bottleId));
+
+  const f = document.getElementById('libraryForm');
+  if(f && f.id && f.id.value === id){
+    f.reset();
+    f.id.value = '';
+  }
+
+  save();
+  render();
+}
+
+function fixLabels_v170(){
+  const no = settings && settings.language === 'no';
+  const mapNo = {
+    saveAddNext:'Lagre og legg til neste',
+    clearForm:'Tøm skjema',
+    createRestorePoint:'Opprett gjenopprettingspunkt',
+    backupToFile:'Lagre backup til fil',
+    restoreFromFile:'Hent backup fra fil',
+    Edit:'Rediger',
+    Delete:'Slett'
+  };
+  const mapEn = {
+    saveAddNext:'Save & add next',
+    clearForm:'Clear form',
+    createRestorePoint:'Create restore point',
+    backupToFile:'Backup to file',
+    restoreFromFile:'Restore from file',
+    Rediger:'Edit',
+    Slett:'Delete'
+  };
+  document.querySelectorAll('button').forEach(btn => {
+    const t = (btn.textContent || '').trim();
+    if(no && mapNo[t]) btn.textContent = mapNo[t];
+    if(!no && mapEn[t]) btn.textContent = mapEn[t];
+  });
+  const v = document.getElementById('appVersionText');
+  if(v) v.textContent = 'v1.70';
+}
+
+const render_old_v170 = render;
+render = function(){
+  render_old_v170();
+  if(typeof renderBases === 'function') renderBases();
+  fixLabels_v170();
+};

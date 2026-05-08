@@ -1,12 +1,7 @@
-# WhiskyLog v1.69 Clean Version + Delete Fix
+# WhiskyLog v1.70 Direct Library Renderer
 
 Fixes:
-- README, index.html, app.js and manifest now all show v1.69.
-- Final forced delete button beside Edit/Rediger in library list.
-- Fixes camelCase labels:
-  - saveAddNext
-  - clearForm
-  - createRestorePoint
-  - backupToFile
-  - restoreFromFile
-- Cache-busted with v=169.
+- Replaced the actual library renderer so each library item is created with Edit/Rediger and Delete/Slett.
+- Delete removes library item and related stock bottles, tastings and comments after confirmation.
+- Fixes saveAddNext and clearForm labels.
+- All version references updated to v1.70 / v=170.
