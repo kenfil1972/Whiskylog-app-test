@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1554,7 +1554,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1719,7 +1719,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -1859,7 +1859,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2018,7 +2018,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2154,7 +2154,7 @@ render = function(){
 
 
 /* v1.73 clean settings + restore points */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function wl73No(){ return settings && settings.language === 'no'; }
 function wl73(en,no){ return wl73No() ? no : en; }
@@ -2306,7 +2306,7 @@ setInterval(wl73FixSettings, 1000);
 
 
 /* v1.74 final clean override */
-window.WHISKYLOG_VERSION='1.74';
+window.WHISKYLOG_VERSION='1.75';
 
 function wl74No(){ return settings && settings.language === 'no'; }
 function wl74(en,no){ return wl74No() ? no : en; }
@@ -2392,9 +2392,7 @@ function wl74FixVisibleText(){
           'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.'
         );
       }
-      if(t.startsWith('App version:') || t.startsWith('Appversjon:')){
-        el.innerHTML = `${wl74('App version','Appversjon')}: <strong id="appVersionText">v1.74</strong>`;
-      }
+      
     });
   }
 }
@@ -2442,3 +2440,32 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(() => { wl74FixVi
 document.addEventListener('click', () => setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 120), true);
 document.addEventListener('change', () => setTimeout(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 120), true);
 setInterval(() => { wl74FixVisibleText(); wl74EnsureLibraryDelete(); }, 1000);
+
+
+/* v1.75 move version to home screen only */
+function wl75HomeVersion(){
+  const home = document.getElementById('home');
+  if(!home) return;
+  if(document.querySelector('.wl75-home-version')) return;
+
+  const h1 = home.querySelector('h1');
+  if(!h1) return;
+
+  const v = document.createElement('div');
+  v.className='wl75-home-version';
+  v.textContent='WhiskyLog v1.75';
+  v.style.opacity='.75';
+  v.style.fontSize='.9rem';
+  v.style.marginTop='-8px';
+  v.style.marginBottom='10px';
+
+  h1.insertAdjacentElement('afterend', v);
+}
+
+const oldRender75 = render;
+render = function(){
+  oldRender75();
+  setTimeout(wl75HomeVersion,100);
+};
+
+document.addEventListener('DOMContentLoaded',()=>setTimeout(wl75HomeVersion,300));
