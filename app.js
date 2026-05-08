@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.02';
+const VERSION = '2.03';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.02',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.03',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.02',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.03',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -211,14 +211,22 @@ function renderHome(){
   `);
 }
 
-function fourMiniGlasses(){
-  return `<div class="fourMini" aria-hidden="true"><span>🥃</span><span>🥃</span><span>🥃</span><span>🥃</span></div>`;
+function menuArt(to){
+  const icons = {
+    stock:['🥃','📦','🥃','🗃️'],
+    logging:['📝','⚖️','➕','📚'],
+    overview:['📊','🏆','💰','🕒'],
+    wishlist:['⭐','🛒','📌','💡'],
+    settings:['⚙️','💾','↩️','🌐']
+  };
+  const arr = icons[to] || ['🥃','🥃','🥃','🥃'];
+  return `<div class="menuArt" aria-hidden="true">${arr.map(x=>`<span>${x}</span>`).join('')}</div>`;
 }
 
 function tile(to, icon, title, sub){
   return `<div class="tile oldTile" onclick="go('${to}')">
     <div class="tileText"><div class="icon">${icon}</div><h3>${title}</h3><div class="sub">${sub}</div></div>
-    ${fourMiniGlasses()}
+    ${menuArt(to)}
   </div>`;
 }
 

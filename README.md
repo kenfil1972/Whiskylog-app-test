@@ -1,7 +1,7 @@
-# WhiskyLog v2.02 Menu Icons + Old Backup Import
+# WhiskyLog v2.03 Restore Icons
 
-Clean v2 codebase with:
-- Old-style four mini icons on menu choices.
-- Restore-from-file migration for older v1 backups using bases/bottles/tastings/comments/wishlist.
-- Norwegian default.
-- No old v1.66 settings code.
+Changes:
+- Restored previous app icon files where available: True.
+- Menu choices now use distinct old-style picture/icon sets instead of four identical glasses.
+- Kept clean v2 codebase and v1 backup import.
+- Version updated to v2.03 / v=203.
