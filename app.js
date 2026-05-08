@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.17';
+const VERSION = '2.18';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.17',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.18',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -29,7 +29,7 @@ const T = {
     tastingDate:'Smaksdato', tastingType:'Smakstype', neat:'Ren', water:'Med vann', drops:'Antall dråper vann',
     tastingMl:'Mengde ml', appearance:'Utseende 1–10', nose:'Lukt 1–10', neatTaste:'Smak ren 1–10', waterTaste:'Smak med vann 1–10', finish:'Ettersmak 1–10', notes:'Notater',
     correctStock:'Korriger beholdning', correctStockSub:'Juster vekt eller volum uten smaking.',
-    newWeight:'Ny nåværende vekt g', newVolume:'Eller restvolum ml', saveCorrection:'Lagre korrigering',
+    newWeight:'Ny nåværende vekt g', newVolume:'Restvolum beregnes automatisk fra vekt', saveCorrection:'Lagre korrigering',
     noItems:'Ingen registreringer ennå.', search:'Søk', status:'Status', actions:'Handlinger',
     ownerName:'Navn', currency:'Valuta', language:'Språk', defaultTasting:'Standard smaksvolum ml', norwegian:'Norsk', english:'Engelsk',
     saveSettings:'Lagre innstillinger', backup:'Backup', restorePoints:'Gjenopprettingspunkter',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.17',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.18',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -63,7 +63,7 @@ const T = {
     tastingDate:'Tasting date', tastingType:'Tasting type', neat:'Neat', water:'With water', drops:'Water drops',
     tastingMl:'Amount ml', appearance:'Appearance 1–10', nose:'Nose 1–10', neatTaste:'Taste neat 1–10', waterTaste:'Taste with water 1–10', finish:'Finish 1–10', notes:'Notes',
     correctStock:'Correct stock', correctStockSub:'Adjust weight or volume without tasting.',
-    newWeight:'New current weight g', newVolume:'Or remaining volume ml', saveCorrection:'Save correction',
+    newWeight:'New current weight g', newVolume:'Remaining volume is calculated automatically from weight', saveCorrection:'Save correction',
     noItems:'No items yet.', search:'Search', status:'Status', actions:'Actions',
     ownerName:'Name', currency:'Currency', language:'Language', defaultTasting:'Default tasting volume ml', norwegian:'Norwegian', english:'English',
     saveSettings:'Save settings', backup:'Backup', restorePoints:'Restore points',
@@ -120,58 +120,77 @@ function density(abv){ return 0.9982 + (0.897 - 0.9982) * (num(abv)/100); }
 function estimatedEmptyWeight(base){
   const manualEmpty = num(base.emptyWeight);
   if(manualEmpty > 0) return manualEmpty;
-  const full = num(base.fullWeight), vol = num(base.volume), abv = num(base.abv);
+
+  const full = num(base.fullWeight);
+  const vol = num(base.volume);
+  const abv = num(base.abv);
+
   if(!full || !vol) return 0;
+
+  // Estimate empty bottle weight from liquid weight.
+  // Density is interpolated from water/ethanol by ABV.
   return Math.max(0, Math.round(full - vol * density(abv)));
 }
+
 function volumeFromWeight(bottle){
   const base = bottleBase(bottle);
   const full = num(base.fullWeight);
   const empty = estimatedEmptyWeight(base);
   const current = num(bottle.currentWeight);
+  const totalVol = num(base.volume);
+  const abv = num(base.abv);
 
-  if(!full || !empty || !current) return null;
+  if(!full || !current || !totalVol) return null;
 
-  // If entered weight is below/at estimated empty weight, the weight data is probably wrong.
-  // Do not automatically mark bottle empty unless currentVolume is explicitly 0.
-  if(current <= empty) return null;
+  // Best method: full weight + registered/estimated empty weight.
+  if(empty > 0 && full > empty && current > empty){
+    const ratio = (current - empty) / (full - empty);
+    if(ratio >= 0 && ratio <= 1.15){
+      return Math.max(0, Math.min(totalVol, Math.round(totalVol * ratio)));
+    }
+  }
 
-  const denom = full - empty;
-  if(denom <= 0) return null;
+  // Fallback method: full bottle minus liquid removed by weight change.
+  if(current > 0 && current <= full){
+    const liquidUsedGrams = full - current;
+    const liquidUsedMl = liquidUsedGrams / Math.max(0.75, density(abv));
+    return Math.max(0, Math.min(totalVol, Math.round(totalVol - liquidUsedMl)));
+  }
 
-  const ratio = (current - empty) / denom;
-  if(ratio < 0 || ratio > 1.15) return null;
-
-  return Math.max(0, Math.min(num(base.volume), Math.round(num(base.volume) * ratio)));
+  return null;
 }
+
 function tastedVolume(bottleId){ return state.tastings.filter(t => t.bottleId === bottleId).reduce((a,t)=>a+num(t.ml),0); }
-function hasManualVolume(b){
-  return b && b.currentVolume !== undefined && b.currentVolume !== null && String(b.currentVolume).trim() !== '';
+
+function bottleIsForcedEmpty(b){
+  return b && b.forceEmpty === true;
 }
+
 function bottleVolume(b){
   const base = bottleBase(b);
-
-  // Manual remaining volume has priority, including explicit 0.
-  if(hasManualVolume(b)) return Math.max(0, Math.min(num(base.volume), num(b.currentVolume)));
+  if(bottleIsForcedEmpty(b)) return 0;
 
   const byWeight = volumeFromWeight(b);
   if(byWeight !== null) return byWeight;
 
   return Math.max(0, num(base.volume) - tastedVolume(b.id));
 }
+
 function bottleValue(b){
   const base = bottleBase(b);
   const vol = bottleVolume(b), total = num(base.volume);
   return total ? num(b.price) * vol / total : 0;
 }
+
 function bottleStatus(b){
-  // Only manual 0 volume means definitely empty.
-  if(hasManualVolume(b) && num(b.currentVolume) <= 0) return 'empty';
+  if(bottleIsForcedEmpty(b)) return 'empty';
 
+  const base = bottleBase(b);
   const vol = bottleVolume(b);
-  if(vol <= 0 && tastedVolume(b.id) >= num(bottleBase(b).volume)) return 'empty';
+  const total = num(base.volume);
 
-  if(state.tastings.some(t => t.bottleId === b.id) || b.openedDate || vol < num(bottleBase(b).volume)) return 'opened';
+  if(total && vol <= 0 && tastedVolume(b.id) >= total) return 'empty';
+  if(state.tastings.some(t => t.bottleId === b.id) || b.openedDate || (total && vol < total)) return 'opened';
   return 'unopened';
 }
 
@@ -519,7 +538,6 @@ function renderAddStock(){
         <div><label>${tr('purchaseDate')}</label><input name="purchaseDate" type="date" value="${esc(b.purchaseDate||today())}"></div>
       </div>
       <label>${tr('currentWeight')}</label><input name="currentWeight" inputmode="numeric" value="${esc(b.currentWeight ?? '')}">
-      <label>${tr('currentVolume')}</label><input name="currentVolume" inputmode="numeric" value="${esc(b.currentVolume ?? '')}">
       <label>${tr('comment')}</label><textarea name="comment">${esc(b.comment||'')}</textarea>
       <div class="actions"><button class="primary">${tr('save')}</button>${b.id?`<button type="button" class="danger" onclick="deleteBottle('${b.id}')">${tr('delete')}</button>`:''}</div>
     </form></section>
@@ -528,7 +546,7 @@ function renderAddStock(){
     e.preventDefault();
     const fd=new FormData(e.target), id=fd.get('id')||uid();
     const old=getBottle(id)||{};
-    const item={...old,id,libraryId:fd.get('libraryId'),price:fd.get('price'),purchaseDate:fd.get('purchaseDate'),currentWeight:fd.get('currentWeight'),currentVolume:fd.get('currentVolume'),comment:fd.get('comment')};
+    const item={...old,id,libraryId:fd.get('libraryId'),price:fd.get('price'),purchaseDate:fd.get('purchaseDate'),currentWeight:fd.get('currentWeight'),currentVolume:'',forceEmpty:old.forceEmpty||false,comment:fd.get('comment')};
     const ix=state.bottles.findIndex(x=>x.id===id);
     if(ix>=0) state.bottles[ix]=item; else state.bottles.push(item);
     save(); go('stock');
@@ -596,7 +614,7 @@ function renderCorrectStock(){
     <section class="card"><form id="correctForm">
       <label>${tr('bottle')}</label><select name="bottleId" required>${bottleOptions()}</select>
       <label>${tr('newWeight')}</label><input name="currentWeight" inputmode="numeric">
-      <label>${tr('newVolume')}</label><input name="currentVolume" inputmode="numeric">
+      <p class="sub">${tr('newVolume')}</p>
       <label>${tr('comment')}</label><textarea name="comment"></textarea>
       <button class="primary">${tr('saveCorrection')}</button>
     </form></section>
@@ -606,13 +624,12 @@ function renderCorrectStock(){
     const fd=new FormData(e.target), b=getBottle(fd.get('bottleId'));
     if(!b){ alert(tr('noBottleSelected')); return; }
     const newWeight = String(fd.get('currentWeight') || '').trim();
-    const newVolume = String(fd.get('currentVolume') || '').trim();
 
     if(newWeight){
       b.currentWeight = newWeight;
-      if(!newVolume) b.currentVolume = '';
+      b.currentVolume = '';
+      b.forceEmpty = false;
     }
-    if(newVolume !== '') b.currentVolume = newVolume;
     state.comments.push({id:uid(),bottleId:b.id,date:new Date().toISOString(),text:fd.get('comment'),type:'correction'});
     save(); go('stock');
   };
