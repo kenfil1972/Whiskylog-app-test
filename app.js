@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.70';
+window.WHISKYLOG_VERSION='1.71';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -73,7 +73,26 @@ function renderPickers(){const opts='<option value="">Choose bottle</option>'+st
 function renderStock(){[['unopened',sumUnopened,imgUnopened],['opened',sumOpened,imgOpened],['empty',sumEmpty,imgEmpty]].forEach(([s,el,img])=>{const bs=state.bottles.filter(b=>status(b.id)===s);el.textContent=`${bs.length} bottles · ${money(bs.reduce((a,b)=>a+bottleValue(b.id),0))}`;img.innerHTML=[0,1,2,3].map(i=>mini(getBase(bs[i]?.baseId))).join('')})}
 function renderLists(){['unopened','opened','empty'].forEach(s=>{const el=document.getElementById(s+'List');if(!el)return;const bs=state.bottles.filter(b=>status(b.id)===s);el.innerHTML=bs.map(bottleRow).join('')||'<div class="sub">No bottles yet.</div>'})}
 function bottleRow(b){const base=getBase(b.baseId),s=status(b.id);return`<div class="item" onclick="openDetail('${b.id}','${s}')">${thumb(base)}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${s==='opened'?`${ml(bottleVolume(b.id))} left · ${money(bottleValue(b.id))}`:`${base?.volume||'—'} ml · ${base?.abv||'—'}%`}</div><div class="sub">${esc(base?.type||'')}</div></div><div class="side"><span class="pill">${s}</span></div></div>`}
-function renderLibrary(){libraryList.innerHTML=state.bases.map(b=>`<div class="item">${thumb(b)}<div><div class="title">${esc(b.name)}</div><div class="meta">${esc(b.type)} · ${b.abv||'—'}% · ${b.volume||'—'} ml</div></div><div class="side"><button class="ghost" onclick="editBase('${b.id}')">Edit</button></div></div>`).join('')||'<div class="sub">No library items.</div>'}
+function renderLibrary(){
+  const no = settings && settings.language === 'no';
+  const editLabel = no ? 'Rediger' : 'Edit';
+  const deleteLabel = no ? 'Slett' : 'Delete';
+  const emptyLabel = no ? 'Ingen flasker i biblioteket.' : 'No library items.';
+
+  libraryList.innerHTML = (state.bases || []).map(b => `
+    <div class="item">
+      ${thumb(b)}
+      <div>
+        <div class="title">${esc(b.name)}</div>
+        <div class="meta">${esc(b.type)} · ${b.abv || '—'}% · ${b.volume || '—'} ml</div>
+      </div>
+      <div class="side library-actions-v171">
+        <button class="ghost" type="button" onclick="editBase('${b.id}')">${editLabel}</button>
+        <button class="danger" type="button" onclick="deleteBase_v171('${b.id}')">${deleteLabel}</button>
+      </div>
+    </div>
+  `).join('') || `<div class="sub">${emptyLabel}</div>`;
+}
 function renderTastingPicker(){const bs=state.bottles.filter(b=>status(b.id)!=='empty');tastingList.innerHTML=bs.map(b=>`<div class="item" onclick="addTasting('${b.id}')">${thumb(getBase(b.baseId))}<div><div class="title">${esc(bottleName(b))}</div><div class="meta">${ml(bottleVolume(b.id))} left</div></div></div>`).join('')||'<div class="sub">No bottles.</div>'}
 function renderCorrectionPicker(){correctionForm.bottleId.innerHTML='<option value="">Choose bottle</option>'+state.bottles.filter(b=>status(b.id)!=='empty').map(b=>`<option value="${b.id}">${esc(bottleName(b))} · ${ml(bottleVolume(b.id))}</option>`).join('')}
 function openDetail(id,rv='stock'){detailReturn=rv;const b=getBottle(id),base=b&&getBase(b.baseId);if(!b||!base)return;const logs=state.comments.filter(c=>c.bottleId===id).map(c=>`<div class="item"><div>💬</div><div><div class="title">${esc(c.date)} · ${esc(c.type)}</div><div class="sub">${esc(c.text)}</div></div></div>`).join('')||'<div class="sub">No notes.</div>';const ts=state.tastings.filter(t=>t.bottleId===id).map(t=>`<div class="item"><div>📝</div><div><div class="title">${esc(t.date)} · Average ${t.score||'—'}</div><div class="meta">Appearance ${t.appearance||'—'} · Nose ${t.nose||'—'} · Neat ${t.tasteNeat||'—'} · Water ${t.tasteWater||'—'} · Finish ${t.finish||'—'}</div><div class="sub">${esc(t.notes||'')}</div></div></div>`).join('')||'<div class="sub">No tastings.</div>';detailContent.innerHTML=`<div class="card hero">${thumb(base)}<h2>${esc(base.name)}</h2><p>${esc(base.type)} · ${base.abv||'—'}% · ${ml(bottleVolume(id))} left · ${money(bottleValue(id))}</p></div><div class="grid two">${status(id)==='empty'?`<button class="primary" onclick="repurchase('${id}')">New bottle purchased</button>`:`<button class="primary" onclick="addTasting('${id}')">Add tasting</button>`}${status(id)==='opened'?`<button class="ghost" onclick="markEmpty('${id}')">Last sip enjoyed</button>`:''}<button class="ghost" onclick="editBottle('${id}')">Edit bottle</button><button class="ghost" onclick="deleteBottle('${id}')">Delete bottle</button></div><div class="card"><h3>Notes</h3><div class="list">${logs}</div></div><div class="card"><h3>Tastings</h3><div class="list">${ts}</div></div>`;document.querySelector('#detail .back').dataset.view=detailReturn;show('detail')}
@@ -1738,7 +1757,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.70';
+window.WHISKYLOG_VERSION='1.71';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1903,7 +1922,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.70';
+window.WHISKYLOG_VERSION='1.71';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -2043,7 +2062,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.70';
+window.WHISKYLOG_VERSION='1.71';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2202,7 +2221,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.70';
+window.WHISKYLOG_VERSION='1.71';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2272,4 +2291,64 @@ render = function(){
   render_old_v170();
   if(typeof renderBases === 'function') renderBases();
   fixLabels_v170();
+};
+
+
+/* v1.71 delete handler for directly replaced renderLibrary */
+function deleteBase_v171(id){
+  const base = getBase(id);
+  if(!base) return;
+
+  const no = settings && settings.language === 'no';
+  const bottleIds = (state.bottles || []).filter(b => b.baseId === id).map(b => b.id);
+  const tCount = (state.tastings || []).filter(t => bottleIds.includes(t.bottleId)).length;
+  const cCount = (state.comments || []).filter(c => bottleIds.includes(c.bottleId)).length;
+
+  const msg = bottleIds.length
+    ? (no
+      ? `Slette "${base.name}" permanent?\n\nDette vil også slette ${bottleIds.length} beholdningsflaske(r), ${tCount} smaking(er) og ${cCount} kommentar/loggpunkt. Dette kan ikke angres.`
+      : `Delete "${base.name}" permanently?\n\nThis will also delete ${bottleIds.length} stock bottle(s), ${tCount} tasting(s) and ${cCount} comment/log item(s). This cannot be undone.`)
+    : (no
+      ? `Slette "${base.name}" permanent? Dette kan ikke angres.`
+      : `Delete "${base.name}" permanently? This cannot be undone.`);
+
+  if(!confirm(msg)) return;
+
+  state.bases = (state.bases || []).filter(b => b.id !== id);
+  state.bottles = (state.bottles || []).filter(b => b.baseId !== id);
+  state.tastings = (state.tastings || []).filter(t => !bottleIds.includes(t.bottleId));
+  state.comments = (state.comments || []).filter(c => !bottleIds.includes(c.bottleId));
+
+  save();
+  render();
+}
+
+function fixLabels_v171(){
+  const no = settings && settings.language === 'no';
+  document.querySelectorAll('button').forEach(btn => {
+    const t = (btn.textContent || '').trim();
+    if(no){
+      if(t === 'saveAddNext') btn.textContent = 'Lagre og legg til neste';
+      if(t === 'clearForm') btn.textContent = 'Tøm skjema';
+      if(t === 'createRestorePoint') btn.textContent = 'Opprett gjenopprettingspunkt';
+      if(t === 'backupToFile') btn.textContent = 'Lagre backup til fil';
+      if(t === 'restoreFromFile') btn.textContent = 'Hent backup fra fil';
+      if(t === 'Edit') btn.textContent = 'Rediger';
+      if(t === 'Delete') btn.textContent = 'Slett';
+    }else{
+      if(t === 'saveAddNext') btn.textContent = 'Save & add next';
+      if(t === 'clearForm') btn.textContent = 'Clear form';
+      if(t === 'createRestorePoint') btn.textContent = 'Create restore point';
+      if(t === 'backupToFile') btn.textContent = 'Backup to file';
+      if(t === 'restoreFromFile') btn.textContent = 'Restore from file';
+    }
+  });
+  const v = document.getElementById('appVersionText');
+  if(v) v.textContent = 'v1.71';
+}
+
+const oldRender_v171 = render;
+render = function(){
+  oldRender_v171();
+  fixLabels_v171();
 };

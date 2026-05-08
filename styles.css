@@ -264,3 +264,21 @@ button{
   color:#fff!important;
   border:1px solid rgba(255,90,70,.55)!important;
 }
+
+/* v1.71 library buttons */
+.library-actions-v171{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  align-items:center;
+}
+.library-actions-v171 button{
+  padding:8px 12px;
+  border-radius:14px;
+}
+.danger{
+  background:rgba(180,35,24,.22)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,90,70,.55)!important;
+}
