@@ -1,10 +1,8 @@
-# WhiskyLog v2.18 Weight Based Volume Model
+# WhiskyLog v2.19 Empty Bottle + Weight Fix
 
-Changes:
-- Removed manual remaining-volume input from Purchased bottle and Correct stock forms.
-- Remaining volume is now weight-based when weight exists:
-  1. Full weight + empty weight: net-liquid percentage method.
-  2. Full weight only: full weight minus used liquid based on ABV/density.
-  3. No usable weight: bottle volume minus registered tastings.
-- "Siste sipp smakt" now uses an internal forceEmpty flag, not manual volume input.
-- Manual currentVolume is no longer part of the visible workflow.
+Fixes:
+- Correct stock now has:
+  - Marker som tom flaske
+  - Fjern tomflaske-markering
+- Weight calculation now returns 0 ml when current weight is at or below empty bottle weight.
+- Prevents fallback to tasting volume when current weight equals empty bottle weight.

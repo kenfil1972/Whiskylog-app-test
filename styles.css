@@ -471,3 +471,12 @@ input[type="date"]{
 .item .actions .primary{
   color:#171008;
 }
+
+
+/* v2.19 correct stock empty buttons */
+#correctForm .actions{
+  align-items:stretch;
+}
+#correctForm .actions button{
+  min-width:220px;
+}

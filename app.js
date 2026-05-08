@@ -2,19 +2,19 @@
 (() => {
 'use strict';
 
-const VERSION = '2.18';
+const VERSION = '2.19';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.18',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.19',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
     logging:'Loggføring', loggingSub:'Registrer smaking, korriger beholdning og legg til flasker.',
     overview:'Oversikt / statistikk', overviewSub:'Rangering, score, verdi og historikk.',
-    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste', lastSip:'Siste sipp smakt',
+    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste', lastSip:'Siste sipp smakt', markEmpty:'Marker som tom flaske', unmarkEmpty:'Fjern tomflaske-markering',
     settings:'Innstillinger', settingsSub:'Navn, valuta, språk og backup.',
     unopened:'Uåpnede flasker', opened:'Åpnede flasker', empty:'Tomme flasker',
     bottles:'flasker', value:'verdi', stockVolume:'volum i beholdning',
@@ -42,13 +42,13 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.18',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.19',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
     logging:'Logging', loggingSub:'Register tastings, correct stock and add bottles.',
     overview:'Overview / statistics', overviewSub:'Ranking, scores, value and history.',
-    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item', lastSip:'Last sip finished',
+    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item', lastSip:'Last sip finished', markEmpty:'Mark as empty bottle', unmarkEmpty:'Remove empty-bottle mark',
     settings:'Settings', settingsSub:'Name, currency, language and backup.',
     unopened:'Unopened bottles', opened:'Opened bottles', empty:'Empty bottles',
     bottles:'bottles', value:'value', stockVolume:'stock volume',
@@ -143,7 +143,9 @@ function volumeFromWeight(bottle){
   if(!full || !current || !totalVol) return null;
 
   // Best method: full weight + registered/estimated empty weight.
-  if(empty > 0 && full > empty && current > empty){
+  // If current weight is at or below empty bottle weight, the bottle is empty.
+  if(empty > 0 && full > empty){
+    if(current <= empty) return 0;
     const ratio = (current - empty) / (full - empty);
     if(ratio >= 0 && ratio <= 1.15){
       return Math.max(0, Math.min(totalVol, Math.round(totalVol * ratio)));
@@ -612,17 +614,23 @@ function renderCorrectStock(){
   shell(`
     <section class="hero"><h2>${tr('correctStock')}</h2><p class="sub">${tr('correctStockSub')}</p></section>
     <section class="card"><form id="correctForm">
-      <label>${tr('bottle')}</label><select name="bottleId" required>${bottleOptions()}</select>
+      <label>${tr('bottle')}</label><select name="bottleId" id="correctBottleSelect" required>${bottleOptions()}</select>
       <label>${tr('newWeight')}</label><input name="currentWeight" inputmode="numeric">
       <p class="sub">${tr('newVolume')}</p>
       <label>${tr('comment')}</label><textarea name="comment"></textarea>
-      <button class="primary">${tr('saveCorrection')}</button>
+      <div class="actions">
+        <button class="primary" type="submit">${tr('saveCorrection')}</button>
+        <button class="danger" type="button" onclick="markSelectedBottleEmpty()">${tr('markEmpty')}</button>
+        <button class="ghost" type="button" onclick="unmarkSelectedBottleEmpty()">${tr('unmarkEmpty')}</button>
+      </div>
     </form></section>
   `,'logging');
+
   document.getElementById('correctForm').onsubmit=e=>{
     e.preventDefault();
     const fd=new FormData(e.target), b=getBottle(fd.get('bottleId'));
     if(!b){ alert(tr('noBottleSelected')); return; }
+
     const newWeight = String(fd.get('currentWeight') || '').trim();
 
     if(newWeight){
@@ -630,10 +638,38 @@ function renderCorrectStock(){
       b.currentVolume = '';
       b.forceEmpty = false;
     }
+
     state.comments.push({id:uid(),bottleId:b.id,date:new Date().toISOString(),text:fd.get('comment'),type:'correction'});
     save(); go('stock');
   };
 }
+
+window.markSelectedBottleEmpty = function(){
+  const select = document.getElementById('correctBottleSelect');
+  const b = select ? getBottle(select.value) : null;
+  if(!b){ alert(tr('noBottleSelected')); return; }
+  if(!confirm(`${tr('markEmpty')}?
+
+${bottleBase(b).name || ''}`)) return;
+  b.forceEmpty = true;
+  b.currentVolume = '';
+  state.comments.push({id:uid(),bottleId:b.id,date:new Date().toISOString(),text:tr('markEmpty'),type:'empty'});
+  save();
+  go('stock');
+};
+
+window.unmarkSelectedBottleEmpty = function(){
+  const select = document.getElementById('correctBottleSelect');
+  const b = select ? getBottle(select.value) : null;
+  if(!b){ alert(tr('noBottleSelected')); return; }
+  if(!confirm(`${tr('unmarkEmpty')}?
+
+${bottleBase(b).name || ''}`)) return;
+  b.forceEmpty = false;
+  state.comments.push({id:uid(),bottleId:b.id,date:new Date().toISOString(),text:tr('unmarkEmpty'),type:'empty-reset'});
+  save();
+  go('stock');
+};
 
 function renderOverview(){
   const ranked=state.library.map(l=>({l,score:averageScoreForLibrary(l.id)})).filter(x=>x.score).sort((a,b)=>b.score-a.score);
