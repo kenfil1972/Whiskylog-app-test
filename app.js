@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.14';
+const VERSION = '2.15';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.14',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.15',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -21,7 +21,7 @@ const T = {
     library:'Flaskebibliotek', librarySub:'Grunndata kan kun redigeres her.',
     libraryHelp:'Bruk «Lagre og legg til neste» når du legger inn flere flasker. Lagrede flasker vises straks når du legger dem inn i beholdning.',
     name:'Navn', distillery:'Destilleri / produsent', type:'Type', chooseType:'Velg type',
-    abv:'Alkohol %', volume:'Flaskevolum ml', fullWeight:'Vekt full flaske g', region:'Region / land',
+    abv:'Alkohol %', volume:'Flaskevolum ml', fullWeight:'Vekt full flaske g', emptyWeight:'Vekt tom flaske g', region:'Region / land',
     image:'Bilde', libraryComment:'Bibliotekkommentar', saveLibrary:'Lagre i bibliotek', saveNext:'Lagre og legg til neste', clearForm:'Tøm skjema',
     purchasedBottle:'Kjøpt flaske', addStock:'Kjøpt flaske', addStockSub:'Velg flaske, pris, kjøpsdato og kommentar.',
     bottle:'Flaske', price:'Pris', purchaseDate:'Kjøpsdato', comment:'Kommentar', currentWeight:'Nåværende vekt g', currentVolume:'Restvolum ml',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.14',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.15',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -55,7 +55,7 @@ const T = {
     library:'Bottle library', librarySub:'Core bottle data can only be edited here.',
     libraryHelp:'Use “Save & add next” when entering several bottles. Saved bottles appear immediately when adding to stock.',
     name:'Name', distillery:'Distillery / producer', type:'Type', chooseType:'Choose type',
-    abv:'ABV %', volume:'Bottle volume ml', fullWeight:'Full bottle weight g', region:'Region / country',
+    abv:'ABV %', volume:'Bottle volume ml', fullWeight:'Full bottle weight g', emptyWeight:'Empty bottle weight g', region:'Region / country',
     image:'Image', libraryComment:'Library comment', saveLibrary:'Save to library', saveNext:'Save & add next', clearForm:'Clear form',
     purchasedBottle:'Purchased bottle', addStock:'Purchased bottle', addStockSub:'Choose bottle, price, purchase date and comment.',
     bottle:'Bottle', price:'Price', purchaseDate:'Purchase date', comment:'Comment', currentWeight:'Current weight g', currentVolume:'Remaining volume ml',
@@ -118,22 +118,45 @@ function img(item){ return item?.image ? `<img class="thumb" src="${item.image}"
 function bottleBase(b){ return getLibrary(b.libraryId) || {}; }
 function density(abv){ return 0.9982 + (0.897 - 0.9982) * (num(abv)/100); }
 function estimatedEmptyWeight(base){
+  const manualEmpty = num(base.emptyWeight);
+  if(manualEmpty > 0) return manualEmpty;
   const full = num(base.fullWeight), vol = num(base.volume), abv = num(base.abv);
   if(!full || !vol) return 0;
   return Math.max(0, Math.round(full - vol * density(abv)));
 }
 function volumeFromWeight(bottle){
   const base = bottleBase(bottle);
-  const full = num(base.fullWeight), empty = estimatedEmptyWeight(base), current = num(bottle.currentWeight);
-  if(!full || !empty || !current) return num(bottle.currentVolume) || num(base.volume);
-  const ratio = (current - empty) / Math.max(1, full - empty);
+  const full = num(base.fullWeight);
+  const empty = estimatedEmptyWeight(base);
+  const current = num(bottle.currentWeight);
+
+  if(!full || !empty || !current) return null;
+
+  // If entered weight is below/at estimated empty weight, the weight data is probably wrong.
+  // Do not automatically mark bottle empty unless currentVolume is explicitly 0.
+  if(current <= empty) return null;
+
+  const denom = full - empty;
+  if(denom <= 0) return null;
+
+  const ratio = (current - empty) / denom;
+  if(ratio < 0 || ratio > 1.15) return null;
+
   return Math.max(0, Math.min(num(base.volume), Math.round(num(base.volume) * ratio)));
 }
 function tastedVolume(bottleId){ return state.tastings.filter(t => t.bottleId === bottleId).reduce((a,t)=>a+num(t.ml),0); }
+function hasManualVolume(b){
+  return b && b.currentVolume !== undefined && b.currentVolume !== null && String(b.currentVolume).trim() !== '';
+}
 function bottleVolume(b){
-  if(num(b.currentVolume)) return num(b.currentVolume);
-  if(num(b.currentWeight)) return volumeFromWeight(b);
   const base = bottleBase(b);
+
+  // Manual remaining volume has priority, including explicit 0.
+  if(hasManualVolume(b)) return Math.max(0, Math.min(num(base.volume), num(b.currentVolume)));
+
+  const byWeight = volumeFromWeight(b);
+  if(byWeight !== null) return byWeight;
+
   return Math.max(0, num(base.volume) - tastedVolume(b.id));
 }
 function bottleValue(b){
@@ -142,11 +165,16 @@ function bottleValue(b){
   return total ? num(b.price) * vol / total : 0;
 }
 function bottleStatus(b){
+  // Only manual 0 volume means definitely empty.
+  if(hasManualVolume(b) && num(b.currentVolume) <= 0) return 'empty';
+
   const vol = bottleVolume(b);
-  if(vol <= 0) return 'empty';
-  if(state.tastings.some(t => t.bottleId === b.id) || b.openedDate) return 'opened';
+  if(vol <= 0 && tastedVolume(b.id) >= num(bottleBase(b).volume)) return 'empty';
+
+  if(state.tastings.some(t => t.bottleId === b.id) || b.openedDate || vol < num(bottleBase(b).volume)) return 'opened';
   return 'unopened';
 }
+
 function averageScoreForLibrary(libraryId){
   const bottleIds = state.bottles.filter(b => b.libraryId === libraryId).map(b => b.id);
   const scores = state.tastings.filter(t => bottleIds.includes(t.bottleId)).map(t => {
@@ -398,6 +426,7 @@ function renderLibrary(){
           <div><label>${tr('volume')}</label><input name="volume" inputmode="numeric" value="${esc(item.volume||'')}"></div>
         </div>
         <label>${tr('fullWeight')}</label><input name="fullWeight" inputmode="numeric" value="${esc(item.fullWeight||'')}">
+        <label>${tr('emptyWeight')}</label><input name="emptyWeight" inputmode="numeric" value="${esc(item.emptyWeight||'')}">
         <label>${tr('region')}</label><input name="region" value="${esc(item.region||'')}">
         <label>${tr('image')}</label><input name="image" type="file" accept="image/*">
         <label>${tr('libraryComment')}</label><textarea name="comment">${esc(item.comment||'')}</textarea>
@@ -420,7 +449,7 @@ function libraryList(){
     <div class="actions"><button class="ghost" onclick="editLibrary('${b.id}')">${tr('edit')}</button><button class="danger" onclick="deleteLibrary('${b.id}')">${tr('delete')}</button></div>
   </div>`).join('');
 }
-window.editLibrary = id => { editLibraryId=id; render(); };
+window.editLibrary = id => { editLibraryId=id; render(); setTimeout(()=>document.getElementById('libraryForm')?.scrollIntoView({behavior:'smooth',block:'start'}),80); };
 window.deleteLibrary = id => {
   const item=getLibrary(id);
   if(!confirm(`${tr('deletePermanent')}\n${item?.name||''}\n\n${tr('deleteLibraryWarn')}`)) return;
@@ -443,7 +472,7 @@ window.saveLibraryForm = async function(addNext){
   const image=file ? await fileToDataUrl(file) : existing.image || '';
   const item={
     id, name:fd.get('name'), distillery:fd.get('distillery'), type:fd.get('type'),
-    abv:fd.get('abv'), volume:fd.get('volume'), fullWeight:fd.get('fullWeight'),
+    abv:fd.get('abv'), volume:fd.get('volume'), fullWeight:fd.get('fullWeight'), emptyWeight:fd.get('emptyWeight'),
     region:fd.get('region'), image, comment:fd.get('comment')
   };
   if(!item.name){ alert(tr('name')); return; }
@@ -470,8 +499,8 @@ function renderAddStock(){
         <div><label>${tr('price')}</label><input name="price" inputmode="decimal" value="${esc(b.price||'')}"></div>
         <div><label>${tr('purchaseDate')}</label><input name="purchaseDate" type="date" value="${esc(b.purchaseDate||today())}"></div>
       </div>
-      <label>${tr('currentWeight')}</label><input name="currentWeight" inputmode="numeric" value="${esc(b.currentWeight||'')}">
-      <label>${tr('currentVolume')}</label><input name="currentVolume" inputmode="numeric" value="${esc(b.currentVolume||'')}">
+      <label>${tr('currentWeight')}</label><input name="currentWeight" inputmode="numeric" value="${esc(b.currentWeight ?? '')}">
+      <label>${tr('currentVolume')}</label><input name="currentVolume" inputmode="numeric" value="${esc(b.currentVolume ?? '')}">
       <label>${tr('comment')}</label><textarea name="comment">${esc(b.comment||'')}</textarea>
       <div class="actions"><button class="primary">${tr('save')}</button>${b.id?`<button type="button" class="danger" onclick="deleteBottle('${b.id}')">${tr('delete')}</button>`:''}</div>
     </form></section>
@@ -557,8 +586,14 @@ function renderCorrectStock(){
     e.preventDefault();
     const fd=new FormData(e.target), b=getBottle(fd.get('bottleId'));
     if(!b){ alert(tr('noBottleSelected')); return; }
-    if(fd.get('currentWeight')) b.currentWeight=fd.get('currentWeight');
-    if(fd.get('currentVolume')) b.currentVolume=fd.get('currentVolume');
+    const newWeight = String(fd.get('currentWeight') || '').trim();
+    const newVolume = String(fd.get('currentVolume') || '').trim();
+
+    if(newWeight){
+      b.currentWeight = newWeight;
+      if(!newVolume) b.currentVolume = '';
+    }
+    if(newVolume !== '') b.currentVolume = newVolume;
     state.comments.push({id:uid(),bottleId:b.id,date:new Date().toISOString(),text:fd.get('comment'),type:'correction'});
     save(); go('stock');
   };
@@ -578,10 +613,17 @@ function renderOverview(){
 }
 function renderWishlist(){
   const w = editWishlistId ? (state.wishlist || []).find(x => x.id === editWishlistId) || {} : {};
+  const total = (state.wishlist || []).reduce((a,x)=>a+num(x.price),0);
+
   shell(`
     <section class="hero dashboardHero">
       <h2>${tr('wishlist')}</h2>
       <p class="sub">${tr('wishlistSub')}</p>
+    </section>
+
+    <section class="stockDashboard wishlistStats">
+      <div class="stockBox"><h3>${state.wishlist.length}</h3><p class="sub">Flasker i ønskeliste</p></div>
+      <div class="stockBox"><h3>${money(total)}</h3><p class="sub">Total ønskelisteverdi</p></div>
     </section>
 
     <section class="card">
@@ -612,6 +654,10 @@ function renderWishlist(){
           </div>
         </div>
 
+        <label>${tr('image')}</label>
+        <input name="image" type="file" accept="image/*">
+        ${w.image ? `<img class="wishlistPreview" src="${w.image}" alt="">` : ''}
+
         <label>${tr('link')}</label>
         <input name="link" value="${esc(w.link||'')}" autocomplete="off">
 
@@ -632,10 +678,14 @@ function renderWishlist(){
     </section>
   `);
 
-  document.getElementById('wishlistForm').onsubmit = e => {
+  document.getElementById('wishlistForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const id = fd.get('id') || uid();
+    const existing = (state.wishlist || []).find(x => x.id === id) || {};
+    const file = e.target.image.files[0];
+    const image = file ? await fileToDataUrl(file) : existing.image || '';
+
     const item = {
       id,
       name: fd.get('name'),
@@ -644,7 +694,8 @@ function renderWishlist(){
       priority: fd.get('priority'),
       link: fd.get('link'),
       comment: fd.get('comment'),
-      createdAt: w.createdAt || new Date().toISOString()
+      image,
+      createdAt: existing.createdAt || new Date().toISOString()
     };
     const ix = state.wishlist.findIndex(x => x.id === id);
     if(ix >= 0) state.wishlist[ix] = item; else state.wishlist.push(item);
@@ -659,7 +710,7 @@ function wishlistList(){
   const rank = {high:0, medium:1, low:2};
   return state.wishlist.slice().sort((a,b)=>(rank[a.priority]??1)-(rank[b.priority]??1) || String(a.name).localeCompare(String(b.name))).map(w => `
     <div class="item wishlistItem">
-      <div class="thumbFallback">${iconSvg('wishlist','miniSvg')}</div>
+      ${w.image ? `<img class="thumb" src="${w.image}" alt="">` : `<div class="thumbFallback">${iconSvg('wishlist','miniSvg')}</div>`}
       <div>
         <div class="title">${esc(w.name||'')}</div>
         <div class="meta">${esc(w.type||'')} ${w.price ? '· ' + money(w.price) : ''} · ${tr(w.priority||'medium')}</div>
@@ -677,6 +728,7 @@ function wishlistList(){
 window.editWishlist = function(id){
   editWishlistId = id;
   render();
+  setTimeout(()=>document.getElementById('wishlistForm')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
 };
 
 window.deleteWishlist = function(id){
@@ -853,102 +905,3 @@ render();
 })();
 
 
-/* ===== v2.14 wishlist enhancements ===== */
-(function(){
-  const oldRenderWishlist = window.renderWishlist;
-  if(!oldRenderWishlist) return;
-
-  function calcWishlistStats(items){
-    let total=0;
-    for(const i of items){
-      total += Number(i.price||0);
-    }
-    return {count: items.length, total};
-  }
-
-  window.renderWishlist = function(){
-    oldRenderWishlist();
-
-    const root = document.querySelector('#wishlistPage, .wishlistPage, [data-page="wishlist"]');
-    const list = window.state?.wishlist || JSON.parse(localStorage.getItem('wishlist') || '[]');
-
-    if(root && !root.querySelector('.wishlistStats')){
-      const stats = calcWishlistStats(list);
-
-      const statsCard = document.createElement('div');
-      statsCard.className = 'wishlistStats card';
-      statsCard.innerHTML = `
-        <div class="wishlistStatBox">
-          <div class="wishlistStatValue">${stats.count}</div>
-          <div class="wishlistStatLabel">Flasker i ønskeliste</div>
-        </div>
-        <div class="wishlistStatBox">
-          <div class="wishlistStatValue">${stats.total.toFixed(2)} NOK</div>
-          <div class="wishlistStatLabel">Total ønskelisteverdi</div>
-        </div>
-      `;
-
-      const target = root.querySelector('.wishlistList') || root.firstElementChild?.nextElementSibling || root;
-      root.insertBefore(statsCard, target);
-    }
-
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form=>{
-      if(form.dataset.wishlistImageApplied) return;
-
-      const heading = form.querySelector('h2,h3');
-      if(heading && heading.textContent.toLowerCase().includes('ønsk')){
-        const imageWrap = document.createElement('div');
-        imageWrap.className = 'field';
-
-        imageWrap.innerHTML = `
-          <label>Ønskebilde</label>
-          <input type="file" accept="image/*">
-        `;
-
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if(submitBtn){
-          submitBtn.parentElement.insertBefore(imageWrap, submitBtn);
-        }else{
-          form.appendChild(imageWrap);
-        }
-
-        const input = imageWrap.querySelector('input');
-        input.addEventListener('change', e=>{
-          const file = e.target.files[0];
-          if(!file) return;
-
-          const reader = new FileReader();
-          reader.onload = ()=>{
-            form.dataset.wishlistImage = reader.result;
-          };
-          reader.readAsDataURL(file);
-        });
-
-        form.addEventListener('submit', ()=>{
-          if(form.dataset.wishlistImage){
-            const wishlist = window.state?.wishlist || JSON.parse(localStorage.getItem('wishlist') || '[]');
-            if(wishlist.length){
-              wishlist[wishlist.length-1].image = form.dataset.wishlistImage;
-              localStorage.setItem('wishlist', JSON.stringify(wishlist));
-            }
-          }
-        });
-
-        form.dataset.wishlistImageApplied = "1";
-      }
-    });
-
-    document.querySelectorAll('.wishlistItem').forEach(item=>{
-      if(item.querySelector('.wishlistThumb')) return;
-      const idx = Number(item.dataset.index||0);
-      const entry = list[idx];
-      if(entry && entry.image){
-        const img = document.createElement('img');
-        img.src = entry.image;
-        img.className = 'wishlistThumb';
-        item.prepend(img);
-      }
-    });
-  };
-})();

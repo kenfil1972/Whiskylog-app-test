@@ -454,3 +454,14 @@ input[type="date"]{
   margin-bottom:10px;
   border:2px solid rgba(255,210,100,.45);
 }
+
+
+/* v2.15 fixes */
+.wishlistPreview{
+  width:90px;
+  height:90px;
+  object-fit:cover;
+  border-radius:16px;
+  margin-top:10px;
+  border:2px solid rgba(244,191,79,.55);
+}
