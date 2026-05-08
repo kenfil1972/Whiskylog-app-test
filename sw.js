@@ -1,4 +1,4 @@
-// WhiskyLog v2.00 - no persistent cache
+// WhiskyLog v2.01 - no persistent cache
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => self.registration.unregister())));
 self.addEventListener('fetch', e => {});

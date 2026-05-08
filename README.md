@@ -1,11 +1,10 @@
-# WhiskyLog v2.00 Clean Rebuild
+# WhiskyLog v2.01 Old Structure Layout
 
-This is a clean rebuild. It does not reuse the old v1.x Settings/restore code.
+Clean v2 codebase with layout adjusted closer to the old app structure.
 
-Key points:
-- Norwegian is default.
-- All visible text is controlled by one translation object.
-- No visible v1.66 Settings block exists.
-- No camelCase button labels such as createRestorePoint, backupToFile, restoreFromFile, saveAddNext or clearForm are used as button text.
-- Version is only shown on the home screen.
-- Service worker unregisters itself and clears caches.
+Changes:
+- More compact dashboard/home structure.
+- Four main home tiles, settings as smaller secondary button.
+- My Stock page restored to status cards plus action strip.
+- Norwegian remains default.
+- No old v1.x settings/restore code.

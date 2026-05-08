@@ -2,15 +2,15 @@
 (() => {
 'use strict';
 
-const VERSION = '2.00';
+const VERSION = '2.01';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.00',
-    home:'Hjem', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
-    homeSub:'Din personlige logg for flasker, smakinger, beholdning og fremtidige kjøp.',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.01',
+    home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
+    homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
     logging:'Loggføring', loggingSub:'Registrer smaking, korriger beholdning og legg til flasker.',
     overview:'Oversikt / statistikk', overviewSub:'Rangering, score, verdi og historikk.',
@@ -42,8 +42,8 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.00',
-    home:'Home', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.01',
+    home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
     logging:'Logging', loggingSub:'Register tastings, correct stock and add bottles.',
@@ -192,13 +192,21 @@ function render(){
 }
 function renderHome(){
   shell(`
-    <section class="hero"><h2>${tr('home')}</h2><p class="sub">${tr('homeSub')}</p></section>
-    <section class="grid">
+    <section class="hero dashboardHero">
+      <div class="small">${tr('version')}</div>
+      <h2>${tr('home')}</h2>
+      <p class="sub">${tr('homeSub')}</p>
+    </section>
+
+    <section class="homeMenu oldHomeGrid">
       ${tile('stock','🥃',tr('myStock'),tr('myStockSub'))}
       ${tile('logging','📝',tr('logging'),tr('loggingSub'))}
       ${tile('overview','📊',tr('overview'),tr('overviewSub'))}
       ${tile('wishlist','⭐',tr('wishlist'),tr('wishlistSub'))}
-      ${tile('settings','⚙️',tr('settings'),tr('settingsSub'))}
+    </section>
+
+    <section class="quickSettings">
+      <button class="ghost smallButton" onclick="go('settings')">⚙️ ${tr('settings')}</button>
     </section>
   `);
 }
@@ -211,21 +219,55 @@ function stockStats(status){
   return {count:bs.length, value:bs.reduce((a,b)=>a+bottleValue(b),0), volume:bs.reduce((a,b)=>a+bottleVolume(b),0)};
 }
 function renderStock(){
-  const statuses = [['unopened',tr('unopened')],['opened',tr('opened')],['empty',tr('empty')]];
+  const statuses = [['unopened',tr('unopened'),'📦'],['opened',tr('opened'),'🥃'],['empty',tr('empty'),'🗃️']];
   shell(`
-    <section class="hero"><h2>${tr('myStock')}</h2><p class="sub">${tr('myStockSub')}</p></section>
-    <section class="stockCards">${statuses.map(([s,label])=>{
-      const st=stockStats(s);
-      return `<div class="card"><h2>${label}</h2><p class="sub">${st.count} ${tr('bottles')} · ${money(st.value)} · ${Math.round(st.volume)} ml</p></div>`;
-    }).join('')}</section>
-    <section class="card"><h2>${tr('bottle')}</h2><div class="list">${stockList()}</div></section>
-    <section class="actions">
-      <button class="primary" onclick="go('addStock')">${tr('addStock')}</button>
+    <section class="hero dashboardHero">
+      <h2>${tr('myStock')}</h2>
+      <p class="sub">${tr('myStockSub')}</p>
+    </section>
+
+    <section class="stockDashboard">
+      ${statuses.map(([s,label,icon])=>{
+        const st=stockStats(s);
+        return `<div class="stockBox" onclick="document.getElementById('list-${s}')?.scrollIntoView({behavior:'smooth'})">
+          <div class="icon">${icon}</div>
+          <h3>${label}</h3>
+          <p class="sub">${st.count} ${tr('bottles')} · ${money(st.value)}</p>
+          <p class="small">${Math.round(st.volume)} ml</p>
+        </div>`;
+      }).join('')}
+    </section>
+
+    <section class="actionStrip">
+      <button class="ghost" onclick="go('addStock')">${tr('addStock')}</button>
       <button class="ghost" onclick="go('tasting')">${tr('registerTasting')}</button>
       <button class="ghost" onclick="go('correctStock')">${tr('correctStock')}</button>
     </section>
+
+    ${statuses.map(([s,label])=>`
+      <section class="card compactListCard" id="list-${s}">
+        <h2>${label}</h2>
+        <div class="list">${stockListByStatus(s)}</div>
+      </section>
+    `).join('')}
   `);
 }
+
+function stockListByStatus(status){
+  const bottles = state.bottles.filter(b => bottleStatus(b) === status);
+  if(!bottles.length) return `<div class="sub">${tr('noItems')}</div>`;
+  return bottles.map(b=>{
+    const base=bottleBase(b), vol=bottleVolume(b);
+    return `<div class="item" onclick="editBottle('${b.id}')">
+      ${img(base)}
+      <div><div class="title">${esc(base.name||'')}</div>
+      <div class="meta">${esc(base.type||'')} · ${Math.round(vol)} ml ${tr('left')} · ${money(bottleValue(b))}</div>
+      <div class="small">${tr('purchased')}: ${esc(b.purchaseDate||'')}</div></div>
+      <div class="actions"><button class="ghost">${tr('edit')}</button><button class="danger" onclick="event.stopPropagation();deleteBottle('${b.id}')">${tr('delete')}</button></div>
+    </div>`;
+  }).join('');
+}
+
 function stockList(){
   if(!state.bottles.length) return `<div class="sub">${tr('noItems')}</div>`;
   return state.bottles.map(b=>{
