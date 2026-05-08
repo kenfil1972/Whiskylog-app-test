@@ -219,3 +219,25 @@ button,.button,.primary,.ghost,.danger{white-space:normal;word-break:normal;over
   color:#fff;
   border:1px solid rgba(255,90,70,.45);
 }
+
+/* v1.66 forced library actions + no camelCase labels */
+.library-actions-v166{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.library-actions-v166 button{
+  min-width:94px;
+  padding:10px 14px;
+  border-radius:16px;
+}
+.danger{
+  background:rgba(180,35,24,.20);
+  color:#fff;
+  border:1px solid rgba(255,90,70,.55);
+}
+button{
+  white-space:normal;
+  word-break:normal;
+}
