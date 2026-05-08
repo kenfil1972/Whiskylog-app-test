@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='1.72';
+window.WHISKYLOG_VERSION='1.73';
 const KEY='whiskylog_stable_v133';
 const SETTINGS_KEY='whiskylog_settings_v133';
 const DENSITY=[{a:0,d:.9982},{a:40,d:.9319},{a:43,d:.9271},{a:46,d:.9223},{a:50,d:.9157},{a:60,d:.8987}];
@@ -1021,111 +1021,6 @@ if(typeof openTastingOverview_v158==='function'){
 }
 
 
-/* v1.60 restore points and visible version */
-const RESTORE_POINTS_KEY_v160='whiskylog_restore_points_v160';
-const MAX_RESTORE_POINTS_v160=10;
-
-function getRestorePoints_v160(){
-  try{
-    const points=JSON.parse(localStorage.getItem(RESTORE_POINTS_KEY_v160)||'[]');
-    return Array.isArray(points)?points:[];
-  }catch(e){
-    return [];
-  }
-}
-
-function saveRestorePoints_v160(points){
-  localStorage.setItem(RESTORE_POINTS_KEY_v160,JSON.stringify(points.slice(0,MAX_RESTORE_POINTS_v160)));
-}
-
-function createRestorePoint_v160(){
-  const name=prompt('Restore point name', 'Before cleanup');
-  if(name===null)return;
-  const point={
-    id:uid(),
-    name:String(name||'Restore point').trim(),
-    createdAt:new Date().toLocaleString('sv-SE'),
-    version:window.WHISKYLOG_VERSION||'1.60',
-    state:JSON.parse(JSON.stringify(state)),
-    settings:JSON.parse(JSON.stringify(settings))
-  };
-  const points=getRestorePoints_v160();
-  points.unshift(point);
-  saveRestorePoints_v160(points);
-  renderRestorePoints_v160();
-  alert('Restore point created.');
-}
-
-function restorePoint_v160(id){
-  const points=getRestorePoints_v160();
-  const point=points.find(p=>p.id===id);
-  if(!point)return;
-  const ok=confirm('Restore this restore point? This will replace the current app data on this device.');
-  if(!ok)return;
-  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, point.state||{});
-  settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, point.settings||{});
-  save();
-  saveSettings();
-  const title=document.getElementById('appTitle');
-  if(title)title.textContent=`${settings.ownerName||'Kenneth'}'s WhiskyLog`;
-  render();
-  show('home');
-  alert('Restore point restored.');
-}
-
-function deleteRestorePoint_v160(id){
-  const ok=confirm('Delete this restore point permanently?');
-  if(!ok)return;
-  const points=getRestorePoints_v160().filter(p=>p.id!==id);
-  saveRestorePoints_v160(points);
-  renderRestorePoints_v160();
-}
-
-function renderRestorePoints_v160(){
-  const host=document.getElementById('restorePointList');
-  if(!host)return;
-  const points=getRestorePoints_v160();
-  if(!points.length){
-    host.innerHTML='<div class="sub">No restore points yet.</div>';
-    return;
-  }
-  host.innerHTML=points.map(p=>`
-    <div class="item">
-      <div>↩️</div>
-      <div>
-        <div class="title">${esc(p.name||'Restore point')}</div>
-        <div class="meta">${esc(p.createdAt||'')} · v${esc(p.version||'')}</div>
-        <div class="sub">${(p.state&&p.state.bases?p.state.bases.length:0)} library · ${(p.state&&p.state.bottles?p.state.bottles.length:0)} bottles · ${(p.state&&p.state.tastings?p.state.tastings.length:0)} tastings</div>
-        <div class="restore-point-actions">
-          <button class="ghost" type="button" onclick="restorePoint_v160('${p.id}')">Restore</button>
-          <button class="danger" type="button" onclick="deleteRestorePoint_v160('${p.id}')">Delete</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function initRestorePoints_v160(){
-  const btn=document.getElementById('createRestorePointBtn');
-  if(btn&&btn.dataset.v160Bound!=='1'){
-    btn.dataset.v160Bound='1';
-    btn.onclick=e=>{
-      e.preventDefault();
-      createRestorePoint_v160();
-    };
-  }
-  const version=document.getElementById('appVersionText');
-  if(version)version.textContent='v'+(window.WHISKYLOG_VERSION||'1.60');
-  renderRestorePoints_v160();
-}
-
-const oldRender_v160=render;
-render=function(){
-  oldRender_v160();
-  initRestorePoints_v160();
-};
-
-
 /* v1.61 tasting edit/delete, correction cleanup, and broader language support */
 function lang_v161(){return settings && settings.language==='no' ? 'no' : 'en'}
 const L_v161={
@@ -1534,104 +1429,6 @@ document.addEventListener('click',()=>setTimeout(()=>{renderLibraryList_v163();a
 document.addEventListener('change',()=>setTimeout(applyLanguage163,80));
 
 
-/* v1.64 language, spacing and version fix */
-function lang164(){return settings&&settings.language==='no'?'no':'en'}
-const UI164={
-  en:{createRestorePoint:'Create restore point',backupToFile:'Backup to file',restoreFromFile:'Restore from file',exportBackupText:'Export backup text',importBackupText:'Import backup text',saveAddNext:'Save & add next',clearForm:'Clear form',appVersion:'App version',restorePoints:'Restore points',restorePointsSub:'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',backupSub:'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',restore:'Restore',delete:'Delete',noRestorePoints:'No restore points yet.',restorePointName:'Restore point name',beforeCleanup:'Before cleanup',restorePointCreated:'Restore point created.',restoreConfirm:'Restore this restore point? This will replace the current app data on this device.',deleteRestoreConfirm:'Delete this restore point permanently?',restorePointRestored:'Restore point restored.',restorePointDeleted:'Restore point deleted.',fileRestoreConfirm:'Restore backup from file? This will replace the data currently stored in the app on this device.',fileRestored:'Backup restored.',fileRestoreError:'Could not restore backup',invalidBackup:'This does not look like a WhiskyLog backup'},
-  no:{createRestorePoint:'Opprett gjenopprettingspunkt',backupToFile:'Lagre backup til fil',restoreFromFile:'Hent backup fra fil',exportBackupText:'Eksporter backuptekst',importBackupText:'Importer backuptekst',saveAddNext:'Lagre og legg til neste',clearForm:'Tøm skjema',appVersion:'Appversjon',restorePoints:'Gjenopprettingspunkter',restorePointsSub:'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.',backupSub:'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.',restore:'Gjenopprett',delete:'Slett',noRestorePoints:'Ingen gjenopprettingspunkter ennå.',restorePointName:'Navn på gjenopprettingspunkt',beforeCleanup:'Før rydding',restorePointCreated:'Gjenopprettingspunkt opprettet.',restoreConfirm:'Gjenopprette dette punktet? Dette erstatter gjeldende appdata på denne enheten.',deleteRestoreConfirm:'Slette dette gjenopprettingspunktet permanent?',restorePointRestored:'Gjenopprettingspunkt gjenopprettet.',restorePointDeleted:'Gjenopprettingspunkt slettet.',fileRestoreConfirm:'Hente backup fra fil? Dette erstatter dataene som ligger i appen på denne enheten.',fileRestored:'Backup gjenopprettet.',fileRestoreError:'Kunne ikke gjenopprette backup',invalidBackup:'Dette ser ikke ut som en WhiskyLog-backup'}
-};
-function tr164(k){return (UI164[lang164()]&&UI164[lang164()][k])||k}
-function readableText164(text){
-  const raw=String(text||'').trim();
-  const map={createRestorePoint:'createRestorePoint',backupToFile:'backupToFile',restoreFromFile:'restoreFromFile',exportBackupText:'exportBackupText',importBackupText:'importBackupText',saveAddNext:'saveAddNext',clearForm:'clearForm'};
-  return map[raw]?tr164(map[raw]):raw;
-}
-function localizeSettings164(){
-  const v=document.getElementById('appVersionText');
-  if(v)v.textContent='v'+(window.WHISKYLOG_VERSION||'1.64');
-
-  [['createRestorePointBtn','createRestorePoint'],['backupToFileBtn','backupToFile'],['restoreFromFileBtn','restoreFromFile'],['exportBtn','exportBackupText'],['importBtn','importBackupText'],['librarySaveNewButton','saveAddNext'],['libraryClearButton','clearForm']].forEach(([id,key])=>{
-    const el=document.getElementById(id); if(el)el.textContent=tr164(key);
-  });
-
-  document.querySelectorAll('button').forEach(btn=>{btn.textContent=readableText164(btn.textContent)});
-  document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n'); if(UI164[lang164()]&&UI164[lang164()][key])el.textContent=tr164(key)});
-
-  document.querySelectorAll('h3,h2,p,.sub,label,span,div').forEach(el=>{
-    if(!el||el.children.length>0)return;
-    const t=(el.textContent||'').trim();
-    if(t==='Restore points'||t==='Gjenopprettingspunkter')el.textContent=tr164('restorePoints');
-    if(t.startsWith('Create an internal restore point')||t.startsWith('Opprett et internt gjenopprettingspunkt'))el.textContent=tr164('restorePointsSub');
-    if(t.startsWith('Backup includes')||t.startsWith('Backup inkluderer'))el.textContent=tr164('backupSub');
-    if(t.startsWith('App version:')||t.startsWith('Appversjon:'))el.innerHTML=`${tr164('appVersion')}: <strong id="appVersionText">v${window.WHISKYLOG_VERSION||'1.64'}</strong>`;
-  });
-}
-
-const RESTORE_POINTS_KEY_v164='whiskylog_restore_points_v160';
-const MAX_RESTORE_POINTS_v164=10;
-function getRestorePoints_v164(){try{const p=JSON.parse(localStorage.getItem(RESTORE_POINTS_KEY_v164)||'[]');return Array.isArray(p)?p:[]}catch(e){return []}}
-function saveRestorePoints_v164(points){localStorage.setItem(RESTORE_POINTS_KEY_v164,JSON.stringify(points.slice(0,MAX_RESTORE_POINTS_v164)))}
-function createRestorePoint_v164(){
-  const name=prompt(tr164('restorePointName'),tr164('beforeCleanup'));
-  if(name===null)return;
-  const point={id:uid(),name:String(name||tr164('beforeCleanup')).trim(),createdAt:new Date().toLocaleString('sv-SE'),version:window.WHISKYLOG_VERSION||'1.64',state:JSON.parse(JSON.stringify(state)),settings:JSON.parse(JSON.stringify(settings))};
-  const points=getRestorePoints_v164();points.unshift(point);saveRestorePoints_v164(points);renderRestorePoints_v164();alert(tr164('restorePointCreated'));
-}
-function restorePoint_v164(id){
-  const point=getRestorePoints_v164().find(p=>p.id===id);if(!point)return;
-  if(!confirm(tr164('restoreConfirm')))return;
-  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]},point.state||{});
-  settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},point.settings||{});
-  save();saveSettings();render();show('home');alert(tr164('restorePointRestored'));
-}
-function deleteRestorePoint_v164(id){
-  if(!confirm(tr164('deleteRestoreConfirm')))return;
-  saveRestorePoints_v164(getRestorePoints_v164().filter(p=>p.id!==id));renderRestorePoints_v164();alert(tr164('restorePointDeleted'));
-}
-function renderRestorePoints_v164(){
-  const host=document.getElementById('restorePointList');if(!host)return;
-  const points=getRestorePoints_v164();
-  if(!points.length){host.innerHTML=`<div class="sub">${tr164('noRestorePoints')}</div>`;return}
-  host.innerHTML=points.map(p=>`<div class="item"><div>↩️</div><div><div class="title">${esc(p.name||tr164('beforeCleanup'))}</div><div class="meta">${esc(p.createdAt||'')} · v${esc(p.version||'')}</div><div class="sub">${(p.state&&p.state.bases?p.state.bases.length:0)} ${lang164()==='no'?'bibliotek':'library'} · ${(p.state&&p.state.bottles?p.state.bottles.length:0)} ${lang164()==='no'?'flasker':'bottles'} · ${(p.state&&p.state.tastings?p.state.tastings.length:0)} ${lang164()==='no'?'smakinger':'tastings'}</div><div class="restore-point-actions"><button class="ghost" type="button" onclick="restorePoint_v164('${p.id}')">${tr164('restore')}</button><button class="danger" type="button" onclick="deleteRestorePoint_v164('${p.id}')">${tr164('delete')}</button></div></div></div>`).join('');
-}
-function initRestorePoints_v164(){
-  const btn=document.getElementById('createRestorePointBtn');
-  if(btn)btn.onclick=e=>{e.preventDefault();createRestorePoint_v164()};
-  renderRestorePoints_v164();
-}
-
-function restoreBackupObject_v164(data){
-  if(!data||typeof data!=='object')throw new Error(tr164('invalidBackup'));
-  const nextState=data.state||data;
-  const nextSettings=data.settings||null;
-  if(!nextState||!Array.isArray(nextState.bases)||!Array.isArray(nextState.bottles))throw new Error(tr164('invalidBackup'));
-  state=Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]},nextState);
-  if(nextSettings)settings=Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20},nextSettings);
-  save();saveSettings();
-  const title=document.getElementById('appTitle');if(title)title.textContent=`${settings.ownerName||'Kenneth'}'s WhiskyLog`;
-  render();show('home');
-}
-function restoreFromFile_v164(file){
-  const reader=new FileReader();
-  reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!confirm(tr164('fileRestoreConfirm')))return;restoreBackupObject_v164(data);alert(tr164('fileRestored'))}catch(err){alert(`${tr164('fileRestoreError')}: ${err&&err.message?err.message:''}`)}};
-  reader.onerror=()=>alert(tr164('fileRestoreError'));
-  reader.readAsText(file);
-}
-function initBackupFileButtons_v164(){
-  const restoreBtn=document.getElementById('restoreFromFileBtn');
-  const fileInput=document.getElementById('backupFileInput');
-  if(restoreBtn&&fileInput){
-    restoreBtn.onclick=e=>{e.preventDefault();fileInput.value='';fileInput.click()};
-    fileInput.onchange=()=>{const file=fileInput.files&&fileInput.files[0];if(file)restoreFromFile_v164(file)};
-  }
-}
-const oldRender_v164=render;
-render=function(){oldRender_v164();initRestorePoints_v164();initBackupFileButtons_v164();localizeSettings164()};
-document.addEventListener('click',()=>setTimeout(localizeSettings164,60));
-document.addEventListener('change',()=>setTimeout(localizeSettings164,60));
-document.addEventListener('DOMContentLoaded',()=>setTimeout(localizeSettings164,100));
-
-
 /* v1.65 final library delete + Norwegian text fix */
 function isNo165(){
   return settings && settings.language === 'no';
@@ -1757,7 +1554,7 @@ document.addEventListener('change', () => setTimeout(fixLibraryNorwegianText_v16
 
 
 /* v1.66 forced library renderer + final text normalization */
-window.WHISKYLOG_VERSION='1.72';
+window.WHISKYLOG_VERSION='1.73';
 
 function no66(){return settings && settings.language==='no'}
 function txt66(en,no){return no66()?no:en}
@@ -1922,7 +1719,7 @@ const v166Timer=setInterval(()=>{
 
 
 /* v1.67 HARD replace library cards */
-window.WHISKYLOG_VERSION='1.72';
+window.WHISKYLOG_VERSION='1.73';
 
 function wl67No(){return settings&&settings.language==='no'}
 function wl67Txt(en,no){return wl67No()?no:en}
@@ -2062,7 +1859,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 /* v1.69 final delete + label fix */
-window.WHISKYLOG_VERSION='1.72';
+window.WHISKYLOG_VERSION='1.73';
 
 function wl69No(){ return settings && settings.language === 'no'; }
 function wl69(en,no){ return wl69No() ? no : en; }
@@ -2221,7 +2018,7 @@ function renderBases(){
 
 
 /* v1.70 direct library delete */
-window.WHISKYLOG_VERSION='1.72';
+window.WHISKYLOG_VERSION='1.73';
 
 function deleteBase_v170(id){
   const base = getBase(id);
@@ -2354,109 +2151,155 @@ render = function(){
 };
 
 
-/* v1.72 FINAL settings override: active version + no camelCase visible labels */
-window.WHISKYLOG_VERSION='1.72';
 
-function no172(){
-  return settings && settings.language === 'no';
-}
-function t172(en,no){
-  return no172() ? no : en;
-}
 
-function fixSettings172(){
+/* v1.73 clean settings + restore points */
+window.WHISKYLOG_VERSION='1.73';
+
+function wl73No(){ return settings && settings.language === 'no'; }
+function wl73(en,no){ return wl73No() ? no : en; }
+
+function wl73RestorePoints(){
+  try{
+    const points = JSON.parse(localStorage.getItem('whiskylog_restore_points') || '[]');
+    return Array.isArray(points) ? points : [];
+  }catch(e){
+    return [];
+  }
+}
+function wl73SaveRestorePoints(points){
+  localStorage.setItem('whiskylog_restore_points', JSON.stringify(points.slice(0,10)));
+}
+function wl73CreateRestorePoint(){
+  const name = prompt(wl73('Restore point name','Navn på gjenopprettingspunkt'), wl73('Before cleanup','Før rydding'));
+  if(name === null) return;
+
+  const point = {
+    id: uid(),
+    name: String(name || wl73('Restore point','Gjenopprettingspunkt')).trim(),
+    createdAt: new Date().toLocaleString('sv-SE'),
+    version: window.WHISKYLOG_VERSION,
+    state: JSON.parse(JSON.stringify(state)),
+    settings: JSON.parse(JSON.stringify(settings))
+  };
+
+  const points = wl73RestorePoints();
+  points.unshift(point);
+  wl73SaveRestorePoints(points);
+  render();
+  alert(wl73('Restore point created.','Gjenopprettingspunkt opprettet.'));
+}
+function wl73RestorePoint(id){
+  const point = wl73RestorePoints().find(p => p.id === id);
+  if(!point) return;
+  if(!confirm(wl73(
+    'Restore this point? Current app data on this device will be replaced.',
+    'Gjenopprette dette punktet? Gjeldende appdata på denne enheten blir erstattet.'
+  ))) return;
+
+  state = Object.assign({bases:[],bottles:[],tastings:[],comments:[],wishlist:[]}, point.state || {});
+  settings = Object.assign({ownerName:'Kenneth',currency:'NOK',language:'en',defaultTastingMl:20}, point.settings || {});
+  save();
+  saveSettings();
+  render();
+  show('home');
+}
+function wl73DeleteRestorePoint(id){
+  if(!confirm(wl73('Delete restore point permanently?','Slette gjenopprettingspunkt permanent?'))) return;
+  wl73SaveRestorePoints(wl73RestorePoints().filter(p => p.id !== id));
+  render();
+}
+function wl73RenderRestorePoints(){
+  const list = document.getElementById('restorePointList');
+  if(!list) return;
+
+  const points = wl73RestorePoints();
+  if(!points.length){
+    list.innerHTML = `<div class="sub">${wl73('No restore points yet.','Ingen gjenopprettingspunkter ennå.')}</div>`;
+    return;
+  }
+
+  list.innerHTML = points.map(p => `
+    <div class="item">
+      <div>↩️</div>
+      <div>
+        <div class="title">${esc(p.name || '')}</div>
+        <div class="meta">${esc(p.createdAt || '')} · v${esc(p.version || '')}</div>
+        <div class="sub">
+          ${(p.state && p.state.bases ? p.state.bases.length : 0)} ${wl73('library','bibliotek')} ·
+          ${(p.state && p.state.bottles ? p.state.bottles.length : 0)} ${wl73('bottles','flasker')} ·
+          ${(p.state && p.state.tastings ? p.state.tastings.length : 0)} ${wl73('tastings','smakinger')}
+        </div>
+        <div class="restore-point-actions">
+          <button class="ghost" type="button" onclick="wl73RestorePoint('${p.id}')">${wl73('Restore','Gjenopprett')}</button>
+          <button class="danger" type="button" onclick="wl73DeleteRestorePoint('${p.id}')">${wl73('Delete','Slett')}</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function wl73FixSettings(){
   const settingsView = document.getElementById('settings');
   if(!settingsView) return;
 
-  settingsView.classList.add('settings-fixed-v172');
+  const createBtn = document.getElementById('createRestorePointBtn');
+  if(createBtn){
+    createBtn.textContent = wl73('Create restore point','Opprett gjenopprettingspunkt');
+    createBtn.onclick = function(e){ e.preventDefault(); wl73CreateRestorePoint(); };
+  }
 
-  // Version must always be code version, never old stored/legacy value.
-  const version = document.getElementById('appVersionText');
-  if(version) version.textContent = 'v1.72';
+  const backupBtn = document.getElementById('backupToFileBtn');
+  if(backupBtn) backupBtn.textContent = wl73('Backup to file','Lagre backup til fil');
 
-  // Buttons by id.
-  const labels = {
-    createRestorePointBtn: t172('Create restore point','Opprett gjenopprettingspunkt'),
-    backupToFileBtn: t172('Backup to file','Lagre backup til fil'),
-    restoreFromFileBtn: t172('Restore from file','Hent backup fra fil'),
-    exportBtn: t172('Export backup','Eksporter backup'),
-    importBtn: t172('Import backup','Importer backup')
-  };
-  Object.entries(labels).forEach(([id,label])=>{
-    const el = document.getElementById(id);
-    if(el) el.textContent = label;
-  });
+  const restoreBtn = document.getElementById('restoreFromFileBtn');
+  if(restoreBtn) restoreBtn.textContent = wl73('Restore from file','Hent backup fra fil');
 
-  // CamelCase leftovers anywhere in settings.
-  settingsView.querySelectorAll('button').forEach(btn=>{
-    const txt = (btn.textContent || '').trim();
-    const mapNo = {
-      createRestorePoint:'Opprett gjenopprettingspunkt',
-      backupToFile:'Lagre backup til fil',
-      restoreFromFile:'Hent backup fra fil',
-      exportBackupText:'Eksporter backuptekst',
-      importBackupText:'Importer backuptekst',
-      saveAddNext:'Lagre og legg til neste',
-      clearForm:'Tøm skjema',
-      'Create restore point':'Opprett gjenopprettingspunkt',
-      'Backup to file':'Lagre backup til fil',
-      'Restore from file':'Hent backup fra fil'
-    };
-    const mapEn = {
-      createRestorePoint:'Create restore point',
-      backupToFile:'Backup to file',
-      restoreFromFile:'Restore from file',
-      exportBackupText:'Export backup text',
-      importBackupText:'Import backup text',
-      saveAddNext:'Save & add next',
-      clearForm:'Clear form',
-      'Opprett gjenopprettingspunkt':'Create restore point',
-      'Lagre backup til fil':'Backup to file',
-      'Hent backup fra fil':'Restore from file'
-    };
-    if(no172() && mapNo[txt]) btn.textContent = mapNo[txt];
-    if(!no172() && mapEn[txt]) btn.textContent = mapEn[txt];
-  });
+  const exportBtn = document.getElementById('exportBtn');
+  if(exportBtn) exportBtn.textContent = wl73('Export backup','Eksporter backup');
 
-  // Headings and descriptions.
-  settingsView.querySelectorAll('h2,h3,p,.sub,div').forEach(el=>{
+  const importBtn = document.getElementById('importBtn');
+  if(importBtn) importBtn.textContent = wl73('Import backup','Importer backup');
+
+  settingsView.querySelectorAll('h2,h3,p,.sub,div').forEach(el => {
     if(!el || el.children.length > 0) return;
     const txt = (el.textContent || '').trim();
 
-    if(txt === 'Restore points' || txt === 'Gjenopprettingspunkter'){
-      el.textContent = t172('Restore points','Gjenopprettingspunkter');
+    if(['Restore points','Gjenopprettingspunkter'].includes(txt)){
+      el.textContent = wl73('Restore points','Gjenopprettingspunkter');
     }
 
     if(txt.startsWith('Create an internal restore point') || txt.startsWith('Opprett et internt gjenopprettingspunkt')){
-      el.textContent = t172(
+      el.textContent = wl73(
         'Create an internal restore point before cleanup or larger edits. Stored only in this browser/app on this device.',
         'Opprett et internt gjenopprettingspunkt før rydding eller større endringer. Lagres kun i denne nettleseren/appen på denne enheten.'
       );
     }
 
     if(txt.startsWith('Backup includes') || txt.startsWith('Backup inkluderer')){
-      el.textContent = t172(
+      el.textContent = wl73(
         'Backup includes library, bottles, images saved in the app, tastings, notes, wishlist and settings.',
         'Backup inkluderer bibliotek, flasker, bilder lagret i appen, smakinger, notater, ønskeliste og innstillinger.'
       );
     }
 
     if(txt.startsWith('App version:') || txt.startsWith('Appversjon:')){
-      el.innerHTML = `${t172('App version','Appversjon')}: <strong id="appVersionText">v1.72</strong>`;
+      el.innerHTML = `${wl73('App version','Appversjon')}: <strong id="appVersionText">v1.73</strong>`;
     }
   });
+
+  const version = document.getElementById('appVersionText');
+  if(version) version.textContent = 'v1.73';
+
+  wl73RenderRestorePoints();
 }
 
-// Override old restore point init functions after they run.
-const oldRender172 = render;
+const oldRender_v173 = render;
 render = function(){
-  oldRender172();
-  setTimeout(fixSettings172, 0);
-  setTimeout(fixSettings172, 100);
-  setTimeout(fixSettings172, 500);
+  oldRender_v173();
+  wl73FixSettings();
 };
 
-document.addEventListener('DOMContentLoaded',()=>setTimeout(fixSettings172,300));
-document.addEventListener('click',()=>setTimeout(fixSettings172,120),true);
-document.addEventListener('change',()=>setTimeout(fixSettings172,120),true);
-setInterval(fixSettings172,1000);
+document.addEventListener('DOMContentLoaded', () => setTimeout(wl73FixSettings, 200));
+document.addEventListener('click', () => setTimeout(wl73FixSettings, 80), true);
+document.addEventListener('change', () => setTimeout(wl73FixSettings, 80), true);
+setInterval(wl73FixSettings, 1000);
