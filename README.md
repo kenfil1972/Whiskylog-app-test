@@ -1,32 +1,22 @@
-# WhiskyLog v2.30 Hard UI Fix
+# WhiskyLog v2.31 Direct Ratings Button
 
 Dette er gjeldende versjon.
 
-## Rettet i v2.30
+## Rettet i v2.31
 
-- Tvinger korrekt scorevisning som prosent med én desimal.
-- Fikser feilvisninger som:
-  - 5.64 %
-  - 0.6 %
-  - /10, /100, /500 og /1000
-- Score beregnes fra fem 0–100-felt:
-  - visuelt
-  - lukt
-  - smak
-  - ettersmak
-  - helhetsinntrykk
-- Eksempel:
-  - 52, 58, 56, 64, 52 = 56.4 %
-- Rediger og slett under smaking er koblet direkte til globale funksjoner.
-- Oversikt / statistikk får tydelig kort:
+- Vurderinger-knappen legges direkte inn i Oversikt/statistikk-renderen.
+- Ikke lenger avhengig av etterpå-patch eller DOM-injeksjon.
+- Knappen vises som eget kort:
   - **Vurderinger**
   - **Åpne vurderinger**
 - Vurderinger viser:
   - bilde
   - flaskenavn
-  - score i %
+  - score i prosent med én desimal
   - antall smakinger
   - søk etter flaske
   - høyeste score øverst
-- Detaljside per flaske viser alle smakinger, nyeste øverst.
+- Flaskedetalj viser alle smakinger, nyeste øverst.
+- Scorelogikk holdes til prosent med én desimal.
+- Rediger/Slett under smaking beholdes.
 - Backup fra v2.28 beholdes.
