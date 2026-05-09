@@ -1,37 +1,19 @@
-# WhiskyLog v2.25 Backup Import + README Fix
+# WhiskyLog v2.26 Percent Score Model
 
 Dette er gjeldende versjon.
 
-## Endringer i v2.25
+## Endringer i v2.26
 
-- Definitiv importretting for backupfiler fra tidligere v2-versjoner.
-- Import erstatter nå selve gamle importfunksjonen, ikke bare en ekstra funksjon på slutten.
-- Støtter backupfiler som inneholder:
-  - `state`
-  - `data`
-  - `appData`
-  - direkte WhiskyLog-data
-- Leser inn:
-  - bibliotek
-  - beholdning/flasker
-  - bilder lagret i appen
-  - smakinger
-  - kommentarer/notater
-  - ønskeliste
-  - innstillinger
-- Viser antall elementer før import.
-- Eksport lagrer ren UTF-8 JSON.
-- README er oppdatert slik at GitHub ikke lenger viser v2.23.
-
-## Viktig
-
-Last opp alle filene i ZIP-pakken til GitHub-repoet:
-- `index.html`
-- `app.js`
-- `styles.css`
-- `manifest.webmanifest`
-- `sw.js`
-- `README.md`
-- ikonfilene
-
-Etter opplasting: vent til GitHub Pages deployment er grønn før testing.
+- Smakescore vises som prosent med én desimal, f.eks. `56.4 %`.
+- Intern score beregnes fortsatt fra fem kategorier à 0–100:
+  - visuelt
+  - lukt
+  - smak
+  - ettersmak
+  - helhetsinntrykk
+- Hver smaking er en selvstendig registrering.
+- Flaskescore er gjennomsnittet av alle smakinger på samme fysiske flaske.
+- Produktscore/rangering er gjennomsnittet av alle flasker/smakinger for samme produkt.
+- Neat/vann er sortérbart.
+- Ved vann beregnes dråper per liter fra antall dråper og smaksvolum.
+- Fikser feilvisninger som `0.6/1000`, `5.64/100` og `64.2/10`.

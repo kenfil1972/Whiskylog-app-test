@@ -647,3 +647,28 @@ input[type="date"]{
     white-space:normal;
   }
 }
+
+
+/* v2.26 percent score UI */
+.scorePercent,
+.meta b{
+  color:#f4bf4f;
+  font-weight:900;
+}
+.scoreLineOne{
+  display:grid;
+  grid-template-columns:minmax(92px,130px) minmax(88px,118px) 1fr;
+  gap:10px;
+  align-items:center;
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(0,0,0,.16);
+  color:#e7d3b5;
+}
+.scoreLineOne .scoreName{font-weight:800;color:#fff}
+.scoreLineOne .scorePoints{color:#f4bf4f;font-weight:800;white-space:nowrap}
+.scoreLineOne .scoreNote{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){
+  .scoreLineOne{grid-template-columns:1fr;gap:2px}
+  .scoreLineOne .scoreNote{white-space:normal}
+}
