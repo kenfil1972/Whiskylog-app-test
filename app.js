@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.31';
+const VERSION = '2.32';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.31',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.32',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.31',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.32',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -931,15 +931,51 @@ ${bottleBase(b).name || ''}`)) return;
 };
 
 function renderOverview(){
-  const ranked=state.library.map(l=>({l,score:averageScoreForLibrary(l.id)})).filter(x=>x.score).sort((a,b)=>b.score-a.score);
+  const totalValue = state.bottles.reduce((a,b)=>a+bottleValue(b),0);
+  const totalMl = Math.round(state.bottles.reduce((a,b)=>a+bottleVolume(b),0));
+  const tastingCount = state.tastings.length;
+
+  const ranked = state.library
+    .map(l=>({l,score:averageScoreForLibrary(l.id)}))
+    .filter(x=>Number(x.score)>0)
+    .sort((a,b)=>Number(b.score)-Number(a.score));
+
   shell(`
-    <section class="hero"><h2>${tr('overview')}</h2><p class="sub">${tr('overviewSub')}</p></section>
-    <section class="grid">
-      <div class="card"><h2>${money(state.bottles.reduce((a,b)=>a+bottleValue(b),0))}</h2><p class="sub">${tr('value')}</p></div>
-      <div class="card"><h2>${Math.round(state.bottles.reduce((a,b)=>a+bottleVolume(b),0))} ml</h2><p class="sub">${tr('stockVolume')}</p></div>
-      <div class="card"><h2>${state.tastings.length}</h2><p class="sub">${tr('registerTasting')}</p></div>
+    <section class="hero">
+      <h2>${tr('overview')}</h2>
+      <p class="sub">${tr('overviewSub')}</p>
     </section>
-    <section class="card"><h2>${tr('bottleRanking')}</h2><div class="list">${ranked.length?ranked.map(x=>`<div class="item">${img(x.l)}<div><div class="title">${esc(x.l.name)}</div><div class="score">${x.score.toFixed(1)} %</div></div></div>`).join(''):`<div class="sub">${tr('noItems')}</div>`}</div></section>
+
+    <section class="grid">
+      <div class="card"><h2>${money(totalValue)}</h2><p class="sub">${tr('value')}</p></div>
+      <div class="card"><h2>${totalMl} ml</h2><p class="sub">${tr('stockVolume')}</p></div>
+      <div class="card"><h2>${tastingCount}</h2><p class="sub">${tr('registerTasting')}</p></div>
+    </section>
+
+    <section class="card ratingsMenuCard alwaysVisibleRatings">
+      <h2>Vurderinger</h2>
+      <p class="sub">Alle flaskescore med bilde, søk og detaljvisning.</p>
+      <button class="primary fullWidth" type="button" onclick="page='ratings';render()">Åpne vurderinger</button>
+    </section>
+
+    <section class="card">
+      <h2>${tr('bottleRanking')}</h2>
+      <div class="list">
+        ${
+          ranked.length
+            ? ranked.map(x=>`
+              <div class="item" onclick="page='ratings';render()">
+                ${img(x.l)}
+                <div>
+                  <div class="title">${esc(x.l.name)}</div>
+                  <div class="score">${fmtPct ? fmtPct(x.score) : x.score.toFixed(1) + ' %'}</div>
+                </div>
+              </div>
+            `).join('')
+            : `<div class="sub">${tr('noItems')}</div>`
+        }
+      </div>
+    </section>
   `);
 }
 function renderWishlist(){
@@ -2870,3 +2906,84 @@ if(!window.__render231Final){
   };
 }
 
+
+
+
+/* ===== v2.32 direct ratings fallback ===== */
+function wlPct232(t){
+  const n = v => {
+    const x = Number(String(v ?? '').replace(',','.'));
+    return Number.isFinite(x) ? Math.max(0,Math.min(100,x)) : 0;
+  };
+  const vals=[t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore].map(n).filter(x=>x>0);
+  if(vals.length) return Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
+  const legacy=Number(t.average||t.score||0);
+  if(Number.isFinite(legacy)&&legacy>0){
+    if(legacy<=1) return Math.round(legacy*1000)/10;
+    if(legacy<=10) return Math.round(legacy*100)/10;
+    return Math.round(legacy*10)/10;
+  }
+  return 0;
+}
+function fmtPct(v){
+  const n=Number(v);
+  return Number.isFinite(n)&&n>0?n.toFixed(1)+' %':'0.0 %';
+}
+function wlBottleAvg232(bottleId){
+  const vals=(state.tastings||[]).filter(t=>t.bottleId===bottleId).map(wlPct232).filter(v=>v>0);
+  return vals.length?Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10:0;
+}
+function averageScoreForLibrary(libraryId){
+  const bottleIds=(state.bottles||[]).filter(b=>b.libraryId===libraryId).map(b=>b.id);
+  const vals=(state.tastings||[]).filter(t=>bottleIds.includes(t.bottleId)).map(wlPct232).filter(v=>v>0);
+  return vals.length?Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10:'';
+}
+function renderRatingsOverview232(){
+  const q=(window.__ratingsSearch232||'').trim().toLowerCase();
+  let bottles=(state.bottles||[]).map(b=>{
+    const base=bottleBase(b);
+    const count=(state.tastings||[]).filter(t=>t.bottleId===b.id).length;
+    const avg=wlBottleAvg232(b.id);
+    return {b,base,count,avg};
+  }).filter(x=>x.base&&x.count>0);
+  if(q) bottles=bottles.filter(x=>String(x.base.name||'').toLowerCase().includes(q));
+  bottles.sort((a,b)=>b.avg-a.avg);
+  shell(`
+    <section class="hero"><h2>Vurderinger</h2><p class="sub">Flaskescore sortert med høyeste score øverst.</p></section>
+    <section class="card"><label>Søk etter flaske</label><input id="ratingsSearch232" placeholder="Søk etter flaske" value="${esc(window.__ratingsSearch232||'')}"></section>
+    <section class="card"><div class="list">
+      ${bottles.length?bottles.map(x=>`
+        <div class="item ratingsItem" onclick="ratingsBottleId232='${x.b.id}';page='ratingsBottle';render()">
+          ${img(x.base)}
+          <div class="ratingsText"><div class="title">${esc(x.base.name||'')}</div><div class="meta"><b>${fmtPct(x.avg)}</b></div><div class="small">Antall smakinger: ${x.count}</div></div>
+          <div class="actions"><button class="ghost" type="button" onclick="event.stopPropagation();ratingsBottleId232='${x.b.id}';page='ratingsBottle';render()">Åpne</button></div>
+        </div>`).join(''):`<div class="sub">Ingen vurderinger ennå.</div>`}
+    </div></section>
+  `);
+  const inp=document.getElementById('ratingsSearch232');
+  if(inp) inp.addEventListener('input',e=>{window.__ratingsSearch232=e.target.value||'';renderRatingsOverview232();});
+}
+let ratingsBottleId232='';
+function renderRatingsBottle232(){
+  const b=getBottle(ratingsBottleId232);
+  const base=b?bottleBase(b):null;
+  if(!b||!base){page='ratings';render();return;}
+  const rows=(state.tastings||[]).filter(t=>t.bottleId===b.id).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  const vals=rows.map(wlPct232).filter(v=>v>0);
+  const min=vals.length?Math.min(...vals):0, avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0, max=vals.length?Math.max(...vals):0;
+  shell(`
+    <section class="hero">${img(base)}<h2>${esc(base.name||'')}</h2><p class="sub">Laveste: ${fmtPct(min)} · Snitt: ${fmtPct(Math.round(avg*10)/10)} · Høyeste: ${fmtPct(max)}</p></section>
+    <section class="card"><h2>Smakinger</h2><p class="sub">Nyeste øverst.</p><div class="list">
+      ${rows.length?rows.map(t=>typeof tastingDetailItem==='function'?tastingDetailItem(t):`<div class="item"><div><div class="title">${esc(t.date||'')}</div><div class="meta">${fmtPct(wlPct232(t))}</div></div></div>`).join(''):`<div class="sub">Ingen smakinger ennå.</div>`}
+    </div></section>
+  `);
+}
+if(!window.__render232Final){
+  window.__render232Final=true;
+  const previousRender232=render;
+  render=function(){
+    if(page==='ratings') return renderRatingsOverview232();
+    if(page==='ratingsBottle') return renderRatingsBottle232();
+    return previousRender232();
+  };
+}

@@ -846,3 +846,13 @@ input[type="date"]{
   .scoreLineOne{grid-template-columns:1fr;gap:2px}
   .scoreLineOne .scoreNote{white-space:normal}
 }
+
+
+/* v2.32 direct overview ratings button */
+.alwaysVisibleRatings{
+  border-color:rgba(244,191,79,.70)!important;
+}
+.fullWidth{width:100%;}
+.ratingsItem{align-items:center;}
+.ratingsText{flex:1;min-width:0;}
+.ratingsText .meta b,.meta b{color:#f4bf4f;font-weight:900;}

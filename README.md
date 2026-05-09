@@ -1,22 +1,19 @@
-# WhiskyLog v2.31 Direct Ratings Button
+# WhiskyLog v2.32 Replace Overview Directly
 
 Dette er gjeldende versjon.
 
-## Rettet i v2.31
+## Rettet i v2.32
 
-- Vurderinger-knappen legges direkte inn i Oversikt/statistikk-renderen.
-- Ikke lenger avhengig av etterpå-patch eller DOM-injeksjon.
-- Knappen vises som eget kort:
+- Selve `renderOverview()` er erstattet direkte.
+- Vurderinger-kortet ligger nå inne i original Oversikt/statistikk-render, ikke som wrapper.
+- Kortet vises rett under de tre statistikkortene:
   - **Vurderinger**
   - **Åpne vurderinger**
-- Vurderinger viser:
-  - bilde
+- Vurderinger-siden har:
+  - flaskebilde
   - flaskenavn
-  - score i prosent med én desimal
-  - antall smakinger
-  - søk etter flaske
+  - score i prosent
+  - søk
   - høyeste score øverst
-- Flaskedetalj viser alle smakinger, nyeste øverst.
-- Scorelogikk holdes til prosent med én desimal.
-- Rediger/Slett under smaking beholdes.
-- Backup fra v2.28 beholdes.
+  - detaljside per flaske
+  - nyeste smaking øverst
