@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.27';
+const VERSION = '2.28';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.27',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.28',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.27',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.28',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1333,182 +1333,17 @@ render = function(){
 
 
 
-/* ===== v2.25 definitive backup import ===== */
 
-function parseWhiskyLogBackupText(rawText){
-  let text = String(rawText || '');
 
-  // Remove BOM, nulls, control chars except whitespace, and trim.
-  text = text
-    .replace(/^\uFEFF/, '')
-    .replace(/\u0000/g, '')
-    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F]/g, '')
-    .trim();
 
-  // iOS/Files can sometimes pass a data URL.
-  const commaIndex = text.indexOf(',');
-  if(/^data:.*?base64,/i.test(text)){
-    try{
-      text = atob(text.slice(commaIndex + 1));
-    }catch(e){}
-    text = String(text || '').replace(/^\uFEFF/, '').trim();
-  }
 
-  // If file is accidentally wrapped in quotes, unwrap it.
-  if((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))){
-    const inner = text.slice(1, -1);
-    try{
-      text = JSON.parse(text);
-    }catch(e){
-      text = inner;
-    }
-    text = String(text || '').trim();
-  }
 
-  // If text contains escaped JSON, unescape the most common forms.
-  if(text.includes('\\"') || text.includes('\\n')){
-    const candidate = text
-      .replace(/\\n/g, '\n')
-      .replace(/\\r/g, '\r')
-      .replace(/\\t/g, '\t')
-      .replace(/\\"/g, '"');
-    if(candidate.includes('{') && candidate.includes('}')){
-      text = candidate.trim();
-    }
-  }
 
-  // Extract first JSON object from surrounding text.
-  const firstObj = text.indexOf('{');
-  const lastObj = text.lastIndexOf('}');
-  if(firstObj >= 0 && lastObj > firstObj){
-    text = text.slice(firstObj, lastObj + 1).trim();
-  }
 
-  // Parse.
-  try{
-    return JSON.parse(text);
-  }catch(err){
-    const preview = text.slice(0, 120).replace(/\s+/g, ' ');
-    throw new Error('JSON kunne ikke leses. Første del av filen: ' + preview);
-  }
-}
 
-function normalizeWhiskyLogBackup(parsed){
-  let data = parsed;
 
-  if(data && typeof data === 'object' && data.data && typeof data.data === 'object') data = data.data;
-  if(data && typeof data === 'object' && data.appData && typeof data.appData === 'object') data = data.appData;
 
-  const sourceState = data && data.state && typeof data.state === 'object' ? data.state : data;
-  const sourceSettings = data && data.settings ? data.settings : (sourceState && sourceState.settings ? sourceState.settings : null);
 
-  const bases =
-    Array.isArray(sourceState.bases) ? sourceState.bases :
-    Array.isArray(sourceState.library) ? sourceState.library :
-    Array.isArray(sourceState.baseBottles) ? sourceState.baseBottles :
-    [];
-
-  const bottles =
-    Array.isArray(sourceState.bottles) ? sourceState.bottles :
-    Array.isArray(sourceState.stock) ? sourceState.stock :
-    [];
-
-  const tastings = Array.isArray(sourceState.tastings) ? sourceState.tastings : [];
-  const comments =
-    Array.isArray(sourceState.comments) ? sourceState.comments :
-    Array.isArray(sourceState.notes) ? sourceState.notes :
-    [];
-  const wishlist = Array.isArray(sourceState.wishlist) ? sourceState.wishlist : [];
-
-  if(!bases.length && !bottles.length && !tastings.length && !wishlist.length){
-    throw new Error('Filen ble lest, men inneholder ingen WhiskyLog-data.');
-  }
-
-  const fixedState = Object.assign({}, sourceState, {
-    bases: bases.map(x => Object.assign({id: uid()}, x || {})),
-    bottles: bottles.map(x => Object.assign({id: uid(), forceEmpty:false}, x || {})),
-    tastings: tastings.map(x => Object.assign({id: uid()}, x || {})),
-    comments: comments.map(x => Object.assign({id: uid()}, x || {})),
-    wishlist: wishlist.map(x => Object.assign({id: uid()}, x || {}))
-  });
-
-  return {state: fixedState, settings: sourceSettings};
-}
-
-async function importBackupFileFromInput(file){
-  if(!file){
-    alert('Ingen fil valgt');
-    return;
-  }
-
-  try{
-    const rawText = await file.text();
-    const parsed = parseWhiskyLogBackupText(rawText);
-    const normalized = normalizeWhiskyLogBackup(parsed);
-
-    const counts = {
-      bibliotek: normalized.state.bases.length,
-      flasker: normalized.state.bottles.length,
-      smakinger: normalized.state.tastings.length,
-      ønskeliste: normalized.state.wishlist.length
-    };
-
-    const ok = confirm(
-      'Importere backup og erstatte nåværende data?\n\n' +
-      'Bibliotek: ' + counts.bibliotek + '\n' +
-      'Flasker: ' + counts.flasker + '\n' +
-      'Smakinger: ' + counts.smakinger + '\n' +
-      'Ønskeliste: ' + counts.ønskeliste
-    );
-    if(!ok) return;
-
-    state = normalized.state;
-    save();
-
-    if(normalized.settings){
-      try{
-        if(typeof settings !== 'undefined'){
-          settings = Object.assign(settings, normalized.settings);
-        }
-        if(typeof saveSettings === 'function') saveSettings();
-      }catch(e){}
-    }
-
-    alert('Backup importert.');
-    go('home');
-  }catch(err){
-    console.error('Backup import error:', err);
-    alert('Kunne ikke hente backup: ' + (err && err.message ? err.message : err));
-  }
-}
-
-function restoreFromFile(){
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json,application/json,text/plain,*/*';
-  input.onchange = function(){
-    importBackupFileFromInput(input.files && input.files[0]);
-  };
-  input.click();
-}
-
-function exportBackupFile(){
-  const payload = {
-    app: 'WhiskyLog',
-    version: VERSION || '2.25',
-    exportedAt: new Date().toISOString(),
-    state: state,
-    settings: (typeof settings !== 'undefined' ? settings : (typeof getSettings === 'function' ? getSettings() : {}))
-  };
-
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'WhiskyLog_backup_' + new Date().toISOString().slice(0,10) + '.json';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
 
 // Force all old button names to use the new implementation.
 window.importBackupFileFromInput = importBackupFileFromInput;
@@ -1860,4 +1695,217 @@ function renderRatingsBottleDetail(){
     </section>
   `,'ratingsBottle');
 }
+
+
+
+
+/* ===== v2.28 iOS-safe backup export/import ===== */
+
+function backupTimestamp(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+}
+
+function buildBackupPayload(){
+  return {
+    app: 'WhiskyLog',
+    backupVersion: VERSION || '2.28',
+    schemaVersion: 2,
+    createdAt: new Date().toISOString(),
+    createdLocal: backupTimestamp(),
+    state: state,
+    settings: (typeof settings !== 'undefined' ? settings : (typeof getSettings === 'function' ? getSettings() : {}))
+  };
+}
+
+function backupFileName(){
+  return `WhiskyLog_backup_v${VERSION || '2.28'}_${backupTimestamp()}.json`;
+}
+
+async function exportBackupFile(){
+  try{
+    const payload = buildBackupPayload();
+    const jsonText = JSON.stringify(payload, null, 2);
+    const filename = backupFileName();
+    const file = new File([jsonText], filename, {type:'application/json'});
+
+    // Best path on iPhone/iPad/PWA: opens share sheet -> Save to Files.
+    if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+      await navigator.share({
+        files: [file],
+        title: 'WhiskyLog backup',
+        text: 'WhiskyLog backupfil'
+      });
+      return;
+    }
+
+    // Desktop/Android fallback: normal browser download.
+    const blob = new Blob([jsonText], {type:'application/json;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 800);
+
+  }catch(err){
+    // Final fallback: show backup text so user can copy/save manually.
+    try{
+      const jsonText = JSON.stringify(buildBackupPayload(), null, 2);
+      const w = window.open('', '_blank');
+      if(w){
+        w.document.write('<pre style="white-space:pre-wrap;font-family:monospace;">' + jsonText.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</pre>');
+      }else{
+        alert('Backup kunne ikke lagres automatisk. Tillat popup eller bruk Safari-nettleser.');
+      }
+    }catch(e){
+      alert('Kunne ikke lage backup: ' + (err && err.message ? err.message : err));
+    }
+  }
+}
+
+function parseWhiskyLogBackupText(rawText){
+  let text = String(rawText || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/\u0000/g, '')
+    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+    .trim();
+
+  if(/^data:.*?base64,/i.test(text)){
+    try{
+      text = atob(text.slice(text.indexOf(',') + 1));
+    }catch(e){}
+    text = String(text || '').replace(/^\uFEFF/, '').trim();
+  }
+
+  if((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))){
+    try{ text = JSON.parse(text); }
+    catch(e){ text = text.slice(1,-1); }
+    text = String(text || '').trim();
+  }
+
+  if(text.includes('\\"') || text.includes('\\n')){
+    const candidate = text
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '\r')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"');
+    if(candidate.includes('{') && candidate.includes('}')) text = candidate.trim();
+  }
+
+  const firstObj = text.indexOf('{');
+  const lastObj = text.lastIndexOf('}');
+  if(firstObj >= 0 && lastObj > firstObj){
+    text = text.slice(firstObj, lastObj + 1).trim();
+  }
+
+  try{
+    return JSON.parse(text);
+  }catch(err){
+    throw new Error('JSON kunne ikke leses. Start på filen: ' + text.slice(0,120).replace(/\s+/g,' '));
+  }
+}
+
+function normalizeWhiskyLogBackup(parsed){
+  let data = parsed;
+  if(data && data.data && typeof data.data === 'object') data = data.data;
+  if(data && data.appData && typeof data.appData === 'object') data = data.appData;
+
+  const sourceState = data && data.state && typeof data.state === 'object' ? data.state : data;
+  const sourceSettings = data && data.settings ? data.settings : (sourceState && sourceState.settings ? sourceState.settings : null);
+
+  const bases =
+    Array.isArray(sourceState.bases) ? sourceState.bases :
+    Array.isArray(sourceState.library) ? sourceState.library :
+    Array.isArray(sourceState.baseBottles) ? sourceState.baseBottles : [];
+
+  const bottles =
+    Array.isArray(sourceState.bottles) ? sourceState.bottles :
+    Array.isArray(sourceState.stock) ? sourceState.stock : [];
+
+  const tastings = Array.isArray(sourceState.tastings) ? sourceState.tastings : [];
+  const comments =
+    Array.isArray(sourceState.comments) ? sourceState.comments :
+    Array.isArray(sourceState.notes) ? sourceState.notes : [];
+  const wishlist = Array.isArray(sourceState.wishlist) ? sourceState.wishlist : [];
+
+  if(!bases.length && !bottles.length && !tastings.length && !wishlist.length){
+    throw new Error('Filen ble lest, men inneholder ingen WhiskyLog-data.');
+  }
+
+  return {
+    state: Object.assign({}, sourceState, {
+      bases: bases.map(x => Object.assign({id: uid()}, x || {})),
+      bottles: bottles.map(x => Object.assign({id: uid(), forceEmpty:false}, x || {})),
+      tastings: tastings.map(x => Object.assign({id: uid()}, x || {})),
+      comments: comments.map(x => Object.assign({id: uid()}, x || {})),
+      wishlist: wishlist.map(x => Object.assign({id: uid()}, x || {}))
+    }),
+    settings: sourceSettings
+  };
+}
+
+async function importBackupFileFromInput(file){
+  if(!file){ alert('Ingen fil valgt'); return; }
+
+  try{
+    const rawText = await file.text();
+    const parsed = parseWhiskyLogBackupText(rawText);
+    const normalized = normalizeWhiskyLogBackup(parsed);
+
+    const counts = {
+      bibliotek: normalized.state.bases.length,
+      flasker: normalized.state.bottles.length,
+      smakinger: normalized.state.tastings.length,
+      ønskeliste: normalized.state.wishlist.length
+    };
+
+    const ok = confirm(
+      'Importere backup og erstatte nåværende data?\\n\\n' +
+      'Bibliotek: ' + counts.bibliotek + '\\n' +
+      'Flasker: ' + counts.flasker + '\\n' +
+      'Smakinger: ' + counts.smakinger + '\\n' +
+      'Ønskeliste: ' + counts.ønskeliste
+    );
+    if(!ok) return;
+
+    state = normalized.state;
+    save();
+
+    if(normalized.settings){
+      try{
+        if(typeof settings !== 'undefined'){
+          settings = Object.assign(settings, normalized.settings);
+        }
+        if(typeof saveSettings === 'function') saveSettings();
+      }catch(e){}
+    }
+
+    alert('Backup importert.');
+    go('home');
+  }catch(err){
+    alert('Kunne ikke hente backup: ' + (err && err.message ? err.message : err));
+  }
+}
+
+function restoreFromFile(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json,text/plain,*/*';
+  input.onchange = () => importBackupFileFromInput(input.files && input.files[0]);
+  input.click();
+}
+
+// Force all historical button names to use v2.28 implementation.
+window.exportBackupFile = exportBackupFile;
+window.backupToFile = exportBackupFile;
+window.exportBackup = exportBackupFile;
+window.saveBackupToFile = exportBackupFile;
+
+window.importBackupFileFromInput = importBackupFileFromInput;
+window.restoreFromFile = restoreFromFile;
+window.importBackup = restoreFromFile;
+window.loadBackupFromFile = restoreFromFile;
+window.restoreBackupFromFile = restoreFromFile;
 

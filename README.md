@@ -1,14 +1,35 @@
-# WhiskyLog v2.27 Ratings Overview
+# WhiskyLog v2.28 iOS Backup + Ratings
 
-Ny funksjon:
-- Vurderinger / Flaskescore
+Dette er gjeldende versjon.
 
-Inneholder:
-- oversikt over flasker med vurderinger
-- bilde av flaske
+## Backup-endringer i v2.28
+
+- Backup bruker iOS delingsmeny når mulig.
+- På iPhone/iPad kan du velge **Lagre til Filer**.
+- Desktop/Android får vanlig nedlasting som fallback.
+- Hvis deling/nedlasting feiler, åpnes en tekstvisning som siste fallback.
+- Filnavn inkluderer versjon, dato og klokkeslett:
+  - `WhiskyLog_backup_v2.28_YYYY-MM-DD_HH-MM-SS.json`
+- Backupfilen inneholder:
+  - `backupVersion`
+  - `schemaVersion`
+  - `createdAt`
+  - `createdLocal`
+  - `state`
+  - `settings`
+- Import støtter tidligere backupstrukturer:
+  - `state`
+  - `data`
+  - `appData`
+  - direkte WhiskyLog-data
+- Importerer bibliotek, flasker, bilder, smakinger, kommentarer, ønskeliste og innstillinger.
+
+## Beholdt fra v2.27
+
+- **Vurderinger / Flaskescore**
+- flaske med bilde
 - score i prosent med én desimal
-- sortert med høyeste score øverst
+- høyeste score øverst
 - søk etter flaske
 - detaljside per flaske
-- detaljsiden viser alle smakinger
-- detaljsiden sortert med nyeste dato øverst
+- detaljside sortert med nyeste dato øverst
