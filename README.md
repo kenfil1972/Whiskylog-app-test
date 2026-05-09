@@ -1,20 +1,20 @@
-# WhiskyLog v2.34 Working Rebuild
+# WhiskyLog v2.35 Old Style UI
 
-Dette er en ren reparasjonsversjon, ikke en ny patch oppå gamle patcher.
+Bygget på den stabile v2.34-funksjonsmotoren.
 
-## Testet før levering
+## Endret i v2.35
 
-- JavaScript syntax OK.
-- Én ren render-funksjon, ingen gamle render-overstyringer.
-- Oversikt/statistikk inneholder **Åpne vurderinger**.
-- **Åpne vurderinger** bruker `data-action="ratings"`.
-- Smakingskort har `data-action="edit-tasting"` og `data-action="delete-tasting"`.
-- Vurderinger har egen side.
-- Flaskedetalj har egen side.
-- Smakinger sorteres med nyeste dato øverst.
-- Score vises som prosent med én desimal.
-- Cache-bust peker til `app.js?v=234`.
-
-## Merk
-
-Dette er laget for å stabilisere funksjonene som ikke virket: Vurderinger-knappen, rediger smaking og slett smaking.
+- Gammel visuell stil tilbake:
+  - større header
+  - større hero-kort
+  - brune/gylne kort
+  - menyvalg med fire små ikonruter
+  - mer premium whisky-journal uttrykk
+- Beholder v2.34-funksjonene:
+  - Åpne vurderinger
+  - Vurderinger-side
+  - Flaskedetaljer
+  - Rediger smaking
+  - Slett smaking
+  - prosent-score med én desimal
+  - backup/import

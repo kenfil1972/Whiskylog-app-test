@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='2.34';
+window.WHISKYLOG_VERSION='2.35';
 const APP_KEY='whiskylog_v234_state';
 const LEGACY_KEYS=['whiskylog_v2_state','whiskylog_state_v2','whiskylog_state','whiskylog_stable_v133'];
 let page='home', selectedStockStatus='', selectedTastingBottleId='', editTastingId='', editLibraryId='', ratingsBottleId='';
@@ -29,7 +29,25 @@ function bottleAvgPct(id){const vals=state.tastings.filter(t=>t.bottleId===id).m
 function bottleStatsPct(id){const vals=state.tastings.filter(t=>t.bottleId===id).map(tastingPercent).filter(v=>v>0);if(!vals.length)return{min:0,avg:0,max:0,count:0};return{min:Math.round(Math.min(...vals)*10)/10,avg:Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10,max:Math.round(Math.max(...vals)*10)/10,count:vals.length}}
 function averageScoreForLibrary(id){const bids=state.bottles.filter(b=>b.libraryId===id||b.baseId===id).map(b=>b.id),vals=state.tastings.filter(t=>bids.includes(t.bottleId)).map(tastingPercent).filter(v=>v>0);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*10)/10:0}
 function shell(c,a){document.getElementById('app').innerHTML=`<header><div class="kicker">PREMIUM BRENNEVINSJOURNAL</div><h1>Kenneth's WhiskyLog</h1><div class="version">WhiskyLog v${window.WHISKYLOG_VERSION}</div>${a&&a!=='home'?`<button class="ghost backBtn" data-action="home">← Tilbake</button>`:''}</header><main>${c}</main>`}
-function card(t,s,a,i='🥃'){return`<section class="card menuCard" data-action="${a}"><div class="menuIcon">${i}</div><div><h2>${t}</h2><p class="sub">${s}</p></div></section>`}
+function card(t,s,a,i='🥃'){
+  const tiles = a === 'stock'
+    ? ['🥃','📦','🍷','🗄️']
+    : a === 'logging'
+      ? ['📝','⚖️','➕','📚']
+      : a === 'overview'
+        ? ['📊','🏆','💰','🕘']
+        : ['⭐','🛒','📌','💡'];
+  return `<section class="card menuCard oldMenuCard" data-action="${a}">
+    <div class="menuLeft">
+      <div class="menuIcon">${i}</div>
+      <div>
+        <h2>${t}</h2>
+        <p class="sub">${s}</p>
+      </div>
+    </div>
+    <div class="menuTiles">${tiles.map(x=>`<span>${x}</span>`).join('')}</div>
+  </section>`;
+}
 function renderHome(){shell(`<section class="hero"><h2>Din personlige brennevinslogg</h2><p class="sub">Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.</p></section><section class="menuGrid">${card('Min beholdning','Uåpnede, åpnede og tomme flasker samlet på ett sted.','stock','🥃')}${card('Loggføring','Registrer smaking, korriger beholdning og legg til flasker.','logging','📝')}${card('Oversikt / statistikk','Rangering, score, verdi og historikk.','overview','📊')}${card('Ønskeliste','Fremtidige flasker og kjøpsideer.','wishlist','⭐')}</section><button class="ghost fullWidth" data-action="settings">⚙️ Innstillinger</button>`,'home')}
 function renderStock(){const groups=[['unopened','Uåpnede flasker','📦'],['opened','Åpnede flasker','🍷'],['empty','Tomme flasker','🗄️']];shell(`<section class="hero"><h2>Min beholdning</h2><p class="sub">Uåpnede, åpnede og tomme flasker samlet på ett sted.</p></section><section class="grid">${groups.map(([st,title,ic])=>{const rows=state.bottles.filter(b=>bottleStatus(b)===st),val=rows.reduce((a,b)=>a+valueLeft(b.id),0),ml=rows.reduce((a,b)=>a+bottleVolume(b.id),0);return`<section class="card" data-action="stock-list" data-status="${st}"><div class="menuIcon">${ic}</div><h2>${title}</h2><p class="sub">${rows.length} flasker · ${money(val)}</p><p class="sub">${Math.round(ml)} ml</p><div class="miniImages">${rows.slice(0,4).map(b=>img(bottleBase(b)||{})).join('')}</div></section>`}).join('')}</section><section class="buttonRow"><button class="ghost" data-action="add-stock">Kjøpt flaske</button><button class="ghost" data-action="tasting">Registrer smaking</button><button class="ghost" data-action="logging">Korriger beholdning</button></section>`,'stock')}
 function renderStockList(){const title=selectedStockStatus==='unopened'?'Uåpnede flasker':selectedStockStatus==='opened'?'Åpnede flasker':'Tomme flasker',rows=state.bottles.filter(b=>bottleStatus(b)===selectedStockStatus);shell(`<section class="hero"><h2>${title}</h2></section><section class="card"><div class="list">${rows.length?rows.map(b=>{const base=bottleBase(b)||{};return`<div class="item">${img(base)}<div><div class="title">${esc(base.name||b.name||'Ukjent')}</div><div class="meta">${esc(base.type||'')} · ${bottleVolume(b.id)} ml igjen · ${money(valueLeft(b.id))}</div><div class="small">Kjøpt: ${esc(b.purchaseDate||b.date||'')}</div></div><div class="actions"><button class="ghost" data-action="edit-stock" data-id="${b.id}">Rediger</button>${selectedStockStatus==='opened'?`<button class="ghost" data-action="tasting-bottle" data-id="${b.id}">Registrer smaking</button>`:''}<button class="danger" data-action="delete-stock" data-id="${b.id}">Slett</button></div></div>`}).join(''):`<p class="sub">Ingen registreringer ennå.</p>`}</div></section>`,'stockList')}
