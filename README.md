@@ -1,6 +1,6 @@
-# WhiskyLog v2.20c Tasting Button Route Fix
+# WhiskyLog v2.20d
 
 Fix:
-- Register tasting button now calls openTastingPage() directly.
-- Opened-bottle Register tasting now calls the same safe direct route.
-- Adds visible fallback if tasting page fails to render.
+- Corrected 'settings is not defined'
+- Added fallback settings object
+- Smaking registration should now open correctly

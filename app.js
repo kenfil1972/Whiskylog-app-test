@@ -1,4 +1,13 @@
 
+
+/* v2.20d settings fallback */
+if(typeof settings === 'undefined'){
+  var settings = {
+    defaultTastingMl: 20,
+    language: 'no'
+  };
+}
+
 window.addEventListener('error', function(e){
   console.error('WhiskyLog error:', e.message, e.error);
 });
@@ -7,7 +16,7 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.20c';
+const VERSION = '2.20d';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
@@ -634,7 +643,7 @@ function renderTasting(){
         </div>
 
         <label>${tr('amount')}</label>
-        <input name="ml" inputmode="decimal" value="${esc(t.ml || settings.defaultTastingMl || 20)}">
+        <input name="ml" inputmode="decimal" value="${esc(t.ml || ((typeof settings !== 'undefined' && settings.defaultTastingMl) ? settings.defaultTastingMl : 20))}">
 
         ${scoreBlock('visual', tr('visual'), t.visualScore, t.visualNote)}
         ${scoreBlock('aroma', tr('aroma'), t.aromaScore, t.aromaNote)}
@@ -681,7 +690,7 @@ function renderTasting(){
       date: String(fd.get('date') || today()),
       mode: String(fd.get('mode') || 'neat'),
       drops: String(fd.get('mode') || '') === 'water' ? String(fd.get('drops') || '') : '',
-      ml: String(fd.get('ml') || settings.defaultTastingMl || 20),
+      ml: String(fd.get('ml') || ((typeof settings !== 'undefined' && settings.defaultTastingMl) ? settings.defaultTastingMl : 20)),
       visualScore: cleanScore(fd.get('visualScore')),
       visualNote: String(fd.get('visualNote') || '').slice(0,30),
       aromaScore: cleanScore(fd.get('aromaScore')),
