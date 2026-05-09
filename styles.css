@@ -517,3 +517,26 @@ input[type="date"]{
     gap:2px;
   }
 }
+
+/* v2.20b safe tasting */
+.hidden{display:none!important}
+.scoreBlock{
+  border:1px solid rgba(255,220,120,.18);
+  border-radius:18px;
+  padding:14px;
+  margin:16px 0;
+  background:rgba(0,0,0,.12);
+}
+.shortNoteInput{max-width:100%}
+.scoreGrid{display:grid;gap:6px;margin-top:10px}
+.scoreLine{
+  display:grid;
+  grid-template-columns:minmax(120px,180px) 1fr;
+  gap:10px;
+  color:#d8c2a2;
+}
+.tastingDetailItem{align-items:flex-start}
+.tastingDetailList{margin-top:16px}
+@media(max-width:600px){
+  .scoreLine{grid-template-columns:1fr;gap:2px}
+}
