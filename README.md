@@ -1,20 +1,20 @@
-# WhiskyLog v2.35 Old Style UI
+# WhiskyLog v2.36 Edit Stock + Mobile Fit
 
-Bygget på den stabile v2.34-funksjonsmotoren.
+Bygget på v2.35, med stabil v2.34-funksjonsmotor.
 
-## Endret i v2.35
+## Rettet i v2.36
 
-- Gammel visuell stil tilbake:
-  - større header
-  - større hero-kort
-  - brune/gylne kort
-  - menyvalg med fire små ikonruter
-  - mer premium whisky-journal uttrykk
-- Beholder v2.34-funksjonene:
+- Redigering av flasker i beholdning fungerer:
+  - Rediger åpner flaskeformular med eksisterende data
+  - Pris, kjøpsdato, flaskevalg, nåværende vekt og status kan lagres
+  - Endringen oppdaterer eksisterende flaske, ikke ny flaske
+- Mobiltypografi justert:
+  - overskrifter skaleres lavere på iPhone
+  - menykort kutter ikke tekst
+  - ikonruter holdes innenfor kortene
+  - bedre padding og responsive breakpoints
+- Beholder:
   - Åpne vurderinger
-  - Vurderinger-side
-  - Flaskedetaljer
-  - Rediger smaking
-  - Slett smaking
-  - prosent-score med én desimal
+  - Rediger/Slett smaking
+  - score i prosent med én desimal
   - backup/import
