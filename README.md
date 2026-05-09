@@ -1,18 +1,7 @@
-# WhiskyLog v2.32 Click Handler Fix
+# WhiskyLog v2.33 Direct Replace
 
-Dette er gjeldende versjon.
-
-## Rettet i v2.32
-
-- Åpne vurderinger bruker nå data-action + global click-handler.
-- Rediger og Slett under smaking bruker også global click-handler.
-- Dette fungerer bedre på iPhone/PWA enn inline onclick.
-- Vurderinger-siden viser:
-  - bilde
-  - flaskenavn
-  - score i prosent med én desimal
-  - antall smakinger
-  - søk
-  - høyeste score øverst
-- Flaskedetalj viser smakinger med nyeste øverst.
-- Backup fra v2.28 beholdes.
+Rettet:
+- Fjernet gamle v2.29–v2.32 patchblokker.
+- Oversikt/statistikk har direkte Vurderinger-kort og Åpne vurderinger-knapp.
+- Rediger/Slett under smaking bruker data-wl-action og global click-handler.
+- Score vises som prosent med én desimal.
