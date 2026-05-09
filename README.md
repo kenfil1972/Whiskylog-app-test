@@ -1,35 +1,27 @@
-# WhiskyLog v2.28 iOS Backup + Ratings
+# WhiskyLog v2.29 Tasting Edit/Delete + Ratings Menu Fix
 
 Dette er gjeldende versjon.
 
-## Backup-endringer i v2.28
+## Rettet i v2.29
 
-- Backup bruker iOS delingsmeny når mulig.
-- På iPhone/iPad kan du velge **Lagre til Filer**.
-- Desktop/Android får vanlig nedlasting som fallback.
-- Hvis deling/nedlasting feiler, åpnes en tekstvisning som siste fallback.
-- Filnavn inkluderer versjon, dato og klokkeslett:
-  - `WhiskyLog_backup_v2.28_YYYY-MM-DD_HH-MM-SS.json`
-- Backupfilen inneholder:
-  - `backupVersion`
-  - `schemaVersion`
-  - `createdAt`
-  - `createdLocal`
-  - `state`
-  - `settings`
-- Import støtter tidligere backupstrukturer:
-  - `state`
-  - `data`
-  - `appData`
-  - direkte WhiskyLog-data
-- Importerer bibliotek, flasker, bilder, smakinger, kommentarer, ønskeliste og innstillinger.
-
-## Beholdt fra v2.27
-
-- **Vurderinger / Flaskescore**
-- flaske med bilde
-- score i prosent med én desimal
-- høyeste score øverst
-- søk etter flaske
-- detaljside per flaske
-- detaljside sortert med nyeste dato øverst
+- Rediger under smaking fungerer igjen.
+- Slett under smaking fungerer igjen.
+- Score vises korrekt som prosent med én desimal.
+  - Eksempel: 52, 58, 56, 64, 52 = 56.4 %
+- Flaskescore bruker gjennomsnitt av smakinger.
+- Flaskerangering viser prosent, ikke 0.6 %, 5.64 % eller gammel /10-visning.
+- Oversikt / statistikk har egen tydelig knapp:
+  - **Åpne vurderinger**
+- Vurderinger viser:
+  - bilde
+  - flaskenavn
+  - score i prosent
+  - antall smakinger
+  - søk etter flaske
+  - høyeste score øverst
+- Detaljside per flaske viser alle smakinger.
+- Detaljsiden er sortert med nyeste dato øverst.
+- Backup fra v2.28 beholdes:
+  - iOS delingsmeny / Lagre til Filer
+  - versjon, dato og klokkeslett i filnavn
+  - backupVersion i JSON

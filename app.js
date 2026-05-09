@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.28';
+const VERSION = '2.29';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.28',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.29',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.28',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.29',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1908,4 +1908,365 @@ window.restoreFromFile = restoreFromFile;
 window.importBackup = restoreFromFile;
 window.loadBackupFromFile = restoreFromFile;
 window.restoreBackupFromFile = restoreFromFile;
+
+
+
+
+/* ===== v2.29 tasting score, edit/delete and ratings menu hard fix ===== */
+
+function nScore229(v){
+  const n = Number(String(v ?? '').replace(',','.'));
+  return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 0;
+}
+
+function tastingRawTotal229(t){
+  return (
+    nScore229(t.visualScore) +
+    nScore229(t.aromaScore) +
+    nScore229(t.tasteScore) +
+    nScore229(t.finishScore) +
+    nScore229(t.overallScore)
+  );
+}
+
+function tastingPercent(t){
+  const vals = [t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore]
+    .map(nScore229)
+    .filter(v => v > 0);
+
+  if(vals.length){
+    return Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10;
+  }
+
+  const legacy = Number(t.average || t.score || 0);
+  if(Number.isFinite(legacy) && legacy > 0){
+    return legacy <= 10 ? Math.round(legacy * 100) / 10 : Math.round(legacy * 10) / 10;
+  }
+
+  return 0;
+}
+
+function tastingTotal(t){
+  return tastingPercent(t);
+}
+
+function fmtPct(v){
+  const n = Number(v);
+  if(!Number.isFinite(n) || n <= 0) return '0.0 %';
+  return n.toFixed(1) + ' %';
+}
+
+function dropsPerLiter(t){
+  if(t.mode !== 'water') return '';
+  const drops = Number(String(t.drops || '').replace(',','.'));
+  const ml = Number(String(t.ml || '').replace(',','.'));
+  if(!Number.isFinite(drops) || !Number.isFinite(ml) || drops <= 0 || ml <= 0) return '';
+  return Math.round((drops / ml) * 1000) + ' dråper/L';
+}
+
+function tastingStatsForBottle(bottleId){
+  const vals = (state.tastings || [])
+    .filter(t => t.bottleId === bottleId)
+    .map(tastingPercent)
+    .filter(v => v > 0);
+
+  if(!vals.length) return {min:0,avg:0,max:0,count:0};
+
+  return {
+    min: Math.round(Math.min(...vals) * 10) / 10,
+    avg: Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10,
+    max: Math.round(Math.max(...vals) * 10) / 10,
+    count: vals.length
+  };
+}
+
+function averageScoreForLibrary(libraryId){
+  const bottleIds = (state.bottles || [])
+    .filter(b => b.libraryId === libraryId)
+    .map(b => b.id);
+
+  const vals = (state.tastings || [])
+    .filter(t => bottleIds.includes(t.bottleId))
+    .map(tastingPercent)
+    .filter(v => v > 0);
+
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10 : '';
+}
+
+window.editTasting = function(id){
+  editTastingId = id;
+  selectedTastingBottleId = '';
+  page = 'tasting';
+  render();
+  setTimeout(() => {
+    const f = document.getElementById('tastingForm');
+    if(f) f.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
+};
+
+window.deleteTasting = function(id){
+  if(!confirm('Slette denne smakingen?')) return;
+  state.tastings = (state.tastings || []).filter(t => t.id !== id);
+  save();
+  render();
+};
+
+function scoreLine(label,score,note){
+  return `<div class="scoreLineOne">
+    <span class="scoreName">${label}</span>
+    <span class="scorePoints">${esc(score || '-')} poeng</span>
+    <span class="scoreNote">${esc(note || '')}</span>
+  </div>`;
+}
+
+function tastingDetailItem(t){
+  const waterInfo = dropsPerLiter(t);
+  return `<div class="item tastingDetailItem">
+    <div class="tastingMain">
+      <div class="title">${esc(t.date || '')} · ${t.mode === 'water' ? tr('withWater') : 'Neat'} ${waterInfo ? '· ' + waterInfo : ''}</div>
+      <div class="meta">Totalvurdering: <b>${fmtPct(tastingPercent(t))}</b> · ${esc(t.ml || '')} ml</div>
+      <div class="scoreGrid">
+        ${scoreLine('Visuelt', t.visualScore, t.visualNote)}
+        ${scoreLine('Lukt', t.aromaScore, t.aromaNote)}
+        ${scoreLine('Smak', t.tasteScore, t.tasteNote)}
+        ${scoreLine('Ettersmak', t.finishScore, t.finishNote)}
+        ${scoreLine('Helhetsinntrykk', t.overallScore, t.overallNote)}
+      </div>
+      ${t.notes ? `<div class="small tastingNotes">${esc(t.notes)}</div>` : ''}
+    </div>
+    <div class="actions tastingActions">
+      <button class="ghost" type="button" onclick="event.stopPropagation(); editTasting('${t.id}')">Rediger</button>
+      <button class="danger" type="button" onclick="event.stopPropagation(); deleteTasting('${t.id}')">Slett</button>
+    </div>
+  </div>`;
+}
+
+function bottleAveragePercent229(bottleId){
+  const vals = (state.tastings || [])
+    .filter(t => t.bottleId === bottleId)
+    .map(tastingPercent)
+    .filter(v => v > 0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10 : 0;
+}
+
+ratingsBottleDetailId = window.ratingsBottleDetailId || ratingsBottleDetailId || '';
+
+function renderRatingsOverview(){
+  const q = (window.__ratingsSearch || '').trim().toLowerCase();
+
+  let bottles = (state.bottles || [])
+    .map(b => {
+      const base = bottleBase(b);
+      const avg = bottleAveragePercent229(b.id);
+      const count = (state.tastings || []).filter(t => t.bottleId === b.id).length;
+      return {bottle:b, base, avg, count};
+    })
+    .filter(x => x.base && x.count > 0);
+
+  if(q){
+    bottles = bottles.filter(x => String(x.base.name || '').toLowerCase().includes(q));
+  }
+
+  bottles.sort((a,b) => b.avg - a.avg);
+
+  shell(`
+    <section class="hero">
+      <h2>Vurderinger</h2>
+      <p class="sub">Flaskescore, sortert med høyeste score øverst.</p>
+    </section>
+
+    <section class="card">
+      <label>Søk etter flaske</label>
+      <input id="ratingsSearchInput" placeholder="Søk etter flaske" value="${esc(window.__ratingsSearch || '')}">
+    </section>
+
+    <section class="card">
+      <div class="list">
+        ${bottles.length ? bottles.map(x => `
+          <div class="item ratingsItem" onclick="openRatingsBottle('${x.bottle.id}')">
+            ${img(x.base)}
+            <div class="ratingsText">
+              <div class="title">${esc(x.base.name || '')}</div>
+              <div class="meta">Score: <b>${fmtPct(x.avg)}</b></div>
+              <div class="small">Antall smakinger: ${x.count}</div>
+            </div>
+            <div class="actions">
+              <button class="ghost" type="button" onclick="event.stopPropagation();openRatingsBottle('${x.bottle.id}')">Åpne</button>
+            </div>
+          </div>
+        `).join('') : `<div class="sub">Ingen registreringer ennå.</div>`}
+      </div>
+    </section>
+  `,'ratings');
+
+  const input = document.getElementById('ratingsSearchInput');
+  if(input){
+    input.addEventListener('input', e => {
+      window.__ratingsSearch = e.target.value || '';
+      renderRatingsOverview();
+    });
+  }
+}
+
+window.openRatingsBottle = function(id){
+  ratingsBottleDetailId = id;
+  window.ratingsBottleDetailId = id;
+  page = 'ratingsBottle';
+  render();
+};
+
+function renderRatingsBottleDetail(){
+  const b = getBottle(ratingsBottleDetailId);
+  const base = b ? bottleBase(b) : null;
+  if(!b || !base){
+    page = 'ratings';
+    render();
+    return;
+  }
+
+  const rows = (state.tastings || [])
+    .filter(t => t.bottleId === b.id)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const st = tastingStatsForBottle(b.id);
+
+  shell(`
+    <section class="hero">
+      ${img(base)}
+      <h2>${esc(base.name || '')}</h2>
+      <p class="sub">Laveste: ${fmtPct(st.min)} · Snitt: ${fmtPct(st.avg)} · Høyeste: ${fmtPct(st.max)}</p>
+    </section>
+
+    <section class="card">
+      <h2>Smakinger</h2>
+      <p class="sub">Nyeste øverst.</p>
+      <div class="list">
+        ${rows.length ? rows.map(t => tastingDetailItem(t)).join('') : `<div class="sub">Ingen registreringer ennå.</div>`}
+      </div>
+    </section>
+  `,'ratingsBottle');
+}
+
+function renderTastingBottleDetail(){
+  const b = getBottle(tastingBottleDetailId);
+  const base = b ? bottleBase(b) : null;
+  if(!b || !base){
+    go('tasting');
+    return;
+  }
+
+  const sort = localStorage.getItem('whiskylog_tasting_sort') || 'date';
+  let rows = (state.tastings || []).filter(t => t.bottleId === b.id);
+
+  rows.sort((a,b) => {
+    if(sort === 'date') return String(b.date || '').localeCompare(String(a.date || ''));
+    if(sort === 'total') return tastingPercent(b) - tastingPercent(a);
+    if(sort === 'mode') return String(a.mode || '').localeCompare(String(b.mode || ''));
+    if(sort === 'drops') return (Number(dropsPerLiter(b).match(/\d+/)?.[0]) || 0) - (Number(dropsPerLiter(a).match(/\d+/)?.[0]) || 0);
+    const key = sort + 'Score';
+    return nScore229(b[key]) - nScore229(a[key]);
+  });
+
+  const st = tastingStatsForBottle(b.id);
+
+  shell(`
+    <section class="hero">
+      ${img(base)}
+      <h2>${esc(base.name || '')}</h2>
+      <p class="sub">Laveste: ${fmtPct(st.min)} · Snitt: ${fmtPct(st.avg)} · Høyeste: ${fmtPct(st.max)}</p>
+    </section>
+
+    <section class="card">
+      <label>Sorter etter</label>
+      <select id="tastingSort">
+        <option value="date" ${sort==='date'?'selected':''}>Dato</option>
+        <option value="total" ${sort==='total'?'selected':''}>Totalvurdering</option>
+        <option value="visual" ${sort==='visual'?'selected':''}>Visuelt</option>
+        <option value="aroma" ${sort==='aroma'?'selected':''}>Lukt</option>
+        <option value="taste" ${sort==='taste'?'selected':''}>Smak</option>
+        <option value="finish" ${sort==='finish'?'selected':''}>Ettersmak</option>
+        <option value="overall" ${sort==='overall'?'selected':''}>Helhetsinntrykk</option>
+        <option value="mode" ${sort==='mode'?'selected':''}>Neat / vann</option>
+        <option value="drops" ${sort==='drops'?'selected':''}>Dråper/L</option>
+      </select>
+      <div class="list tastingDetailList">
+        ${rows.length ? rows.map(t => tastingDetailItem(t)).join('') : `<div class="sub">Ingen registreringer ennå.</div>`}
+      </div>
+    </section>
+  `,'tasting');
+
+  const sel = document.getElementById('tastingSort');
+  if(sel){
+    sel.addEventListener('change', e => {
+      localStorage.setItem('whiskylog_tasting_sort', e.target.value);
+      render();
+    });
+  }
+}
+
+function renderOverviewFixed229(){
+  const totalValue = (state.bottles || []).reduce((a,b) => a + (Number(valueLeft ? valueLeft(b.id) : 0) || 0), 0);
+  const totalMl = (state.bottles || []).reduce((a,b) => a + (Number(bottleVolume ? bottleVolume(b.id) : 0) || 0), 0);
+  const tastingCount = (state.tastings || []).length;
+
+  const ranked = (state.bases || [])
+    .map(base => ({base, score: averageScoreForLibrary(base.id)}))
+    .filter(x => Number(x.score) > 0)
+    .sort((a,b) => Number(b.score) - Number(a.score));
+
+  shell(`
+    <section class="hero">
+      <h2>Oversikt / statistikk</h2>
+      <p class="sub">Rangering, score, verdi og historikk.</p>
+    </section>
+
+    <section class="grid">
+      <div class="card stat"><h2>${money ? money(totalValue) : totalValue.toFixed(2) + ' NOK'}</h2><p class="sub">verdi</p></div>
+      <div class="card stat"><h2>${Math.round(totalMl)} ml</h2><p class="sub">volum i beholdning</p></div>
+      <div class="card stat"><h2>${tastingCount}</h2><p class="sub">registrerte smakinger</p></div>
+    </section>
+
+    <section class="card">
+      <h2>Vurderinger</h2>
+      <p class="sub">Alle flaskescore med søk, sortering og detaljvisning.</p>
+      <button class="primary" type="button" onclick="page='ratings';render()">Åpne vurderinger</button>
+    </section>
+
+    <section class="card">
+      <h2>Flaskerangering</h2>
+      <div class="list">
+        ${ranked.length ? ranked.map(x => `
+          <div class="item">
+            ${img(x.base)}
+            <div>
+              <div class="title">${esc(x.base.name || '')}</div>
+              <div class="meta"><b>${fmtPct(x.score)}</b></div>
+            </div>
+          </div>
+        `).join('') : `<div class="sub">Ingen registreringer ennå.</div>`}
+      </div>
+    </section>
+  `,'overview');
+}
+
+// Override render to ensure new pages and fixed overview are reachable.
+if(!window.__render229Wrapped){
+  window.__render229Wrapped = true;
+  const oldRender229 = render;
+  render = function(){
+    if(page === 'overview'){
+      renderOverviewFixed229();
+      return;
+    }
+    if(page === 'ratings'){
+      renderRatingsOverview();
+      return;
+    }
+    if(page === 'ratingsBottle'){
+      renderRatingsBottleDetail();
+      return;
+    }
+    oldRender229();
+  };
+}
 
