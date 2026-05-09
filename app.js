@@ -1,14 +1,19 @@
 
+window.addEventListener('error', function(e){
+  console.error('WhiskyLog error:', e.message, e.error);
+});
+
+
 (() => {
 'use strict';
 
-const VERSION = '2.20b';
+const VERSION = '2.20c';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20b',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20c',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +47,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20b',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20c',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -215,6 +220,32 @@ let stockPageStatus = '';
 let tastingBottleDetailId = '';
 let editWishlistId = '';
 
+
+/* v2.20c direct tasting route fix */
+window.openTastingPage = function(bottleId=''){
+  try{
+    selectedTastingBottleId = bottleId || '';
+    editTastingId = '';
+    page = 'tasting';
+    if(typeof renderTasting === 'function'){
+      renderTasting();
+    }else{
+      throw new Error('renderTasting missing');
+    }
+  }catch(err){
+    const appRoot = document.getElementById('app');
+    if(appRoot){
+      appRoot.innerHTML = `<main class="app"><section class="card"><h2>Smaking kunne ikke åpnes</h2><p class="sub">${String(err && err.message ? err.message : err)}</p><button class="ghost" onclick="location.reload()">Last inn på nytt</button></section></main>`;
+    }else{
+      alert('Smaking kunne ikke åpnes: ' + (err && err.message ? err.message : err));
+    }
+  }
+};
+
+window.openTastingForBottle = function(id){
+  window.openTastingPage(id);
+};
+
 function shell(inner, backTo='home'){
   app.innerHTML = `
     <main class="app">
@@ -337,7 +368,7 @@ function renderStock(){
 
     <section class="actionStrip">
       <button class="ghost" onclick="go('addStock')">${tr('addStock')}</button>
-      <button class="ghost" onclick="go('tasting')">${tr('registerTasting')}</button>
+      <button class="ghost" onclick="openTastingPage()">${tr('registerTasting')}</button>
       <button class="ghost" onclick="go('correctStock')">${tr('correctStock')}</button>
     </section>
   `);
@@ -379,7 +410,7 @@ function renderStockCategory(){
     </section>
     <section class="actionStrip">
       <button class="ghost" onclick="go('addStock')">${tr('addStock')}</button>
-      <button class="ghost" onclick="go('tasting')">${tr('registerTasting')}</button>
+      <button class="ghost" onclick="openTastingPage()">${tr('registerTasting')}</button>
       <button class="ghost" onclick="go('correctStock')">${tr('correctStock')}</button>
     </section>
   `,'stock');
@@ -445,7 +476,11 @@ function renderLogging(){
   shell(`
     <section class="hero"><h2>${tr('logging')}</h2><p class="sub">${tr('loggingSub')}</p></section>
     <section class="grid">
-      ${tile('tasting','🥃',tr('registerTasting'),tr('tastingSub'))}
+      
+      <div class="tile oldTile" onclick="openTastingPage()">
+        <div class="tileText"><div class="icon">${iconSvg('tasting')}</div><h3>${tr('registerTasting')}</h3><div class="sub">${tr('tastingSub')}</div></div>
+        ${menuArt('logging')}
+      </div>
       ${tile('correctStock','⚖️',tr('correctStock'),tr('correctStockSub'))}
       ${tile('addStock','➕',tr('addStock'),tr('addStockSub'))}
       ${tile('library','📚',tr('library'),tr('librarySub'))}

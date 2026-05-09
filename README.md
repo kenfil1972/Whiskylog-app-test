@@ -1,9 +1,6 @@
-# WhiskyLog v2.20b Safe Tasting Registration
+# WhiskyLog v2.20c Tasting Button Route Fix
 
 Fix:
-- Rebuilt tasting registration as a self-contained safe page.
-- Registration works with existing bottle list.
-- Neat / with water + drops.
-- 0-100 scores + 30-character notes.
-- Dedicated bottle tasting detail page.
-- Min/average/max score summary per bottle.
+- Register tasting button now calls openTastingPage() directly.
+- Opened-bottle Register tasting now calls the same safe direct route.
+- Adds visible fallback if tasting page fails to render.
