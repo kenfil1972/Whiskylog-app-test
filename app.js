@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.22';
+const VERSION = '2.23';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.22',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.23',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.22',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.23',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1072,6 +1072,57 @@ ${item ? item.name : ''}`)) return;
 
 
 /* v2.22 robust backup import/export */
+
+function parseBackupText(rawText){
+  let text = String(rawText || '');
+
+  // Remove byte order mark and invisible control characters often added by mobile file handling.
+  text = text.replace(/^\uFEFF/, '').trim();
+
+  // Some broken exports/downloads may be wrapped as a quoted string.
+  if((text.startsWith("'") && text.endsWith("'")) || (text.startsWith('"') && text.endsWith('"'))){
+    try{
+      text = JSON.parse(text);
+    }catch(e){
+      text = text.slice(1,-1);
+    }
+    text = String(text).trim();
+  }
+
+  // Some files may contain data-url or HTML/text around the JSON. Extract likely JSON object.
+  if(!text.startsWith('{') && !text.startsWith('[')){
+    const firstObj = text.indexOf('{');
+    const lastObj = text.lastIndexOf('}');
+    if(firstObj >= 0 && lastObj > firstObj){
+      text = text.slice(firstObj, lastObj + 1).trim();
+    }
+  }
+
+  // Decode escaped JSON string if needed.
+  if(text.includes('\\"') && !text.includes('"state"') && !text.includes('"bases"')){
+    try{
+      text = JSON.parse('"' + text.replace(/^"+|"+$/g,'') + '"');
+    }catch(e){}
+  }
+
+  // First parse attempt.
+  try{
+    return JSON.parse(text);
+  }catch(firstErr){
+    // Last-resort cleanup: remove leading non-json characters and trailing non-json after last brace.
+    const firstObj = text.indexOf('{');
+    const lastObj = text.lastIndexOf('}');
+    if(firstObj >= 0 && lastObj > firstObj){
+      const candidate = text.slice(firstObj, lastObj + 1);
+      try{
+        return JSON.parse(candidate);
+      }catch(secondErr){}
+    }
+
+    throw new Error('Filen ser ikke ut som gyldig WhiskyLog-backup. Første tegn i filen er: ' + JSON.stringify(text.slice(0,40)));
+  }
+}
+
 function normalizeBackupData(raw){
   let data = raw;
 
@@ -1116,12 +1167,13 @@ function normalizeBackupData(raw){
 function exportBackupFile(){
   const payload = {
     app: 'WhiskyLog',
-    version: VERSION || '2.22',
+    version: VERSION || '2.23',
     exportedAt: new Date().toISOString(),
     state: state,
     settings: (typeof settings !== 'undefined' ? settings : getSettings())
   };
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const jsonText = JSON.stringify(payload,null,2);
+  const blob = new Blob([jsonText], {type:'application/json;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `WhiskyLog_backup_${new Date().toISOString().slice(0,10)}.json`;
@@ -1138,7 +1190,7 @@ async function importBackupFileFromInput(file){
 
   try{
     const text = await file.text();
-    const parsed = JSON.parse(text);
+    const parsed = parseBackupText(text);
     const normalized = normalizeBackupData(parsed);
 
     const counts = {
@@ -1148,7 +1200,16 @@ async function importBackupFileFromInput(file){
       ønskeliste: normalized.state.wishlist.length
     };
 
-    const msg = `Importere backup?\n\nBibliotek: ${counts.bibliotek}\nFlasker: ${counts.flasker}\nSmakinger: ${counts.smakinger}\nØnskeliste: ${counts.ønskeliste}`;
+    if(!counts.bibliotek && !counts.flasker && !counts.smakinger && !counts.ønskeliste){
+      throw new Error('Filen ble lest, men inneholder ingen WhiskyLog-data.');
+    }
+
+    const msg = `Importere backup?
+
+Bibliotek: ${counts.bibliotek}
+Flasker: ${counts.flasker}
+Smakinger: ${counts.smakinger}
+Ønskeliste: ${counts.ønskeliste}`;
     if(!confirm(msg)) return;
 
     state = normalized.state;
@@ -1164,7 +1225,7 @@ async function importBackupFileFromInput(file){
     alert('Backup importert.');
     go('home');
   }catch(err){
-    alert('Kunne ikke importere backup: ' + (err && err.message ? err.message : err));
+    alert('Kunne ikke hente backup: ' + (err && err.message ? err.message : err));
   }
 }
 
