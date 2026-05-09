@@ -1,27 +1,32 @@
-# WhiskyLog v2.29 Tasting Edit/Delete + Ratings Menu Fix
+# WhiskyLog v2.30 Hard UI Fix
 
 Dette er gjeldende versjon.
 
-## Rettet i v2.29
+## Rettet i v2.30
 
-- Rediger under smaking fungerer igjen.
-- Slett under smaking fungerer igjen.
-- Score vises korrekt som prosent med én desimal.
-  - Eksempel: 52, 58, 56, 64, 52 = 56.4 %
-- Flaskescore bruker gjennomsnitt av smakinger.
-- Flaskerangering viser prosent, ikke 0.6 %, 5.64 % eller gammel /10-visning.
-- Oversikt / statistikk har egen tydelig knapp:
+- Tvinger korrekt scorevisning som prosent med én desimal.
+- Fikser feilvisninger som:
+  - 5.64 %
+  - 0.6 %
+  - /10, /100, /500 og /1000
+- Score beregnes fra fem 0–100-felt:
+  - visuelt
+  - lukt
+  - smak
+  - ettersmak
+  - helhetsinntrykk
+- Eksempel:
+  - 52, 58, 56, 64, 52 = 56.4 %
+- Rediger og slett under smaking er koblet direkte til globale funksjoner.
+- Oversikt / statistikk får tydelig kort:
+  - **Vurderinger**
   - **Åpne vurderinger**
 - Vurderinger viser:
   - bilde
   - flaskenavn
-  - score i prosent
+  - score i %
   - antall smakinger
   - søk etter flaske
   - høyeste score øverst
-- Detaljside per flaske viser alle smakinger.
-- Detaljsiden er sortert med nyeste dato øverst.
-- Backup fra v2.28 beholdes:
-  - iOS delingsmeny / Lagre til Filer
-  - versjon, dato og klokkeslett i filnavn
-  - backupVersion i JSON
+- Detaljside per flaske viser alle smakinger, nyeste øverst.
+- Backup fra v2.28 beholdes.

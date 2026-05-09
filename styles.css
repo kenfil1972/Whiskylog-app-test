@@ -746,3 +746,55 @@ input[type="date"]{
   .scoreLineOne{grid-template-columns:1fr;gap:2px}
   .scoreLineOne .scoreNote{white-space:normal}
 }
+
+
+/* v2.30 hard UI fixes */
+.ratingsMenuCard{
+  border-color:rgba(244,191,79,.45)!important;
+}
+.scoreGrid{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+  width:100%;
+}
+.scoreLineOne{
+  display:grid;
+  grid-template-columns:minmax(92px,130px) minmax(88px,118px) 1fr;
+  gap:10px;
+  align-items:center;
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(0,0,0,.16);
+  color:#e7d3b5;
+}
+.scoreLineOne .scoreName{font-weight:900;color:#fff}
+.scoreLineOne .scorePoints{color:#f4bf4f;font-weight:900;white-space:nowrap}
+.scoreLineOne .scoreNote{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tastingDetailItem{
+  display:grid!important;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+.tastingActions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  width:100%;
+}
+.ratingsItem{
+  align-items:center;
+}
+.ratingsText{
+  flex:1;
+  min-width:0;
+}
+.ratingsText .meta b,
+.meta b{
+  color:#f4bf4f;
+  font-weight:900;
+}
+@media(max-width:560px){
+  .scoreLineOne{grid-template-columns:1fr;gap:2px}
+  .scoreLineOne .scoreNote{white-space:normal}
+}
