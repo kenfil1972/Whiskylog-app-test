@@ -2,13 +2,13 @@
 (() => {
 'use strict';
 
-const VERSION = '2.20';
+const VERSION = '2.20a';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20a',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -42,7 +42,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20a',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -642,7 +642,7 @@ function scoreBlock(key,label,score,note){
 }
 
 function tastingTotal(t){
-  const vals=[t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore].map(num).filter(v=>v>0);
+  const vals=[t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore].map(v=>Number(v)||0).filter(v=>v>0);
   return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : 0;
 }
 
@@ -1117,4 +1117,25 @@ ${libCount} ${tr('library')} · ${bottleCount} ${tr('bottles')} · ${tastingCoun
 render();
 })();
 
+
+
+
+window.deleteTasting = function(id){
+  if(!confirm(tr('delete') + '?')) return;
+  state.tastings = state.tastings.filter(t => t.id !== id);
+  save();
+  render();
+};
+
+window.markBottleEmptyFromTasting = function(id){
+  const t = state.tastings.find(x=>x.id===id);
+  if(!t) return;
+  const b = getBottle(t.bottleId);
+  if(!b) return;
+  if(!confirm(tr('lastSip') + '?')) return;
+  b.forceEmpty = true;
+  b.currentVolume = '';
+  save();
+  go('stock');
+};
 
