@@ -4,8 +4,8 @@ function backupPanelHtml(){
     <h2>Backup</h2>
     <p class="sub">Backup inkluderer bibliotek, flasker, bilder, smakinger, kommentarer, ønskeliste og innstillinger.</p>
     <div class="actions">
-      <button class="primary" type="button" onclick="exportBackupFile()">Lagre backup til fil</button>
-      <button class="ghost" type="button" onclick="restoreFromFile()">Hent backup fra fil</button>
+      <button class="primary" type="button" onclick="window.exportBackupFile()">Lagre backup til fil</button>
+      <button class="ghost" type="button" onclick="window.restoreFromFile()">Hent backup fra fil</button>
     </div>
   </section>`;
 }
@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.24';
+const VERSION = '2.25';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.24',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.25',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.24',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.25',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1073,161 +1073,13 @@ ${item ? item.name : ''}`)) return;
 
 /* v2.22 robust backup import/export */
 
-function parseBackupText(rawText){
-  let text = String(rawText || '');
 
-  // Remove byte order mark and invisible control characters often added by mobile file handling.
-  text = text.replace(/^\uFEFF/, '').trim();
 
-  // Some broken exports/downloads may be wrapped as a quoted string.
-  if((text.startsWith("'") && text.endsWith("'")) || (text.startsWith('"') && text.endsWith('"'))){
-    try{
-      text = JSON.parse(text);
-    }catch(e){
-      text = text.slice(1,-1);
-    }
-    text = String(text).trim();
-  }
 
-  // Some files may contain data-url or HTML/text around the JSON. Extract likely JSON object.
-  if(!text.startsWith('{') && !text.startsWith('[')){
-    const firstObj = text.indexOf('{');
-    const lastObj = text.lastIndexOf('}');
-    if(firstObj >= 0 && lastObj > firstObj){
-      text = text.slice(firstObj, lastObj + 1).trim();
-    }
-  }
 
-  // Decode escaped JSON string if needed.
-  if(text.includes('\\"') && !text.includes('"state"') && !text.includes('"bases"')){
-    try{
-      text = JSON.parse('"' + text.replace(/^"+|"+$/g,'') + '"');
-    }catch(e){}
-  }
 
-  // First parse attempt.
-  try{
-    return JSON.parse(text);
-  }catch(firstErr){
-    // Last-resort cleanup: remove leading non-json characters and trailing non-json after last brace.
-    const firstObj = text.indexOf('{');
-    const lastObj = text.lastIndexOf('}');
-    if(firstObj >= 0 && lastObj > firstObj){
-      const candidate = text.slice(firstObj, lastObj + 1);
-      try{
-        return JSON.parse(candidate);
-      }catch(secondErr){}
-    }
 
-    throw new Error('Filen ser ikke ut som gyldig WhiskyLog-backup. Første tegn i filen er: ' + JSON.stringify(text.slice(0,40)));
-  }
-}
 
-function normalizeBackupData(raw){
-  let data = raw;
-
-  if(typeof data === 'string'){
-    data = JSON.parse(data);
-  }
-
-  // Some old exports wrapped state in data/state/appData.
-  if(data && data.data && typeof data.data === 'object') data = data.data;
-  if(data && data.state && typeof data.state === 'object') data = data.state;
-  if(data && data.appData && typeof data.appData === 'object') data = data.appData;
-
-  // If backup contains both state and settings, preserve both.
-  const candidateState = data && data.state ? data.state : data;
-  const candidateSettings = (data && data.settings) ? data.settings : (candidateState && candidateState.settings ? candidateState.settings : null);
-
-  const normalized = {
-    bases: Array.isArray(candidateState.bases) ? candidateState.bases :
-           Array.isArray(candidateState.library) ? candidateState.library :
-           Array.isArray(candidateState.baseBottles) ? candidateState.baseBottles : [],
-    bottles: Array.isArray(candidateState.bottles) ? candidateState.bottles :
-             Array.isArray(candidateState.stock) ? candidateState.stock : [],
-    tastings: Array.isArray(candidateState.tastings) ? candidateState.tastings : [],
-    comments: Array.isArray(candidateState.comments) ? candidateState.comments :
-              Array.isArray(candidateState.notes) ? candidateState.notes : [],
-    wishlist: Array.isArray(candidateState.wishlist) ? candidateState.wishlist : []
-  };
-
-  // Keep unknown fields that may exist, but ensure required arrays exist.
-  const merged = Object.assign({}, candidateState, normalized);
-
-  // Basic ID repair so older backups still render.
-  merged.bases = merged.bases.map(x => Object.assign({id: uid()}, x || {}));
-  merged.bottles = merged.bottles.map(x => Object.assign({id: uid(), forceEmpty:false}, x || {}));
-  merged.tastings = merged.tastings.map(x => Object.assign({id: uid()}, x || {}));
-  merged.comments = merged.comments.map(x => Object.assign({id: uid()}, x || {}));
-  merged.wishlist = merged.wishlist.map(x => Object.assign({id: uid()}, x || {}));
-
-  return { state: merged, settings: candidateSettings };
-}
-
-function exportBackupFile(){
-  const payload = {
-    app: 'WhiskyLog',
-    version: VERSION || '2.24',
-    exportedAt: new Date().toISOString(),
-    state: state,
-    settings: (typeof settings !== 'undefined' ? settings : getSettings())
-  };
-  const jsonText = JSON.stringify(payload,null,2);
-  const blob = new Blob([jsonText], {type:'application/json;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `WhiskyLog_backup_${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
-
-async function importBackupFileFromInput(file){
-  if(!file){
-    alert('Ingen fil valgt');
-    return;
-  }
-
-  try{
-    const text = await file.text();
-    const parsed = parseBackupText(text);
-    const normalized = normalizeBackupData(parsed);
-
-    const counts = {
-      bibliotek: normalized.state.bases.length,
-      flasker: normalized.state.bottles.length,
-      smakinger: normalized.state.tastings.length,
-      ønskeliste: normalized.state.wishlist.length
-    };
-
-    if(!counts.bibliotek && !counts.flasker && !counts.smakinger && !counts.ønskeliste){
-      throw new Error('Filen ble lest, men inneholder ingen WhiskyLog-data.');
-    }
-
-    const msg = `Importere backup?
-
-Bibliotek: ${counts.bibliotek}
-Flasker: ${counts.flasker}
-Smakinger: ${counts.smakinger}
-Ønskeliste: ${counts.ønskeliste}`;
-    if(!confirm(msg)) return;
-
-    state = normalized.state;
-    save();
-
-    if(normalized.settings && typeof saveSettings === 'function'){
-      try{
-        settings = Object.assign(getSettings(), normalized.settings);
-        saveSettings();
-      }catch(e){}
-    }
-
-    alert('Backup importert.');
-    go('home');
-  }catch(err){
-    alert('Kunne ikke hente backup: ' + (err && err.message ? err.message : err));
-  }
-}
 
 window.exportBackupFile = exportBackupFile;
 window.importBackupFileFromInput = importBackupFileFromInput;
@@ -1249,7 +1101,7 @@ function renderSettings(){
     </section>
     <section class="card">
       <h2>${tr('backup')}</h2><p class="sub">${tr('backupIncludes')}</p>
-      <div class="actions"><button class="primary" onclick="backupToFile()">${tr('backupFile')}</button><button class="ghost" onclick="document.getElementById('restoreFile').click()">${tr('restoreFile')}</button></div>
+      <div class="actions"><button class="primary" onclick="window.exportBackupFile()">${tr('backupFile')}</button><button class="ghost" onclick="document.getElementById('restoreFile').click()">${tr('restoreFile')}</button></div>
       <input id="restoreFile" class="hidden" type="file" accept="application/json,.json">
     </section>
   `);
@@ -1477,7 +1329,109 @@ render = function(){
 };
 
 
-/* ===== v2.24 backup import hard override ===== */
+
+
+/* ===== v2.25 definitive backup import ===== */
+
+function parseWhiskyLogBackupText(rawText){
+  let text = String(rawText || '');
+
+  // Remove BOM, nulls, control chars except whitespace, and trim.
+  text = text
+    .replace(/^\uFEFF/, '')
+    .replace(/\u0000/g, '')
+    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F]/g, '')
+    .trim();
+
+  // iOS/Files can sometimes pass a data URL.
+  const commaIndex = text.indexOf(',');
+  if(/^data:.*?base64,/i.test(text)){
+    try{
+      text = atob(text.slice(commaIndex + 1));
+    }catch(e){}
+    text = String(text || '').replace(/^\uFEFF/, '').trim();
+  }
+
+  // If file is accidentally wrapped in quotes, unwrap it.
+  if((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))){
+    const inner = text.slice(1, -1);
+    try{
+      text = JSON.parse(text);
+    }catch(e){
+      text = inner;
+    }
+    text = String(text || '').trim();
+  }
+
+  // If text contains escaped JSON, unescape the most common forms.
+  if(text.includes('\\"') || text.includes('\\n')){
+    const candidate = text
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '\r')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"');
+    if(candidate.includes('{') && candidate.includes('}')){
+      text = candidate.trim();
+    }
+  }
+
+  // Extract first JSON object from surrounding text.
+  const firstObj = text.indexOf('{');
+  const lastObj = text.lastIndexOf('}');
+  if(firstObj >= 0 && lastObj > firstObj){
+    text = text.slice(firstObj, lastObj + 1).trim();
+  }
+
+  // Parse.
+  try{
+    return JSON.parse(text);
+  }catch(err){
+    const preview = text.slice(0, 120).replace(/\s+/g, ' ');
+    throw new Error('JSON kunne ikke leses. Første del av filen: ' + preview);
+  }
+}
+
+function normalizeWhiskyLogBackup(parsed){
+  let data = parsed;
+
+  if(data && typeof data === 'object' && data.data && typeof data.data === 'object') data = data.data;
+  if(data && typeof data === 'object' && data.appData && typeof data.appData === 'object') data = data.appData;
+
+  const sourceState = data && data.state && typeof data.state === 'object' ? data.state : data;
+  const sourceSettings = data && data.settings ? data.settings : (sourceState && sourceState.settings ? sourceState.settings : null);
+
+  const bases =
+    Array.isArray(sourceState.bases) ? sourceState.bases :
+    Array.isArray(sourceState.library) ? sourceState.library :
+    Array.isArray(sourceState.baseBottles) ? sourceState.baseBottles :
+    [];
+
+  const bottles =
+    Array.isArray(sourceState.bottles) ? sourceState.bottles :
+    Array.isArray(sourceState.stock) ? sourceState.stock :
+    [];
+
+  const tastings = Array.isArray(sourceState.tastings) ? sourceState.tastings : [];
+  const comments =
+    Array.isArray(sourceState.comments) ? sourceState.comments :
+    Array.isArray(sourceState.notes) ? sourceState.notes :
+    [];
+  const wishlist = Array.isArray(sourceState.wishlist) ? sourceState.wishlist : [];
+
+  if(!bases.length && !bottles.length && !tastings.length && !wishlist.length){
+    throw new Error('Filen ble lest, men inneholder ingen WhiskyLog-data.');
+  }
+
+  const fixedState = Object.assign({}, sourceState, {
+    bases: bases.map(x => Object.assign({id: uid()}, x || {})),
+    bottles: bottles.map(x => Object.assign({id: uid(), forceEmpty:false}, x || {})),
+    tastings: tastings.map(x => Object.assign({id: uid()}, x || {})),
+    comments: comments.map(x => Object.assign({id: uid()}, x || {})),
+    wishlist: wishlist.map(x => Object.assign({id: uid()}, x || {}))
+  });
+
+  return {state: fixedState, settings: sourceSettings};
+}
 
 async function importBackupFileFromInput(file){
   if(!file){
@@ -1486,62 +1440,96 @@ async function importBackupFileFromInput(file){
   }
 
   try{
-    let text = await file.text();
+    const rawText = await file.text();
+    const parsed = parseWhiskyLogBackupText(rawText);
+    const normalized = normalizeWhiskyLogBackup(parsed);
 
-    // Remove BOM and trim
-    text = String(text || '').replace(/^\uFEFF/, '').trim();
+    const counts = {
+      bibliotek: normalized.state.bases.length,
+      flasker: normalized.state.bottles.length,
+      smakinger: normalized.state.tastings.length,
+      ønskeliste: normalized.state.wishlist.length
+    };
 
-    // Handle accidental wrapping quotes
-    if((text.startsWith('"') && text.endsWith('"')) ||
-       (text.startsWith("'") && text.endsWith("'"))){
-      text = text.slice(1,-1);
-    }
-
-    // Extract JSON object from any surrounding text
-    const firstBrace = text.indexOf('{');
-    const lastBrace = text.lastIndexOf('}');
-
-    if(firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace){
-      text = text.substring(firstBrace, lastBrace + 1);
-    }
-
-    // Remove escaped newlines/tabs if file became stringified
-    text = text
-      .replace(/\\n/g, '\n')
-      .replace(/\\t/g, '\t');
-
-    let parsed;
-
-    try{
-      parsed = JSON.parse(text);
-    }catch(err1){
-
-      // Try double-parse
-      try{
-        parsed = JSON.parse(JSON.parse(text));
-      }catch(err2){
-
-        // Final cleanup
-        text = text.replace(/^[^\{\[]+/, '').replace(/[^\}\]]+$/, '');
-
-        parsed = JSON.parse(text);
-      }
-    }
-
-    const normalized = normalizeBackupData(parsed);
+    const ok = confirm(
+      'Importere backup og erstatte nåværende data?\n\n' +
+      'Bibliotek: ' + counts.bibliotek + '\n' +
+      'Flasker: ' + counts.flasker + '\n' +
+      'Smakinger: ' + counts.smakinger + '\n' +
+      'Ønskeliste: ' + counts.ønskeliste
+    );
+    if(!ok) return;
 
     state = normalized.state;
     save();
 
+    if(normalized.settings){
+      try{
+        if(typeof settings !== 'undefined'){
+          settings = Object.assign(settings, normalized.settings);
+        }
+        if(typeof saveSettings === 'function') saveSettings();
+      }catch(e){}
+    }
+
     alert('Backup importert.');
     go('home');
-
   }catch(err){
-    console.error(err);
-
-    alert(
-      'Kunne ikke hente backup.\n\n' +
-      'Feil: ' + (err && err.message ? err.message : err)
-    );
+    console.error('Backup import error:', err);
+    alert('Kunne ikke hente backup: ' + (err && err.message ? err.message : err));
   }
 }
+
+function restoreFromFile(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json,text/plain,*/*';
+  input.onchange = function(){
+    importBackupFileFromInput(input.files && input.files[0]);
+  };
+  input.click();
+}
+
+function exportBackupFile(){
+  const payload = {
+    app: 'WhiskyLog',
+    version: VERSION || '2.25',
+    exportedAt: new Date().toISOString(),
+    state: state,
+    settings: (typeof settings !== 'undefined' ? settings : (typeof getSettings === 'function' ? getSettings() : {}))
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'WhiskyLog_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+// Force all old button names to use the new implementation.
+window.importBackupFileFromInput = importBackupFileFromInput;
+window.restoreFromFile = restoreFromFile;
+window.importBackup = restoreFromFile;
+window.loadBackupFromFile = restoreFromFile;
+window.restoreBackupFromFile = restoreFromFile;
+
+window.exportBackupFile = exportBackupFile;
+window.backupToFile = exportBackupFile;
+window.exportBackup = exportBackupFile;
+window.saveBackupToFile = exportBackupFile;
+
+// Capture backup file inputs that older UI may still create.
+document.addEventListener('change', function(e){
+  const el = e.target;
+  if(el && el.tagName === 'INPUT' && el.type === 'file'){
+    const context = ((el.closest('section') || el.parentElement || document.body).innerText || '').toLowerCase();
+    if(context.includes('backup') || context.includes('gjenopprett') || context.includes('hent')){
+      importBackupFileFromInput(el.files && el.files[0]);
+    }
+  }
+}, true);
+
+function normalizeBackupData(raw){ return normalizeWhiskyLogBackup(raw).state; }
+
