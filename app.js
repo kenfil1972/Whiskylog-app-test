@@ -931,51 +931,15 @@ ${bottleBase(b).name || ''}`)) return;
 };
 
 function renderOverview(){
-  const totalValue = state.bottles.reduce((a,b)=>a+bottleValue(b),0);
-  const totalMl = Math.round(state.bottles.reduce((a,b)=>a+bottleVolume(b),0));
-  const tastingCount = state.tastings.length;
-
-  const ranked = state.library
-    .map(l=>({l,score:averageScoreForLibrary(l.id)}))
-    .filter(x=>Number(x.score)>0)
-    .sort((a,b)=>Number(b.score)-Number(a.score));
-
+  const ranked=state.library.map(l=>({l,score:averageScoreForLibrary(l.id)})).filter(x=>x.score).sort((a,b)=>b.score-a.score);
   shell(`
-    <section class="hero">
-      <h2>${tr('overview')}</h2>
-      <p class="sub">${tr('overviewSub')}</p>
-    </section>
-
+    <section class="hero"><h2>${tr('overview')}</h2><p class="sub">${tr('overviewSub')}</p></section>
     <section class="grid">
-      <div class="card"><h2>${money(totalValue)}</h2><p class="sub">${tr('value')}</p></div>
-      <div class="card"><h2>${totalMl} ml</h2><p class="sub">${tr('stockVolume')}</p></div>
-      <div class="card"><h2>${tastingCount}</h2><p class="sub">${tr('registerTasting')}</p></div>
+      <div class="card"><h2>${money(state.bottles.reduce((a,b)=>a+bottleValue(b),0))}</h2><p class="sub">${tr('value')}</p></div>
+      <div class="card"><h2>${Math.round(state.bottles.reduce((a,b)=>a+bottleVolume(b),0))} ml</h2><p class="sub">${tr('stockVolume')}</p></div>
+      <div class="card"><h2>${state.tastings.length}</h2><p class="sub">${tr('registerTasting')}</p></div>
     </section>
-
-    <section class="card ratingsMenuCard alwaysVisibleRatings">
-      <h2>Vurderinger</h2>
-      <p class="sub">Alle flaskescore med bilde, søk og detaljvisning.</p>
-      <button class="primary fullWidth" type="button" onclick="page='ratings';render()">Åpne vurderinger</button>
-    </section>
-
-    <section class="card">
-      <h2>${tr('bottleRanking')}</h2>
-      <div class="list">
-        ${
-          ranked.length
-            ? ranked.map(x=>`
-              <div class="item" onclick="page='ratings';render()">
-                ${img(x.l)}
-                <div>
-                  <div class="title">${esc(x.l.name)}</div>
-                  <div class="score">${fmtPct ? fmtPct(x.score) : x.score.toFixed(1) + ' %'}</div>
-                </div>
-              </div>
-            `).join('')
-            : `<div class="sub">${tr('noItems')}</div>`
-        }
-      </div>
-    </section>
+    <section class="card"><h2>${tr('bottleRanking')}</h2><div class="list">${ranked.length?ranked.map(x=>`<div class="item">${img(x.l)}<div><div class="title">${esc(x.l.name)}</div><div class="score">${x.score.toFixed(1)} %</div></div></div>`).join(''):`<div class="sub">${tr('noItems')}</div>`}</div></section>
   `);
 }
 function renderWishlist(){
@@ -2909,81 +2873,326 @@ if(!window.__render231Final){
 
 
 
-/* ===== v2.32 direct ratings fallback ===== */
-function wlPct232(t){
-  const n = v => {
-    const x = Number(String(v ?? '').replace(',','.'));
-    return Number.isFinite(x) ? Math.max(0,Math.min(100,x)) : 0;
-  };
-  const vals=[t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore].map(n).filter(x=>x>0);
+/* ===== v2.32 click handler fix for ratings/edit/delete ===== */
+
+function wlScoreClamp232(v){
+  const n = Number(String(v ?? '').replace(',','.'));
+  return Number.isFinite(n) ? Math.max(0, Math.min(100,n)) : 0;
+}
+
+function wlTastingPercent232(t){
+  const vals = [t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore]
+    .map(wlScoreClamp232)
+    .filter(v => v > 0);
   if(vals.length) return Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
-  const legacy=Number(t.average||t.score||0);
-  if(Number.isFinite(legacy)&&legacy>0){
-    if(legacy<=1) return Math.round(legacy*1000)/10;
-    if(legacy<=10) return Math.round(legacy*100)/10;
-    return Math.round(legacy*10)/10;
+
+  const legacy = Number(t.average || t.score || 0);
+  if(Number.isFinite(legacy) && legacy > 0){
+    if(legacy <= 1) return Math.round(legacy * 1000) / 10;
+    if(legacy <= 10) return Math.round(legacy * 100) / 10;
+    return Math.round(legacy * 10) / 10;
   }
   return 0;
 }
+
+function tastingPercent(t){ return wlTastingPercent232(t); }
+function tastingTotal(t){ return wlTastingPercent232(t); }
 function fmtPct(v){
-  const n=Number(v);
-  return Number.isFinite(n)&&n>0?n.toFixed(1)+' %':'0.0 %';
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n.toFixed(1) + ' %' : '0.0 %';
 }
+
 function wlBottleAvg232(bottleId){
-  const vals=(state.tastings||[]).filter(t=>t.bottleId===bottleId).map(wlPct232).filter(v=>v>0);
-  return vals.length?Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10:0;
+  const vals = (state.tastings || [])
+    .filter(t => t.bottleId === bottleId)
+    .map(wlTastingPercent232)
+    .filter(v => v > 0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : 0;
 }
-function averageScoreForLibrary(libraryId){
-  const bottleIds=(state.bottles||[]).filter(b=>b.libraryId===libraryId).map(b=>b.id);
-  const vals=(state.tastings||[]).filter(t=>bottleIds.includes(t.bottleId)).map(wlPct232).filter(v=>v>0);
-  return vals.length?Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10:'';
-}
-function renderRatingsOverview232(){
-  const q=(window.__ratingsSearch232||'').trim().toLowerCase();
-  let bottles=(state.bottles||[]).map(b=>{
-    const base=bottleBase(b);
-    const count=(state.tastings||[]).filter(t=>t.bottleId===b.id).length;
-    const avg=wlBottleAvg232(b.id);
-    return {b,base,count,avg};
-  }).filter(x=>x.base&&x.count>0);
-  if(q) bottles=bottles.filter(x=>String(x.base.name||'').toLowerCase().includes(q));
-  bottles.sort((a,b)=>b.avg-a.avg);
-  shell(`
-    <section class="hero"><h2>Vurderinger</h2><p class="sub">Flaskescore sortert med høyeste score øverst.</p></section>
-    <section class="card"><label>Søk etter flaske</label><input id="ratingsSearch232" placeholder="Søk etter flaske" value="${esc(window.__ratingsSearch232||'')}"></section>
-    <section class="card"><div class="list">
-      ${bottles.length?bottles.map(x=>`
-        <div class="item ratingsItem" onclick="ratingsBottleId232='${x.b.id}';page='ratingsBottle';render()">
-          ${img(x.base)}
-          <div class="ratingsText"><div class="title">${esc(x.base.name||'')}</div><div class="meta"><b>${fmtPct(x.avg)}</b></div><div class="small">Antall smakinger: ${x.count}</div></div>
-          <div class="actions"><button class="ghost" type="button" onclick="event.stopPropagation();ratingsBottleId232='${x.b.id}';page='ratingsBottle';render()">Åpne</button></div>
-        </div>`).join(''):`<div class="sub">Ingen vurderinger ennå.</div>`}
-    </div></section>
-  `);
-  const inp=document.getElementById('ratingsSearch232');
-  if(inp) inp.addEventListener('input',e=>{window.__ratingsSearch232=e.target.value||'';renderRatingsOverview232();});
-}
-let ratingsBottleId232='';
-function renderRatingsBottle232(){
-  const b=getBottle(ratingsBottleId232);
-  const base=b?bottleBase(b):null;
-  if(!b||!base){page='ratings';render();return;}
-  const rows=(state.tastings||[]).filter(t=>t.bottleId===b.id).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-  const vals=rows.map(wlPct232).filter(v=>v>0);
-  const min=vals.length?Math.min(...vals):0, avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0, max=vals.length?Math.max(...vals):0;
-  shell(`
-    <section class="hero">${img(base)}<h2>${esc(base.name||'')}</h2><p class="sub">Laveste: ${fmtPct(min)} · Snitt: ${fmtPct(Math.round(avg*10)/10)} · Høyeste: ${fmtPct(max)}</p></section>
-    <section class="card"><h2>Smakinger</h2><p class="sub">Nyeste øverst.</p><div class="list">
-      ${rows.length?rows.map(t=>typeof tastingDetailItem==='function'?tastingDetailItem(t):`<div class="item"><div><div class="title">${esc(t.date||'')}</div><div class="meta">${fmtPct(wlPct232(t))}</div></div></div>`).join(''):`<div class="sub">Ingen smakinger ennå.</div>`}
-    </div></section>
-  `);
-}
-if(!window.__render232Final){
-  window.__render232Final=true;
-  const previousRender232=render;
-  render=function(){
-    if(page==='ratings') return renderRatingsOverview232();
-    if(page==='ratingsBottle') return renderRatingsBottle232();
-    return previousRender232();
+
+function wlBottleStats232(bottleId){
+  const vals = (state.tastings || [])
+    .filter(t => t.bottleId === bottleId)
+    .map(wlTastingPercent232)
+    .filter(v => v > 0);
+  if(!vals.length) return {min:0,avg:0,max:0,count:0};
+  return {
+    min: Math.round(Math.min(...vals)*10)/10,
+    avg: Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10,
+    max: Math.round(Math.max(...vals)*10)/10,
+    count: vals.length
   };
 }
+
+function averageScoreForLibrary(libraryId){
+  const bottleIds = (state.bottles || [])
+    .filter(b => b.libraryId === libraryId)
+    .map(b => b.id);
+  const vals = (state.tastings || [])
+    .filter(t => bottleIds.includes(t.bottleId))
+    .map(wlTastingPercent232)
+    .filter(v => v > 0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : '';
+}
+
+let ratingsBottleId232 = '';
+
+window.openRatingsPage = function(){
+  page = 'ratings232';
+  render();
+};
+
+window.openRatingsBottle = function(id){
+  ratingsBottleId232 = id;
+  page = 'ratingsBottle232';
+  render();
+};
+
+window.editTasting = function(id){
+  try{
+    editTastingId = id;
+    selectedTastingBottleId = '';
+    page = 'tasting';
+    render();
+    setTimeout(() => {
+      const form = document.getElementById('tastingForm');
+      if(form) form.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 100);
+  }catch(e){
+    alert('Kunne ikke åpne redigering: ' + (e && e.message ? e.message : e));
+  }
+};
+
+window.deleteTasting = function(id){
+  if(!confirm('Slette denne smakingen?')) return;
+  state.tastings = (state.tastings || []).filter(t => t.id !== id);
+  save();
+  render();
+};
+
+function wlDropsPerLiter232(t){
+  if(t.mode !== 'water') return '';
+  const drops = Number(String(t.drops || '').replace(',','.'));
+  const ml = Number(String(t.ml || '').replace(',','.'));
+  if(!Number.isFinite(drops) || !Number.isFinite(ml) || drops <= 0 || ml <= 0) return '';
+  return Math.round((drops/ml)*1000) + ' dråper/L';
+}
+
+function scoreRow232(label, score, note){
+  return `<div class="scoreLineOne">
+    <span class="scoreName">${label}</span>
+    <span class="scorePoints">${esc(score || '-')} poeng</span>
+    <span class="scoreNote">${esc(note || '')}</span>
+  </div>`;
+}
+
+function tastingDetailItem(t){
+  const water = wlDropsPerLiter232(t);
+  return `<div class="item tastingDetailItem">
+    <div>
+      <div class="title">${esc(t.date || '')} · ${t.mode === 'water' ? 'Med vann' : 'Neat'} ${water ? '· ' + water : ''}</div>
+      <div class="meta">Totalvurdering: <b>${fmtPct(wlTastingPercent232(t))}</b> · ${esc(t.ml || '')} ml</div>
+      <div class="scoreGrid">
+        ${scoreRow232('Visuelt', t.visualScore, t.visualNote)}
+        ${scoreRow232('Lukt', t.aromaScore, t.aromaNote)}
+        ${scoreRow232('Smak', t.tasteScore, t.tasteNote)}
+        ${scoreRow232('Ettersmak', t.finishScore, t.finishNote)}
+        ${scoreRow232('Helhetsinntrykk', t.overallScore, t.overallNote)}
+      </div>
+      ${t.notes ? `<p class="small">${esc(t.notes)}</p>` : ''}
+    </div>
+    <div class="actions tastingActions">
+      <button class="ghost" type="button" data-action="edit-tasting" data-id="${t.id}">Rediger</button>
+      <button class="danger" type="button" data-action="delete-tasting" data-id="${t.id}">Slett</button>
+    </div>
+  </div>`;
+}
+
+function renderOverviewV232(){
+  const totalValue = (state.bottles || []).reduce((sum,b) => {
+    try { return sum + (Number(valueLeft(b.id)) || 0); } catch(e) { return sum; }
+  }, 0);
+  const totalMl = (state.bottles || []).reduce((sum,b) => {
+    try { return sum + (Number(bottleVolume(b.id)) || 0); } catch(e) { return sum; }
+  }, 0);
+  const tastingCount = (state.tastings || []).length;
+
+  const ranked = (state.bases || [])
+    .map(base => ({base, score: averageScoreForLibrary(base.id)}))
+    .filter(x => Number(x.score) > 0)
+    .sort((a,b) => Number(b.score) - Number(a.score));
+
+  shell(`
+    <section class="hero">
+      <h2>Oversikt / statistikk</h2>
+      <p class="sub">Rangering, score, verdi og historikk.</p>
+    </section>
+
+    <section class="grid statsGrid">
+      <div class="card stat"><h2>${typeof money === 'function' ? money(totalValue) : totalValue.toFixed(2) + ' NOK'}</h2><p class="sub">verdi</p></div>
+      <div class="card stat"><h2>${Math.round(totalMl)} ml</h2><p class="sub">volum i beholdning</p></div>
+      <div class="card stat"><h2>${tastingCount}</h2><p class="sub">registrerte smakinger</p></div>
+    </section>
+
+    <section class="card ratingsMenuCard alwaysVisibleRatings">
+      <h2>Vurderinger</h2>
+      <p class="sub">Se alle flaskescore med bilde, søk og detaljvisning.</p>
+      <button class="primary fullWidth" type="button" data-action="open-ratings">Åpne vurderinger</button>
+    </section>
+
+    <section class="card">
+      <h2>Flaskerangering</h2>
+      <div class="list">
+        ${ranked.length ? ranked.map(x => `
+          <div class="item" data-action="open-ratings">
+            ${img(x.base)}
+            <div>
+              <div class="title">${esc(x.base.name || '')}</div>
+              <div class="meta"><b>${fmtPct(x.score)}</b></div>
+            </div>
+          </div>
+        `).join('') : `<div class="sub">Ingen registreringer ennå.</div>`}
+      </div>
+    </section>
+  `,'overview');
+}
+
+function renderRatingsV232(){
+  const q = (window.__ratingsSearch232 || '').trim().toLowerCase();
+  let bottles = (state.bottles || []).map(b => {
+    const base = bottleBase(b);
+    const avg = wlBottleAvg232(b.id);
+    const count = (state.tastings || []).filter(t => t.bottleId === b.id).length;
+    return {b,base,avg,count};
+  }).filter(x => x.base && x.count > 0);
+
+  if(q) bottles = bottles.filter(x => String(x.base.name || '').toLowerCase().includes(q));
+  bottles.sort((a,b) => b.avg - a.avg);
+
+  shell(`
+    <section class="hero">
+      <h2>Vurderinger</h2>
+      <p class="sub">Flaskescore sortert med høyeste score øverst.</p>
+    </section>
+
+    <section class="card">
+      <label>Søk etter flaske</label>
+      <input id="ratingsSearch232" placeholder="Søk etter flaske" value="${esc(window.__ratingsSearch232 || '')}">
+    </section>
+
+    <section class="card">
+      <div class="list">
+        ${bottles.length ? bottles.map(x => `
+          <div class="item ratingsItem" data-action="open-ratings-bottle" data-id="${x.b.id}">
+            ${img(x.base)}
+            <div class="ratingsText">
+              <div class="title">${esc(x.base.name || '')}</div>
+              <div class="meta"><b>${fmtPct(x.avg)}</b></div>
+              <div class="small">Antall smakinger: ${x.count}</div>
+            </div>
+            <div class="actions">
+              <button class="ghost" type="button" data-action="open-ratings-bottle" data-id="${x.b.id}">Åpne</button>
+            </div>
+          </div>
+        `).join('') : `<div class="sub">Ingen vurderinger ennå.</div>`}
+      </div>
+    </section>
+  `,'ratings');
+
+  const input = document.getElementById('ratingsSearch232');
+  if(input){
+    input.addEventListener('input', e => {
+      window.__ratingsSearch232 = e.target.value || '';
+      renderRatingsV232();
+    });
+  }
+}
+
+function renderRatingsBottleV232(){
+  const b = getBottle(ratingsBottleId232);
+  const base = b ? bottleBase(b) : null;
+  if(!b || !base){ page='ratings232'; render(); return; }
+
+  const stats = wlBottleStats232(b.id);
+  const rows = (state.tastings || [])
+    .filter(t => t.bottleId === b.id)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  shell(`
+    <section class="hero">
+      ${img(base)}
+      <h2>${esc(base.name || '')}</h2>
+      <p class="sub">Laveste: ${fmtPct(stats.min)} · Snitt: ${fmtPct(stats.avg)} · Høyeste: ${fmtPct(stats.max)}</p>
+    </section>
+
+    <section class="card">
+      <h2>Smakinger</h2>
+      <p class="sub">Nyeste øverst.</p>
+      <div class="list">
+        ${rows.length ? rows.map(tastingDetailItem).join('') : `<div class="sub">Ingen smakinger ennå.</div>`}
+      </div>
+    </section>
+  `,'ratingsBottle');
+}
+
+// Global click delegation. This works even if iOS ignores inline onclick.
+if(!window.__wlClickHandler232){
+  window.__wlClickHandler232 = true;
+  document.addEventListener('click', function(e){
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+
+    const action = el.dataset.action;
+    const id = el.dataset.id;
+
+    if(action === 'open-ratings'){
+      e.preventDefault();
+      e.stopPropagation();
+      window.openRatingsPage();
+      return;
+    }
+
+    if(action === 'open-ratings-bottle'){
+      e.preventDefault();
+      e.stopPropagation();
+      window.openRatingsBottle(id);
+      return;
+    }
+
+    if(action === 'edit-tasting'){
+      e.preventDefault();
+      e.stopPropagation();
+      window.editTasting(id);
+      return;
+    }
+
+    if(action === 'delete-tasting'){
+      e.preventDefault();
+      e.stopPropagation();
+      window.deleteTasting(id);
+      return;
+    }
+  }, true);
+}
+
+// Final render override.
+if(!window.__render232Final){
+  window.__render232Final = true;
+  const previousRender232 = render;
+  render = function(){
+    if(page === 'overview'){
+      renderOverviewV232();
+      return;
+    }
+    if(page === 'ratings232' || page === 'ratings231' || page === 'ratings'){
+      renderRatingsV232();
+      return;
+    }
+    if(page === 'ratingsBottle232' || page === 'ratingsBottle231' || page === 'ratingsBottle'){
+      renderRatingsBottleV232();
+      return;
+    }
+    previousRender232();
+  };
+}
+

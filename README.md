@@ -1,19 +1,18 @@
-# WhiskyLog v2.32 Replace Overview Directly
+# WhiskyLog v2.32 Click Handler Fix
 
 Dette er gjeldende versjon.
 
 ## Rettet i v2.32
 
-- Selve `renderOverview()` er erstattet direkte.
-- Vurderinger-kortet ligger nå inne i original Oversikt/statistikk-render, ikke som wrapper.
-- Kortet vises rett under de tre statistikkortene:
-  - **Vurderinger**
-  - **Åpne vurderinger**
-- Vurderinger-siden har:
-  - flaskebilde
+- Åpne vurderinger bruker nå data-action + global click-handler.
+- Rediger og Slett under smaking bruker også global click-handler.
+- Dette fungerer bedre på iPhone/PWA enn inline onclick.
+- Vurderinger-siden viser:
+  - bilde
   - flaskenavn
-  - score i prosent
+  - score i prosent med én desimal
+  - antall smakinger
   - søk
   - høyeste score øverst
-  - detaljside per flaske
-  - nyeste smaking øverst
+- Flaskedetalj viser smakinger med nyeste øverst.
+- Backup fra v2.28 beholdes.
