@@ -1,8 +1,8 @@
-# WhiskyLog v2.21 Tasting Layout + Score Scale Fix
+# WhiskyLog v2.22 Backup Import Fix
 
-Fixes:
-- Tasting detail rows now use one-line format where space allows:
-  Smak - 57 poeng - karamell.
-- Bottle ranking now shows /100 instead of /10.
-- Legacy 1-10 scores are normalized to /100 in ranking.
-- Robust settings helper included to avoid 'settings is not defined'.
+Fix:
+- Robust backup import for v2.19 and newer JSON backup files.
+- Accepts old wrapped formats: state/data/appData.
+- Imports bases/library, bottles/stock, tastings, comments/notes, wishlist and settings.
+- Shows confirmation with counts before overwriting current app data.
+- Adds aliases so older backup buttons call the new importer/exporter.

@@ -1,4 +1,16 @@
 
+function backupPanelHtml(){
+  return `<section class="card">
+    <h2>Backup</h2>
+    <p class="sub">Backup inkluderer bibliotek, flasker, bilder, smakinger, kommentarer, ønskeliste og innstillinger.</p>
+    <div class="actions">
+      <button class="primary" type="button" onclick="exportBackupFile()">Lagre backup til fil</button>
+      <button class="ghost" type="button" onclick="restoreFromFile()">Hent backup fra fil</button>
+    </div>
+  </section>`;
+}
+
+
 /* v2.21 robust settings helper */
 function getSettings(){
   try{
@@ -23,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.21';
+const VERSION = '2.22';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.21',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.22',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -63,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.21',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.22',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1057,6 +1069,108 @@ ${item ? item.name : ''}`)) return;
   editWishlistId = '';
   render();
 };
+
+
+/* v2.22 robust backup import/export */
+function normalizeBackupData(raw){
+  let data = raw;
+
+  if(typeof data === 'string'){
+    data = JSON.parse(data);
+  }
+
+  // Some old exports wrapped state in data/state/appData.
+  if(data && data.data && typeof data.data === 'object') data = data.data;
+  if(data && data.state && typeof data.state === 'object') data = data.state;
+  if(data && data.appData && typeof data.appData === 'object') data = data.appData;
+
+  // If backup contains both state and settings, preserve both.
+  const candidateState = data && data.state ? data.state : data;
+  const candidateSettings = (data && data.settings) ? data.settings : (candidateState && candidateState.settings ? candidateState.settings : null);
+
+  const normalized = {
+    bases: Array.isArray(candidateState.bases) ? candidateState.bases :
+           Array.isArray(candidateState.library) ? candidateState.library :
+           Array.isArray(candidateState.baseBottles) ? candidateState.baseBottles : [],
+    bottles: Array.isArray(candidateState.bottles) ? candidateState.bottles :
+             Array.isArray(candidateState.stock) ? candidateState.stock : [],
+    tastings: Array.isArray(candidateState.tastings) ? candidateState.tastings : [],
+    comments: Array.isArray(candidateState.comments) ? candidateState.comments :
+              Array.isArray(candidateState.notes) ? candidateState.notes : [],
+    wishlist: Array.isArray(candidateState.wishlist) ? candidateState.wishlist : []
+  };
+
+  // Keep unknown fields that may exist, but ensure required arrays exist.
+  const merged = Object.assign({}, candidateState, normalized);
+
+  // Basic ID repair so older backups still render.
+  merged.bases = merged.bases.map(x => Object.assign({id: uid()}, x || {}));
+  merged.bottles = merged.bottles.map(x => Object.assign({id: uid(), forceEmpty:false}, x || {}));
+  merged.tastings = merged.tastings.map(x => Object.assign({id: uid()}, x || {}));
+  merged.comments = merged.comments.map(x => Object.assign({id: uid()}, x || {}));
+  merged.wishlist = merged.wishlist.map(x => Object.assign({id: uid()}, x || {}));
+
+  return { state: merged, settings: candidateSettings };
+}
+
+function exportBackupFile(){
+  const payload = {
+    app: 'WhiskyLog',
+    version: VERSION || '2.22',
+    exportedAt: new Date().toISOString(),
+    state: state,
+    settings: (typeof settings !== 'undefined' ? settings : getSettings())
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `WhiskyLog_backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+async function importBackupFileFromInput(file){
+  if(!file){
+    alert('Ingen fil valgt');
+    return;
+  }
+
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const normalized = normalizeBackupData(parsed);
+
+    const counts = {
+      bibliotek: normalized.state.bases.length,
+      flasker: normalized.state.bottles.length,
+      smakinger: normalized.state.tastings.length,
+      ønskeliste: normalized.state.wishlist.length
+    };
+
+    const msg = `Importere backup?\n\nBibliotek: ${counts.bibliotek}\nFlasker: ${counts.flasker}\nSmakinger: ${counts.smakinger}\nØnskeliste: ${counts.ønskeliste}`;
+    if(!confirm(msg)) return;
+
+    state = normalized.state;
+    save();
+
+    if(normalized.settings && typeof saveSettings === 'function'){
+      try{
+        settings = Object.assign(getSettings(), normalized.settings);
+        saveSettings();
+      }catch(e){}
+    }
+
+    alert('Backup importert.');
+    go('home');
+  }catch(err){
+    alert('Kunne ikke importere backup: ' + (err && err.message ? err.message : err));
+  }
+}
+
+window.exportBackupFile = exportBackupFile;
+window.importBackupFileFromInput = importBackupFileFromInput;
+
 function renderSettings(){
   shell(`
     <section class="hero"><h2>${tr('settings')}</h2><p class="sub">${tr('settingsSub')}</p></section>
@@ -1268,4 +1382,35 @@ window.markBottleEmptyFromTasting = function(id){
   b.currentVolume = '';
   save();
   go('stock');
+};
+
+
+/* v2.22 backup aliases for old buttons */
+window.backupToFile = exportBackupFile;
+window.exportBackup = exportBackupFile;
+window.saveBackupToFile = exportBackupFile;
+window.restoreFromFile = function(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = () => importBackupFileFromInput(input.files && input.files[0]);
+  input.click();
+};
+window.importBackup = window.restoreFromFile;
+window.loadBackupFromFile = window.restoreFromFile;
+
+
+/* v2.22 attach backup file inputs */
+function attachBackupImportHandlers(){
+  document.querySelectorAll('input[type="file"]').forEach(inp=>{
+    const near = (inp.closest('section') || inp.parentElement || document.body).innerText || '';
+    if(/backup|import|restore|gjenopprett|hent/i.test(near)){
+      inp.onchange = () => importBackupFileFromInput(inp.files && inp.files[0]);
+    }
+  });
+}
+const __oldRender_v222 = render;
+render = function(){
+  __oldRender_v222();
+  setTimeout(attachBackupImportHandlers, 50);
 };
