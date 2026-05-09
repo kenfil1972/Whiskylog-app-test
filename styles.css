@@ -672,3 +672,19 @@ input[type="date"]{
   .scoreLineOne{grid-template-columns:1fr;gap:2px}
   .scoreLineOne .scoreNote{white-space:normal}
 }
+
+
+/* v2.27 ratings overview */
+.ratingsItem{
+  align-items:center;
+}
+.ratingsText{
+  flex:1;
+  min-width:0;
+}
+.ratingsText .title{
+  font-weight:800;
+}
+.ratingsText .meta b{
+  color:#f4bf4f;
+}

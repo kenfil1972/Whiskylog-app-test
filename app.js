@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.26';
+const VERSION = '2.27';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.26',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.27',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.26',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.27',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -302,6 +302,8 @@ function render(){
   else if(page === 'library') renderLibrary();
   else if(page === 'addStock') renderAddStock();
   else if(page === 'tasting') renderTasting();
+  else if(page === 'ratings') renderRatingsOverview();
+  else if(page === 'ratingsBottle') renderRatingsBottleDetail();
   else if(page === 'tastingBottle') renderTastingBottleDetail();
   else if(page === 'correctStock') renderCorrectStock();
   else if(page === 'overview') renderOverview();
@@ -1700,5 +1702,162 @@ function renderTastingBottleDetail(){
     localStorage.setItem('whiskylog_tasting_sort',e.target.value);
     render();
   });
+}
+
+
+
+try{
+  Object.assign(I18N.no,{
+    ratings:'Vurderinger',
+    bottleRatings:'Flaskescore',
+    searchBottle:'Søk etter flaske',
+    openRatings:'Åpne vurderinger',
+    latestFirst:'Nyeste først',
+    totalTastings:'Antall smakinger',
+    score:'Score'
+  });
+
+  Object.assign(I18N.en,{
+    ratings:'Ratings',
+    bottleRatings:'Bottle ratings',
+    searchBottle:'Search bottle',
+    openRatings:'Open ratings',
+    latestFirst:'Newest first',
+    totalTastings:'Total tastings',
+    score:'Score'
+  });
+}catch(e){}
+
+
+
+
+/* ===== v2.27 ratings overview ===== */
+
+let ratingsBottleDetailId = '';
+
+function bottleAveragePercent(bottleId){
+  const vals = (state.tastings || [])
+    .filter(t => t.bottleId === bottleId)
+    .map(t => typeof tastingPercent === 'function' ? tastingPercent(t) : 0)
+    .filter(v => v > 0);
+
+  if(!vals.length) return 0;
+
+  return Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10;
+}
+
+function renderRatingsOverview(){
+  const q = (window.__ratingsSearch || '').trim().toLowerCase();
+
+  let bottles = (state.bottles || [])
+    .map(b => {
+      const base = typeof bottleBase === 'function' ? bottleBase(b) : null;
+      const avg = bottleAveragePercent(b.id);
+      const count = (state.tastings || []).filter(t => t.bottleId === b.id).length;
+
+      return {
+        bottle: b,
+        base,
+        avg,
+        count
+      };
+    })
+    .filter(x => x.base && x.count > 0);
+
+  if(q){
+    bottles = bottles.filter(x =>
+      String(x.base.name || '').toLowerCase().includes(q)
+    );
+  }
+
+  bottles.sort((a,b) => b.avg - a.avg);
+
+  shell(`
+    <section class="hero">
+      <h2>${tr('ratings')}</h2>
+      <p class="sub">${tr('bottleRatings')}</p>
+    </section>
+
+    <section class="card">
+      <label>${tr('searchBottle')}</label>
+      <input id="ratingsSearchInput" placeholder="${tr('searchBottle')}" value="${esc(window.__ratingsSearch || '')}">
+    </section>
+
+    <section class="card">
+      <div class="list">
+        ${
+          bottles.length
+            ? bottles.map(x => `
+              <div class="item ratingsItem" onclick="openRatingsBottle('${x.bottle.id}')">
+                ${typeof img === 'function' ? img(x.base) : ''}
+                <div class="ratingsText">
+                  <div class="title">${esc(x.base.name || '')}</div>
+                  <div class="meta">${tr('score')}: <b>${typeof fmtPct === 'function' ? fmtPct(x.avg) : x.avg + '%'}</b></div>
+                  <div class="small">${tr('totalTastings')}: ${x.count}</div>
+                </div>
+                <div class="actions">
+                  <button class="ghost" onclick="event.stopPropagation();openRatingsBottle('${x.bottle.id}')">
+                    ${tr('openRatings')}
+                  </button>
+                </div>
+              </div>
+            `).join('')
+            : `<div class="sub">${tr('noItems')}</div>`
+        }
+      </div>
+    </section>
+  `,'ratings');
+
+  const input = document.getElementById('ratingsSearchInput');
+  if(input){
+    input.addEventListener('input', e => {
+      window.__ratingsSearch = e.target.value || '';
+      render();
+    });
+  }
+}
+
+function openRatingsBottle(id){
+  ratingsBottleDetailId = id;
+  page = 'ratingsBottle';
+  render();
+}
+
+function renderRatingsBottleDetail(){
+  const b = typeof getBottle === 'function' ? getBottle(ratingsBottleDetailId) : null;
+  const base = b && typeof bottleBase === 'function' ? bottleBase(b) : null;
+
+  if(!b || !base){
+    page = 'ratings';
+    render();
+    return;
+  }
+
+  const rows = (state.tastings || [])
+    .filter(t => t.bottleId === b.id)
+    .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  const avg = bottleAveragePercent(b.id);
+
+  shell(`
+    <section class="hero">
+      ${typeof img === 'function' ? img(base) : ''}
+      <h2>${esc(base.name || '')}</h2>
+      <p class="sub">${tr('score')}: ${typeof fmtPct === 'function' ? fmtPct(avg) : avg + '%'} · ${tr('latestFirst')}</p>
+    </section>
+
+    <section class="card">
+      <div class="list">
+        ${
+          rows.length
+            ? rows.map(t => typeof tastingDetailItem === 'function'
+                ? tastingDetailItem(t)
+                : `<div class="item"><div>${esc(t.date || '')}</div></div>`
+              ).join('')
+            : `<div class="sub">${tr('noItems')}</div>`
+        }
+      </div>
+    </section>
+  `,'ratingsBottle');
 }
 
