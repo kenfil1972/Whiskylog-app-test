@@ -35,13 +35,13 @@ window.addEventListener('error', function(e){
 (() => {
 'use strict';
 
-const VERSION = '2.23';
+const VERSION = '2.24';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.23',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.24',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
@@ -75,7 +75,7 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.23',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.24',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
@@ -1167,7 +1167,7 @@ function normalizeBackupData(raw){
 function exportBackupFile(){
   const payload = {
     app: 'WhiskyLog',
-    version: VERSION || '2.23',
+    version: VERSION || '2.24',
     exportedAt: new Date().toISOString(),
     state: state,
     settings: (typeof settings !== 'undefined' ? settings : getSettings())
@@ -1475,3 +1475,73 @@ render = function(){
   __oldRender_v222();
   setTimeout(attachBackupImportHandlers, 50);
 };
+
+
+/* ===== v2.24 backup import hard override ===== */
+
+async function importBackupFileFromInput(file){
+  if(!file){
+    alert('Ingen fil valgt');
+    return;
+  }
+
+  try{
+    let text = await file.text();
+
+    // Remove BOM and trim
+    text = String(text || '').replace(/^\uFEFF/, '').trim();
+
+    // Handle accidental wrapping quotes
+    if((text.startsWith('"') && text.endsWith('"')) ||
+       (text.startsWith("'") && text.endsWith("'"))){
+      text = text.slice(1,-1);
+    }
+
+    // Extract JSON object from any surrounding text
+    const firstBrace = text.indexOf('{');
+    const lastBrace = text.lastIndexOf('}');
+
+    if(firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace){
+      text = text.substring(firstBrace, lastBrace + 1);
+    }
+
+    // Remove escaped newlines/tabs if file became stringified
+    text = text
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t');
+
+    let parsed;
+
+    try{
+      parsed = JSON.parse(text);
+    }catch(err1){
+
+      // Try double-parse
+      try{
+        parsed = JSON.parse(JSON.parse(text));
+      }catch(err2){
+
+        // Final cleanup
+        text = text.replace(/^[^\{\[]+/, '').replace(/[^\}\]]+$/, '');
+
+        parsed = JSON.parse(text);
+      }
+    }
+
+    const normalized = normalizeBackupData(parsed);
+
+    state = normalized.state;
+    save();
+
+    alert('Backup importert.');
+    go('home');
+
+  }catch(err){
+    console.error(err);
+
+    alert(
+      'Kunne ikke hente backup.\n\n' +
+      'Feil: ' + (err && err.message ? err.message : err)
+    );
+  }
+}
