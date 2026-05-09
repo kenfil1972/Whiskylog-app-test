@@ -2,19 +2,19 @@
 (() => {
 'use strict';
 
-const VERSION = '2.19';
+const VERSION = '2.20';
 const STORAGE_KEY = 'whiskylog_v200_clean_state';
 const RESTORE_KEY = 'whiskylog_v200_restore_points';
 
 const T = {
   no: {
-    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.19',
+    brand:'PREMIUM BRENNEVINSJOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20',
     home:'Din personlige brennevinslogg', back:'Tilbake', save:'Lagre', cancel:'Avbryt', edit:'Rediger', delete:'Slett', confirm:'OK',
     homeSub:'Personlig loggføring av flasker, smakinger, beholdning og fremtidige kjøp.',
     myStock:'Min beholdning', myStockSub:'Uåpnede, åpnede og tomme flasker samlet på ett sted.',
     logging:'Loggføring', loggingSub:'Registrer smaking, korriger beholdning og legg til flasker.',
     overview:'Oversikt / statistikk', overviewSub:'Rangering, score, verdi og historikk.',
-    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste', lastSip:'Siste sipp smakt', markEmpty:'Marker som tom flaske', unmarkEmpty:'Fjern tomflaske-markering',
+    wishlist:'Ønskeliste', wishlistSub:'Fremtidige flasker og kjøpsideer.', addWishlist:'Legg til ønskeliste', wishedPrice:'Ønsket pris', priority:'Prioritet', link:'Lenke', high:'Høy', medium:'Middels', low:'Lav', saveWishlist:'Lagre ønskeliste', lastSip:'Siste sipp smakt', withWater:'Med vann', visual:'Visuelt', aroma:'Lukt', taste:'Smak', finishScore:'Ettersmak', overall:'Helhetsinntrykk', shortNote:'Kort notat', totalScore:'Totalvurdering', minScore:'Laveste', avgScore:'Snitt', maxScore:'Høyeste', sortBy:'Sorter etter', sortDate:'Dato', tastingSummary:'Smakeoppsummering', viewTastings:'Vis smakinger', markEmpty:'Marker som tom flaske', unmarkEmpty:'Fjern tomflaske-markering',
     settings:'Innstillinger', settingsSub:'Navn, valuta, språk og backup.',
     unopened:'Uåpnede flasker', opened:'Åpnede flasker', empty:'Tomme flasker',
     bottles:'flasker', value:'verdi', stockVolume:'volum i beholdning',
@@ -42,13 +42,13 @@ const T = {
     purchased:'Kjøpt', left:'igjen', lastTasted:'Sist smakt', openedDate:'Åpnet'
   },
   en: {
-    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.19',
+    brand:'PREMIUM SPIRITS JOURNAL', title:"Kenneth's WhiskyLog", version:'WhiskyLog v2.20',
     home:'Your spirits journal', back:'Back', save:'Save', cancel:'Cancel', edit:'Edit', delete:'Delete', confirm:'OK',
     homeSub:'Personal logging for bottles, tastings, stock and future purchases.',
     myStock:'My stock', myStockSub:'Unopened, opened and empty bottles in one place.',
     logging:'Logging', loggingSub:'Register tastings, correct stock and add bottles.',
     overview:'Overview / statistics', overviewSub:'Ranking, scores, value and history.',
-    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item', lastSip:'Last sip finished', markEmpty:'Mark as empty bottle', unmarkEmpty:'Remove empty-bottle mark',
+    wishlist:'Wishlist', wishlistSub:'Future bottles and purchase ideas.', addWishlist:'Add wishlist item', wishedPrice:'Wanted price', priority:'Priority', link:'Link', high:'High', medium:'Medium', low:'Low', saveWishlist:'Save wishlist item', lastSip:'Last sip finished', withWater:'With water', visual:'Visual', aroma:'Nose', taste:'Taste', finishScore:'Finish', overall:'Overall impression', shortNote:'Short note', totalScore:'Total score', minScore:'Lowest', avgScore:'Average', maxScore:'Highest', sortBy:'Sort by', sortDate:'Date', tastingSummary:'Tasting summary', viewTastings:'View tastings', markEmpty:'Mark as empty bottle', unmarkEmpty:'Remove empty-bottle mark',
     settings:'Settings', settingsSub:'Name, currency, language and backup.',
     unopened:'Unopened bottles', opened:'Opened bottles', empty:'Empty bottles',
     bottles:'bottles', value:'value', stockVolume:'stock volume',
@@ -212,6 +212,7 @@ let editBottleId = '';
 let editTastingId = '';
 let selectedTastingBottleId = '';
 let stockPageStatus = '';
+let tastingBottleDetailId = '';
 let editWishlistId = '';
 
 function shell(inner, backTo='home'){
@@ -238,6 +239,7 @@ function render(){
   else if(page === 'library') renderLibrary();
   else if(page === 'addStock') renderAddStock();
   else if(page === 'tasting') renderTasting();
+  else if(page === 'tastingBottle') renderTastingBottleDetail();
   else if(page === 'correctStock') renderCorrectStock();
   else if(page === 'overview') renderOverview();
   else if(page === 'wishlist') renderWishlist();
@@ -560,55 +562,194 @@ function bottleOptions(selected=''){
   return `<option value="">${tr('chooseBottle')}</option>` + usable.map(b=>`<option value="${b.id}" ${selected===b.id?'selected':''}>${esc(bottleBase(b).name)} · ${Math.round(bottleVolume(b))} ml</option>`).join('');
 }
 function renderTasting(){
-  if(!state.bottles.length){ shell(`<section class="hero"><h2>${tr('registerTasting')}</h2><p class="sub">${tr('noItems')}</p></section>`,'logging'); return; }
-  const t=editTastingId ? state.tastings.find(x=>x.id===editTastingId)||{} : (selectedTastingBottleId ? {bottleId:selectedTastingBottleId} : {});
+  const t = editTastingId ? state.tastings.find(x=>x.id===editTastingId)||{} : (selectedTastingBottleId ? {bottleId:selectedTastingBottleId, mode:'neat'} : {mode:'neat'});
   shell(`
     <section class="hero"><h2>${tr('registerTasting')}</h2><p class="sub">${tr('tastingSub')}</p></section>
     <section class="card"><form id="tastingForm">
-      <input type="hidden" name="id" value="${esc(t.id||'')}">
       <label>${tr('bottle')}</label><select name="bottleId" required>${bottleOptions(t.bottleId)}</select>
-      <div class="formgrid">
-        <div><label>${tr('tastingDate')}</label><input class="dateInput" type="date" name="date" value="${esc(t.date||today())}"></div>
-        <div><label>${tr('tastingType')}</label><select name="mode"><option value="neat" ${t.mode!=='water'?'selected':''}>${tr('neat')}</option><option value="water" ${t.mode==='water'?'selected':''}>${tr('water')}</option></select></div>
-        <div><label>${tr('drops')}</label><input name="drops" inputmode="numeric" value="${esc(t.drops||'')}"></div>
-        <div><label>${tr('tastingMl')}</label><input name="ml" inputmode="numeric" value="${esc(t.ml||state.settings.defaultTastingMl)}"></div>
+      <label>${tr('tastingDate')}</label><input class="dateInput" type="date" name="date" value="${esc(t.date||today())}">
+
+      <label>${tr('tastingType')}</label>
+      <select name="mode" id="tastingMode">
+        <option value="neat" ${(t.mode||'neat')==='neat'?'selected':''}>Neat / ren</option>
+        <option value="water" ${t.mode==='water'?'selected':''}>${tr('withWater')}</option>
+      </select>
+
+      <div id="dropsWrap" class="${t.mode==='water'?'':'hidden'}">
+        <label>${tr('drops')}</label><input name="drops" inputmode="numeric" value="${esc(t.drops||'')}">
       </div>
-      <div class="formgrid">
-        <div><label>${tr('appearance')}</label><input name="appearance" inputmode="numeric" value="${esc(t.appearance||'')}"></div>
-        <div><label>${tr('nose')}</label><input name="nose" inputmode="numeric" value="${esc(t.nose||'')}"></div>
-        <div><label>${tr('neatTaste')}</label><input name="neatTaste" inputmode="numeric" value="${esc(t.neatTaste||'')}"></div>
-        <div><label>${tr('waterTaste')}</label><input name="waterTaste" inputmode="numeric" value="${esc(t.waterTaste||'')}"></div>
-        <div><label>${tr('finish')}</label><input name="finish" inputmode="numeric" value="${esc(t.finish||'')}"></div>
-      </div>
+
+      <label>${tr('amount')}</label><input name="ml" inputmode="numeric" value="${esc(t.ml||settings.defaultTastingMl||20)}">
+
+      ${scoreBlock('visual', tr('visual'), t.visualScore, t.visualNote)}
+      ${scoreBlock('aroma', tr('aroma'), t.aromaScore, t.aromaNote)}
+      ${scoreBlock('taste', tr('taste'), t.tasteScore, t.tasteNote)}
+      ${scoreBlock('finish', tr('finishScore'), t.finishScore, t.finishNote)}
+      ${scoreBlock('overall', tr('overall'), t.overallScore, t.overallNote)}
+
       <label>${tr('notes')}</label><textarea name="notes">${esc(t.notes||'')}</textarea>
-      <div class="actions"><button class="primary">${tr('save')}</button>${t.id?`<button type="button" class="danger" onclick="markBottleEmptyFromTasting('${t.id}')">${tr('lastSip')}</button>`:''}</div>
+
+      <div class="actions">
+        <button class="primary" type="submit">${tr('save')}</button>
+        ${t.id?`<button type="button" class="danger" onclick="markBottleEmptyFromTasting('${t.id}')">${tr('lastSip')}</button>`:''}
+      </div>
     </form></section>
-    <section class="card"><h2>${tr('registerTasting')}</h2><div class="list">${tastingList()}</div></section>
+    <section class="card"><h2>${tr('tastingSummary')}</h2><div class="list">${tastingListSummary()}</div></section>
   `,'logging');
+
+  const mode = document.getElementById('tastingMode');
+  const dropsWrap = document.getElementById('dropsWrap');
+  mode.onchange = () => dropsWrap.classList.toggle('hidden', mode.value !== 'water');
+
   document.getElementById('tastingForm').onsubmit=e=>{
     e.preventDefault();
-    const fd=new FormData(e.target), id=fd.get('id')||uid(), bottleId=fd.get('bottleId');
-    const item={id,bottleId,date:fd.get('date'),mode:fd.get('mode'),drops:fd.get('drops'),ml:fd.get('ml'),appearance:fd.get('appearance'),nose:fd.get('nose'),neatTaste:fd.get('neatTaste'),waterTaste:fd.get('waterTaste'),finish:fd.get('finish'),notes:fd.get('notes')};
+    const fd=new FormData(e.target);
+    const id=editTastingId || uid();
+    const item={
+      id,
+      bottleId:fd.get('bottleId'),
+      date:fd.get('date'),
+      mode:fd.get('mode'),
+      drops:fd.get('mode')==='water' ? fd.get('drops') : '',
+      ml:fd.get('ml'),
+      visualScore:fd.get('visualScore'),
+      visualNote:fd.get('visualNote'),
+      aromaScore:fd.get('aromaScore'),
+      aromaNote:fd.get('aromaNote'),
+      tasteScore:fd.get('tasteScore'),
+      tasteNote:fd.get('tasteNote'),
+      finishScore:fd.get('finishScore'),
+      finishNote:fd.get('finishNote'),
+      overallScore:fd.get('overallScore'),
+      overallNote:fd.get('overallNote'),
+      notes:fd.get('notes')
+    };
     const ix=state.tastings.findIndex(x=>x.id===id);
     if(ix>=0) state.tastings[ix]=item; else state.tastings.push(item);
-    const b=getBottle(bottleId); if(b && !b.openedDate) b.openedDate=fd.get('date')||today();
-    save(); selectedTastingBottleId=''; render();
+    editTastingId='';
+    selectedTastingBottleId='';
+    save(); render();
   };
 }
-function tastingList(){
-  if(!state.tastings.length) return `<div class="sub">${tr('noItems')}</div>`;
-  return state.tastings.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(t=>{
-    const b=getBottle(t.bottleId), base=bottleBase(b||{});
-    const vals=[t.appearance,t.nose,t.neatTaste,t.waterTaste,t.finish].map(num).filter(Boolean);
-    const avg=vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0;
-    return `<div class="item" onclick="editTasting('${t.id}')">${img(base)}
-      <div><div class="title">${esc(base.name||'')}</div><div class="meta">${esc(t.date)} · ${t.mode==='water'?tr('water'):tr('neat')} · ${esc(t.ml)} ml</div><div class="score">${tr('averageScore')}: ${avg?avg.toFixed(1):'—'}</div></div>
-      <div class="actions"><button class="ghost">${tr('edit')}</button><button class="danger" onclick="event.stopPropagation();deleteTasting('${t.id}')">${tr('delete')}</button></div>
+
+function scoreBlock(key,label,score,note){
+  return `<div class="scoreBlock">
+    <label>${label} 0–100</label>
+    <input name="${key}Score" inputmode="numeric" min="0" max="100" value="${esc(score||'')}" placeholder="0–100">
+    <label>${tr('shortNote')}</label>
+    <input class="shortNoteInput" name="${key}Note" maxlength="30" value="${esc(note||'')}" placeholder="${tr('shortNote')}">
+  </div>`;
+}
+
+function tastingTotal(t){
+  const vals=[t.visualScore,t.aromaScore,t.tasteScore,t.finishScore,t.overallScore].map(num).filter(v=>v>0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : 0;
+}
+
+function tastingStatsForBottle(bottleId){
+  const vals=state.tastings.filter(t=>t.bottleId===bottleId).map(tastingTotal).filter(v=>v>0);
+  if(!vals.length) return {min:0,avg:0,max:0,count:0};
+  return {
+    min:Math.min(...vals),
+    avg:Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10,
+    max:Math.max(...vals),
+    count:vals.length
+  };
+}
+
+function tastingListSummary(){
+  const bottleIds=[...new Set(state.tastings.map(t=>t.bottleId).filter(Boolean))];
+  if(!bottleIds.length) return `<div class="sub">${tr('noItems')}</div>`;
+  return bottleIds.map(id=>{
+    const b=getBottle(id), base=b?bottleBase(b):null, st=tastingStatsForBottle(id);
+    if(!b||!base) return '';
+    return `<div class="item" onclick="openTastingBottle('${id}')">
+      ${img(base)}
+      <div>
+        <div class="title">${esc(base.name||'')}</div>
+        <div class="meta">${tr('minScore')}: ${st.min} · ${tr('avgScore')}: ${st.avg} · ${tr('maxScore')}: ${st.max}</div>
+        <div class="small">${st.count} ${tr('registerTasting')}</div>
+      </div>
+      <div class="actions"><button class="ghost" onclick="event.stopPropagation();openTastingBottle('${id}')">${tr('viewTastings')}</button></div>
     </div>`;
   }).join('');
 }
-window.editTasting=id=>{ editTastingId=id; render(); };
-window.deleteTasting=id=>{ if(!confirm(tr('deletePermanent'))) return; state.tastings=state.tastings.filter(x=>x.id!==id); save(); render(); };
+
+window.openTastingBottle = function(id){
+  tastingBottleDetailId=id;
+  page='tastingBottle';
+  render();
+};
+
+function renderTastingBottleDetail(){
+  const b=getBottle(tastingBottleDetailId), base=b?bottleBase(b):null;
+  if(!b||!base){ go('tasting'); return; }
+  const sort = localStorage.getItem('whiskylog_tasting_sort') || 'date';
+  let rows=state.tastings.filter(t=>t.bottleId===b.id);
+  rows.sort((a,b)=>{
+    if(sort==='date') return String(b.date||'').localeCompare(String(a.date||''));
+    if(sort==='total') return tastingTotal(b)-tastingTotal(a);
+    const key=sort+'Score';
+    return num(b[key])-num(a[key]);
+  });
+  const st=tastingStatsForBottle(b.id);
+  shell(`
+    <section class="hero">
+      ${img(base)}
+      <h2>${esc(base.name||'')}</h2>
+      <p class="sub">${tr('minScore')}: ${st.min} · ${tr('avgScore')}: ${st.avg} · ${tr('maxScore')}: ${st.max}</p>
+    </section>
+    <section class="card">
+      <label>${tr('sortBy')}</label>
+      <select id="tastingSort">
+        <option value="date" ${sort==='date'?'selected':''}>${tr('sortDate')}</option>
+        <option value="visual" ${sort==='visual'?'selected':''}>${tr('visual')}</option>
+        <option value="aroma" ${sort==='aroma'?'selected':''}>${tr('aroma')}</option>
+        <option value="taste" ${sort==='taste'?'selected':''}>${tr('taste')}</option>
+        <option value="finish" ${sort==='finish'?'selected':''}>${tr('finishScore')}</option>
+        <option value="overall" ${sort==='overall'?'selected':''}>${tr('overall')}</option>
+        <option value="total" ${sort==='total'?'selected':''}>${tr('totalScore')}</option>
+      </select>
+      <div class="list tastingDetailList">${rows.length?rows.map(t=>tastingDetailItem(t)).join(''):`<div class="sub">${tr('noItems')}</div>`}</div>
+    </section>
+  `,'tasting');
+  document.getElementById('tastingSort').onchange=e=>{
+    localStorage.setItem('whiskylog_tasting_sort',e.target.value);
+    render();
+  };
+}
+
+function tastingDetailItem(t){
+  return `<div class="item tastingDetailItem">
+    <div>
+      <div class="title">${esc(t.date||'')} · ${t.mode==='water'?tr('withWater'):'Neat'} ${t.drops?`· ${esc(t.drops)} ${tr('drops')}`:''}</div>
+      <div class="meta">${tr('totalScore')}: ${tastingTotal(t)} · ${esc(t.ml||'')} ml</div>
+      <div class="scoreGrid">
+        ${scoreLine(tr('visual'),t.visualScore,t.visualNote)}
+        ${scoreLine(tr('aroma'),t.aromaScore,t.aromaNote)}
+        ${scoreLine(tr('taste'),t.tasteScore,t.tasteNote)}
+        ${scoreLine(tr('finishScore'),t.finishScore,t.finishNote)}
+        ${scoreLine(tr('overall'),t.overallScore,t.overallNote)}
+      </div>
+      ${t.notes?`<div class="small">${esc(t.notes)}</div>`:''}
+    </div>
+    <div class="actions">
+      <button class="ghost" onclick="editTasting('${t.id}')">${tr('edit')}</button>
+      <button class="danger" onclick="deleteTasting('${t.id}')">${tr('delete')}</button>
+    </div>
+  </div>`;
+}
+
+function scoreLine(label,score,note){
+  return `<div class="scoreLine"><b>${label}: ${esc(score||'-')}</b><span>${esc(note||'')}</span></div>`;
+}
+
+function averageScoreForLibrary(libraryId){
+  const bottleIds=state.bottles.filter(b=>b.libraryId===libraryId).map(b=>b.id);
+  const vals=state.tastings.filter(t=>bottleIds.includes(t.bottleId)).map(tastingTotal).filter(v=>v>0);
+  return vals.length ? Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10 : '';
+}
+
 
 function renderCorrectStock(){
   shell(`
