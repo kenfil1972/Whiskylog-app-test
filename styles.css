@@ -479,3 +479,15 @@ input[type="date"]{font-size:clamp(1rem,4.8vw,1.2rem);text-align:left;max-width:
 /* v2.38 library edit clarity */
 #libraryForm .primary{margin-top:18px;width:100%}
 #libraryForm input[type='file']{padding-top:14px}
+
+
+/* v2.39 wishlist delete button fix */
+.wishlist-card .danger{
+  width:auto !important;
+  min-width:140px;
+  display:inline-flex;
+  align-self:flex-start;
+  justify-content:center;
+  padding:16px 32px;
+  margin-top:18px;
+}

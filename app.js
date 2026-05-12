@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='2.38';
+window.WHISKYLOG_VERSION='2.39';
 const APP_KEY='whiskylog_v234_state';
 const LEGACY_KEYS=['whiskylog_v2_state','whiskylog_state_v2','whiskylog_state','whiskylog_stable_v133'];
 let page='home', selectedStockStatus='', selectedTastingBottleId='', editTastingId='', editLibraryId='', editStockId='', ratingsBottleId='';
