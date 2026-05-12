@@ -1,5 +1,5 @@
-# WhiskyLog v2.37
+# WhiskyLog v2.38
 
-- Smaksdato-felt justert for mobil.
-- Siste sipp smakt flytter valgt flaske til tomme flasker.
-- Ønskeliste med bilde, pris, total og slett.
+- Retter redigering av flasker i biblioteket.
+- Eksisterende bilde beholdes hvis nytt bilde ikke velges.
+- Cache-bust app.js?v=238.

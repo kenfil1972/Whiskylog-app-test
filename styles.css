@@ -475,3 +475,7 @@ input[type="date"]{font-size:clamp(1rem,4.8vw,1.2rem);text-align:left;max-width:
 #tastingForm .buttonRow{margin-top:22px}
 #wishlistForm .primary{margin-top:18px;width:100%}
 @media(max-width:430px){input,select,textarea{font-size:1.02rem;padding-left:16px;padding-right:16px}input[type="date"]{font-size:.98rem;line-height:1.1}#tastingForm input[type="date"]{font-size:.95rem}}
+
+/* v2.38 library edit clarity */
+#libraryForm .primary{margin-top:18px;width:100%}
+#libraryForm input[type='file']{padding-top:14px}

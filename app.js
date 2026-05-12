@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='2.37';
+window.WHISKYLOG_VERSION='2.38';
 const APP_KEY='whiskylog_v234_state';
 const LEGACY_KEYS=['whiskylog_v2_state','whiskylog_state_v2','whiskylog_state','whiskylog_stable_v133'];
 let page='home', selectedStockStatus='', selectedTastingBottleId='', editTastingId='', editLibraryId='', editStockId='', ratingsBottleId='';
@@ -79,9 +79,62 @@ function renderSettings(){shell(`<section class="hero"><h2>Innstillinger</h2></s
 function render(){if(page==='home')return renderHome();if(page==='stock')return renderStock();if(page==='stockList')return renderStockList();if(page==='overview')return renderOverview();if(page==='ratings')return renderRatings();if(page==='ratingDetail')return renderRatingDetail();if(page==='logging')return renderLogging();if(page==='library')return renderLibrary();if(page==='addStock')return renderAddStock();if(page==='tasting')return renderTasting();if(page==='wishlist')return renderWishlist();if(page==='settings')return renderSettings();renderHome()}
 function exportBackup(){const json=JSON.stringify({app:'WhiskyLog',backupVersion:window.WHISKYLOG_VERSION,schemaVersion:2,createdAt:new Date().toISOString(),state,settings},null,2),fn=`WhiskyLog_backup_v${window.WHISKYLOG_VERSION}_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;const file=new File([json],fn,{type:'application/json'});if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){navigator.share({files:[file],title:'WhiskyLog backup'});return}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([json],{type:'application/json'}));a.download=fn;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function importBackup(){const input=document.createElement('input');input.type='file';input.accept='.json,application/json,text/plain,*/*';input.onchange=async()=>{const f=input.files&&input.files[0];if(!f)return;try{let txt=(await f.text()).replace(/^\uFEFF/,'').trim();const first=txt.indexOf('{'),last=txt.lastIndexOf('}');if(first>=0&&last>first)txt=txt.slice(first,last+1);const p=JSON.parse(txt);state=normalizeState(p.state||p.data||p);if(p.settings)settings=Object.assign(settings,p.settings);save();alert('Backup importert.');page='home';render()}catch(e){alert('Kunne ikke hente backup: '+e.message)}};input.click()}
-document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el)return;const a=el.dataset.action,id=el.dataset.id;if(['home','stock','overview','ratings','logging','library','add-stock','tasting','wishlist','settings'].includes(a)){if(a==='add-stock')editStockId='';page=a==='add-stock'?'addStock':a;render();return}if(a==='stock-list'){selectedStockStatus=el.dataset.status;page='stockList';render();return}if(a==='rating-detail'){ratingsBottleId=id;page='ratingDetail';render();return}if(a==='tasting-bottle'){selectedTastingBottleId=id;page='tasting';render();return}if(a==='edit-tasting'){editTastingId=id;page='tasting';render();return}if(a==='delete-tasting'){if(confirm('Slette denne smakingen?')){state.tastings=state.tastings.filter(t=>t.id!==id);save();render()}return}if(a==='edit-library'){editLibraryId=id;page='library';render();return}if(a==='delete-library'){if(confirm('Slette denne bibliotekflasken?')){state.bases=state.bases.filter(b=>b.id!==id);save();render()}return}if(a==='edit-stock'){editStockId=id;page='addStock';render();return}if(a==='delete-stock'){if(confirm('Slette denne flasken fra beholdningen?')){state.bottles=state.bottles.filter(b=>b.id!==id);save();render()}return}if(a==='last-sip-form'){const form=document.getElementById('tastingForm');const bottleId=form?new FormData(form).get('bottleId'):selectedTastingBottleId;if(!bottleId){alert('Velg flaske først.');return}if(confirm('Flytte flasken til tomme flasker?')){state.bottles=state.bottles.map(b=>b.id===bottleId?Object.assign({},b,{status:'empty',forceEmpty:true,currentWeight:0}):b);save();page='stock';render()}return}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el)return;const a=el.dataset.action,id=el.dataset.id;if(['home','stock','overview','ratings','logging','library','add-stock','tasting','wishlist','settings'].includes(a)){if(a==='add-stock')editStockId='';if(a==='library')editLibraryId='';page=a==='add-stock'?'addStock':a;render();return}if(a==='stock-list'){selectedStockStatus=el.dataset.status;page='stockList';render();return}if(a==='rating-detail'){ratingsBottleId=id;page='ratingDetail';render();return}if(a==='tasting-bottle'){selectedTastingBottleId=id;page='tasting';render();return}if(a==='edit-tasting'){editTastingId=id;page='tasting';render();return}if(a==='delete-tasting'){if(confirm('Slette denne smakingen?')){state.tastings=state.tastings.filter(t=>t.id!==id);save();render()}return}if(a==='edit-library'){editLibraryId=id;page='library';render();return}if(a==='delete-library'){if(confirm('Slette denne bibliotekflasken?')){state.bases=state.bases.filter(b=>b.id!==id);save();render()}return}if(a==='edit-stock'){editStockId=id;page='addStock';render();return}if(a==='delete-stock'){if(confirm('Slette denne flasken fra beholdningen?')){state.bottles=state.bottles.filter(b=>b.id!==id);save();render()}return}if(a==='last-sip-form'){const form=document.getElementById('tastingForm');const bottleId=form?new FormData(form).get('bottleId'):selectedTastingBottleId;if(!bottleId){alert('Velg flaske først.');return}if(confirm('Flytte flasken til tomme flasker?')){state.bottles=state.bottles.map(b=>b.id===bottleId?Object.assign({},b,{status:'empty',forceEmpty:true,currentWeight:0}):b);save();page='stock';render()}return}
 if(a==='delete-wishlist'){if(confirm('Slette denne ønskeflasken?')){state.wishlist=(state.wishlist||[]).filter(w=>w.id!==id);save();render()}return}
 if(a==='backup'){exportBackup();return}if(a==='restore'){importBackup();return}if(a==='save-settings'){settings.ownerName=document.getElementById('settingName').value;settings.currency=document.getElementById('settingCurrency').value||'NOK';settings.defaultTastingMl=num(document.getElementById('settingMl').value)||20;alert('Innstillinger lagret.');return}})
 document.addEventListener('submit',async e=>{if(e.target.id==='libraryForm'){e.preventDefault();await saveLibraryForm(e.target)}if(e.target.id==='stockForm'){e.preventDefault();const fd=new FormData(e.target);const item={id:editStockId||uid(),libraryId:fd.get('libraryId'),purchaseDate:fd.get('purchaseDate'),price:num(fd.get('price')),currentWeight:num(fd.get('currentWeight')),status:fd.get('status')||''};if(editStockId){state.bottles=state.bottles.map(b=>b.id===editStockId?Object.assign({},b,item):b);editStockId=''}else{state.bottles.push(item)}save();page='stock';render()}if(e.target.id==='tastingForm'){e.preventDefault();saveTastingForm(e.target)}
 if(e.target.id==='wishlistForm'){e.preventDefault();const fd=new FormData(e.target);let image='';if(fd.get('imageFile')&&fd.get('imageFile').size)image=await fileToDataUrl(fd.get('imageFile'));state.wishlist=state.wishlist||[];state.wishlist.push({id:uid(),name:fd.get('name'),type:fd.get('type'),price:num(fd.get('price')),link:fd.get('link'),comment:fd.get('comment'),image});save();renderWishlist();}})
 document.addEventListener('DOMContentLoaded',render);
+
+
+
+/* v2.38 library edit repair */
+window.__wlLibraryEditRepair238 = true;
+
+function saveLibraryFormFixed238(form){
+  const fd = new FormData(form);
+  const current = editLibraryId ? getBase(editLibraryId) || {} : {};
+  const finish = (image) => {
+    const item = {
+      id: editLibraryId || uid(),
+      name: fd.get('name'),
+      distillery: fd.get('distillery'),
+      type: fd.get('type'),
+      abv: num(fd.get('abv')),
+      volume: num(fd.get('volume')) || 700,
+      fullWeight: num(fd.get('fullWeight')),
+      emptyWeight: num(fd.get('emptyWeight')),
+      region: fd.get('region'),
+      image: image || current.image || '',
+      comment: fd.get('comment')
+    };
+    if(editLibraryId){
+      state.bases = state.bases.map(x => x.id === editLibraryId ? Object.assign({}, x, item) : x);
+      editLibraryId = '';
+    }else{
+      state.bases.push(item);
+    }
+    save();
+    renderLibrary();
+  };
+  const file = fd.get('imageFile');
+  if(file && file.size){
+    fileToDataUrl(file).then(finish);
+  }else{
+    finish(current.image || '');
+  }
+}
+
+const oldSaveLibraryForm238 = typeof saveLibraryForm === 'function' ? saveLibraryForm : null;
+saveLibraryForm = saveLibraryFormFixed238;
+
+document.addEventListener('click', function(e){
+  const el = e.target.closest('[data-action="edit-library"]');
+  if(!el) return;
+  e.preventDefault();
+  e.stopPropagation();
+  editLibraryId = el.dataset.id;
+  page = 'library';
+  render();
+}, true);
+
