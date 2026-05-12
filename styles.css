@@ -491,3 +491,38 @@ input[type="date"]{font-size:clamp(1rem,4.8vw,1.2rem);text-align:left;max-width:
   padding:16px 32px;
   margin-top:18px;
 }
+
+
+/* v2.40 real wishlist delete button fix */
+.wishlist-card .wishlist-item{
+  grid-template-columns:auto minmax(0,1fr);
+}
+.wishlist-card .wishlist-actions{
+  grid-column:2;
+  display:flex !important;
+  justify-content:flex-start;
+  margin-top:12px;
+}
+.wishlist-card .wishlist-delete,
+button[data-action="delete-wishlist"]{
+  width:auto !important;
+  min-width:138px;
+  max-width:190px;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  padding:15px 30px;
+  margin:0;
+  justify-self:start;
+}
+@media(max-width:520px){
+  .wishlist-card .wishlist-actions{
+    grid-column:1 / -1;
+  }
+  .wishlist-card .wishlist-delete,
+  button[data-action="delete-wishlist"]{
+    width:auto !important;
+    min-width:132px;
+    max-width:180px;
+  }
+}
