@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='2.40';
+window.WHISKYLOG_VERSION='2.41';
 const APP_KEY='whiskylog_v234_state';
 const LEGACY_KEYS=['whiskylog_v2_state','whiskylog_state_v2','whiskylog_state','whiskylog_stable_v133'];
 let page='home', selectedStockStatus='', selectedTastingBottleId='', editTastingId='', editLibraryId='', editStockId='', ratingsBottleId='';
@@ -138,3 +138,54 @@ document.addEventListener('click', function(e){
   render();
 }, true);
 
+
+
+/* v2.41 definitive library edit override */
+saveLibraryBottle = function() {
+    const name = (document.getElementById('libraryName')?.value || '').trim();
+    if (!name) {
+        alert('Du må angi navn.');
+        return;
+    }
+
+    const existingBottle = (typeof editingLibraryId !== 'undefined' && editingLibraryId)
+        ? (libraryBottles.find(b => b.id === editingLibraryId) || null)
+        : null;
+
+    const bottle = {
+        id: (typeof editingLibraryId !== 'undefined' && editingLibraryId) || generateId(),
+        name: name,
+        category: document.getElementById('libraryCategory')?.value || '',
+        country: document.getElementById('libraryCountry')?.value || '',
+        abv: parseFloat(document.getElementById('libraryAbv')?.value) || 0,
+        volume: parseInt(document.getElementById('libraryVolume')?.value) || 700,
+        comment: (document.getElementById('libraryComment')?.value || '').trim(),
+        image: (typeof selectedLibraryImage !== 'undefined' && selectedLibraryImage)
+            || (existingBottle ? (existingBottle.image || '') : '')
+    };
+
+    if (typeof editingLibraryId !== 'undefined' && editingLibraryId) {
+        const index = libraryBottles.findIndex(b => b.id === editingLibraryId);
+        if (index >= 0) {
+            libraryBottles[index] = bottle;
+        } else {
+            libraryBottles.push(bottle);
+        }
+    } else {
+        libraryBottles.push(bottle);
+    }
+
+    if (typeof saveAllData === 'function') saveAllData();
+
+    if (typeof editingLibraryId !== 'undefined') editingLibraryId = null;
+    if (typeof selectedLibraryImage !== 'undefined') selectedLibraryImage = null;
+
+    if (typeof resetLibraryForm === 'function') resetLibraryForm();
+
+    const btn = document.getElementById('librarySaveButton');
+    if (btn) btn.textContent = 'Lagre flaske';
+
+    if (typeof renderLibrary === 'function') renderLibrary();
+
+    alert('Flasken er lagret.');
+};

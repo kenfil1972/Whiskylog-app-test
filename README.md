@@ -1,5 +1,4 @@
-# WhiskyLog v2.40 Wishlist Button Real Fix
+# WhiskyLog v2.41
 
-- Slett-knappen i ønskelisten er rettet direkte i markup og CSS.
-- Knappen skal ikke lenger strekke seg over hele kortbredden.
-- Cache-bust til `app.js?v=240` og `styles.css?v=240`.
+- Endelig overstyring av saveLibraryBottle().
+- Redigering av flasker i biblioteket fungerer nå.
