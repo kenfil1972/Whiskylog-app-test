@@ -526,3 +526,28 @@ button[data-action="delete-wishlist"]{
     max-width:180px;
   }
 }
+
+
+/* v2.42 Compact layout overrides */
+.card, .panel, .bottle-card {
+  padding: 20px !important;
+  margin-bottom: 18px !important;
+  border-radius: 24px !important;
+}
+.bottle-card img, .bottle-image, .card img {
+  width: 88px !important;
+  height: 88px !important;
+  object-fit: cover !important;
+}
+.bottle-card h3, .bottle-title, .card h3 {
+  font-size: 2.1rem !important;
+  line-height: 1.0 !important;
+}
+.bottle-card p, .card p, .subtitle {
+  font-size: 1.15rem !important;
+  line-height: 1.25 !important;
+}
+button {
+  padding: 14px 24px !important;
+  font-size: 1.1rem !important;
+}

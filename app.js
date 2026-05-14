@@ -1,5 +1,5 @@
 
-window.WHISKYLOG_VERSION='2.41';
+window.WHISKYLOG_VERSION='2.42';
 const APP_KEY='whiskylog_v234_state';
 const LEGACY_KEYS=['whiskylog_v2_state','whiskylog_state_v2','whiskylog_state','whiskylog_stable_v133'];
 let page='home', selectedStockStatus='', selectedTastingBottleId='', editTastingId='', editLibraryId='', editStockId='', ratingsBottleId='';
@@ -140,7 +140,7 @@ document.addEventListener('click', function(e){
 
 
 
-/* v2.41 definitive library edit override */
+/* v2.42 definitive library edit override */
 saveLibraryBottle = function() {
     const name = (document.getElementById('libraryName')?.value || '').trim();
     if (!name) {
@@ -189,3 +189,61 @@ saveLibraryBottle = function() {
 
     alert('Flasken er lagret.');
 };
+
+
+/* v2.42 definitive library edit override */
+saveLibraryBottle = function() {
+    const name = (document.getElementById('libraryName')?.value || '').trim();
+    if (!name) { alert('Du må angi navn.'); return; }
+
+    const existing = (typeof editingLibraryId !== 'undefined' && editingLibraryId)
+        ? libraryBottles.find(b => b.id === editingLibraryId)
+        : null;
+
+    const bottle = {
+        id: (typeof editingLibraryId !== 'undefined' && editingLibraryId) || generateId(),
+        name: name,
+        category: document.getElementById('libraryCategory')?.value || '',
+        country: document.getElementById('libraryCountry')?.value || '',
+        abv: parseFloat(document.getElementById('libraryAbv')?.value) || 0,
+        volume: parseInt(document.getElementById('libraryVolume')?.value) || 700,
+        comment: (document.getElementById('libraryComment')?.value || '').trim(),
+        image: (typeof selectedLibraryImage !== 'undefined' && selectedLibraryImage) ||
+               (existing && existing.image) || ''
+    };
+
+    const idx = libraryBottles.findIndex(b => b.id === bottle.id);
+    if (idx >= 0) libraryBottles[idx] = bottle;
+    else libraryBottles.push(bottle);
+
+    if (typeof saveAllData === 'function') saveAllData();
+    if (typeof editingLibraryId !== 'undefined') editingLibraryId = null;
+    if (typeof selectedLibraryImage !== 'undefined') selectedLibraryImage = null;
+    if (typeof resetLibraryForm === 'function') resetLibraryForm();
+
+    const btn = document.getElementById('librarySaveButton');
+    if (btn) btn.textContent = 'Lagre flaske';
+
+    if (typeof renderLibrary === 'function') renderLibrary();
+
+    alert('Flasken er lagret.');
+};
+
+/* Reorder menu cards after page load */
+window.addEventListener('load', () => {
+    const desired = [
+        'Registrer smaking',
+        'Oversikt / statistikk',
+        'Flaskebibliotek',
+        'Kjøpt flaske',
+        'Ønskeliste',
+        'Tomme flasker',
+        'Backup'
+    ];
+    const container = document.querySelector('main') || document.body;
+    const cards = Array.from(container.querySelectorAll('.card, .panel'));
+    desired.forEach(name => {
+        const card = cards.find(c => (c.textContent || '').includes(name));
+        if (card) container.appendChild(card);
+    });
+});

@@ -1,4 +1,5 @@
-# WhiskyLog v2.41
+# WhiskyLog v2.42
 
-- Endelig overstyring av saveLibraryBottle().
-- Redigering av flasker i biblioteket fungerer nå.
+- Reparert redigering av flasker i Flaskebibliotek.
+- Mer kompakt layout med mindre bilder og tekst.
+- Hovedmeny sortert etter brukshyppighet.
