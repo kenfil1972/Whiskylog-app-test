@@ -140,7 +140,7 @@ document.addEventListener('click', function(e){
 
 
 
-/* v2.42 definitive library edit override */
+/* v2.43 definitive library edit override */
 saveLibraryBottle = function() {
     const name = (document.getElementById('libraryName')?.value || '').trim();
     if (!name) {
@@ -191,7 +191,7 @@ saveLibraryBottle = function() {
 };
 
 
-/* v2.42 definitive library edit override */
+/* v2.43 definitive library edit override */
 saveLibraryBottle = function() {
     const name = (document.getElementById('libraryName')?.value || '').trim();
     if (!name) { alert('Du må angi navn.'); return; }
@@ -246,4 +246,66 @@ window.addEventListener('load', () => {
         const card = cards.find(c => (c.textContent || '').includes(name));
         if (card) container.appendChild(card);
     });
+});
+
+
+/* v2.43 robust library edit rebuild */
+function __saveLibraryBottleV243() {
+    const name = (document.getElementById('libraryName')?.value || '').trim();
+    if (!name) { alert('Du må angi navn.'); return; }
+
+    const arr = (typeof libraryBottles !== 'undefined' && Array.isArray(libraryBottles))
+        ? libraryBottles
+        : [];
+
+    const editId = (typeof editingLibraryId !== 'undefined') ? editingLibraryId : null;
+    const existing = editId ? (arr.find(b => b.id === editId) || null) : null;
+
+    const bottle = {
+        id: editId || (typeof generateId === 'function' ? generateId() : String(Date.now())),
+        name: name,
+        category: document.getElementById('libraryCategory')?.value || '',
+        country: document.getElementById('libraryCountry')?.value || '',
+        abv: parseFloat(document.getElementById('libraryAbv')?.value) || 0,
+        volume: parseInt(document.getElementById('libraryVolume')?.value) || 700,
+        comment: (document.getElementById('libraryComment')?.value || '').trim(),
+        image: (typeof selectedLibraryImage !== 'undefined' && selectedLibraryImage)
+            || (existing && existing.image) || ''
+    };
+
+    const idx = arr.findIndex(b => b.id === bottle.id);
+    if (idx >= 0) arr[idx] = bottle;
+    else arr.push(bottle);
+
+    if (typeof saveAllData === 'function') saveAllData();
+
+    if (typeof editingLibraryId !== 'undefined') editingLibraryId = null;
+    if (typeof selectedLibraryImage !== 'undefined') selectedLibraryImage = null;
+
+    if (typeof resetLibraryForm === 'function') resetLibraryForm();
+
+    const btn = document.getElementById('librarySaveButton');
+    if (btn) btn.textContent = 'Lagre flaske';
+
+    if (typeof renderLibrary === 'function') renderLibrary();
+
+    alert('Flasken er lagret.');
+}
+
+window.addEventListener('load', function() {
+    function bindLibrarySaveButton() {
+        const btn = document.getElementById('librarySaveButton');
+        if (!btn) return;
+        btn.onclick = function(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            __saveLibraryBottleV243();
+            return false;
+        };
+    }
+    bindLibrarySaveButton();
+    setTimeout(bindLibrarySaveButton, 500);
+    setTimeout(bindLibrarySaveButton, 1500);
 });

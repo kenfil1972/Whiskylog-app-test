@@ -1,5 +1,5 @@
-# WhiskyLog v2.42
+# WhiskyLog v2.43
 
-- Reparert redigering av flasker i Flaskebibliotek.
-- Mer kompakt layout med mindre bilder og tekst.
-- Hovedmeny sortert etter brukshyppighet.
+- Fullstendig gjenoppbygget redigering i Flaskebibliotek.
+- Lagre-knappen bindes eksplisitt til ny lagringsfunksjon.
+- JavaScript syntakssjekket før levering.
